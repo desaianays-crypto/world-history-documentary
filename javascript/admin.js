@@ -5,7 +5,7 @@
     //   "https://whd-admin-data.yourname.workers.dev"
     // Leave empty ("") to keep everything local-only (old behaviour:
     // no passcode, edits stay in this browser's localStorage).
-    const WORKER_URL        = "whd-admin-data.desaianays.workers.dev";
+    const WORKER_URL       = "whd-admin-data.desaianays.workers.dev";
     const LS_SCENES        = "whd_admin_scenes";      // added/edited scenes
     const LS_DELETED       = "whd_admin_deleted";     // deleted scene ids
     const LS_TREE          = "whd_admin_tree";        // world tree overrides
