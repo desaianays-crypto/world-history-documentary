@@ -1,6 +1,6 @@
 //Admin code
 (function () {
-    const PASSCODE       = "Adm1nP@ss";              // CHANGE THIS to enable passcode protection (empty = no passcode)
+    const PASSCODE       = "Passcode-Admin";              // CHANGE THIS to enable passcode protection (empty = no passcode)
     const LS_SCENES        = "whd_admin_scenes";      // added/edited scenes
     const LS_DELETED       = "whd_admin_deleted";     // deleted scene ids
     const LS_TREE          = "whd_admin_tree";        // world tree overrides
