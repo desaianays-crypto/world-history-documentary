@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="An interactive world history documentary. Explore civilizations, empires, and events across time and geography.">
+    <title>World History Documentary</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+    <div id="breadcrumbs"></div>
+    <div id="map"></div>
+    <div id="overlay"></div>
+    <div id="fadeScreen"></div>
+
+    <!-- Story Finished Fullscreen Overlay -->
+    <div id="storyFinishedOverlay">
+        <div id="storyFinishedInner">
+            <span id="storyFinishedGlyph">✦</span>
+            <div id="storyFinishedTitle">Story Complete</div>
+            <div id="storyFinishedSubtitle" style="display:none;"></div>
+            <div id="storyFinishedText">You have reached the end of this story.<br>Press Exit to return to the map, or explore another region.</div>
+            <div id="storyFinishedButtons">
+                <button id="storyFinishedPlayAgainBtn" onclick="playAgainFromFinished()">↺ Play Again</button>
+                <button id="storyFinishedExitBtn" onclick="exitStoryFromFinished()">↩ Return to Map</button>
+            </div>
+        </div>
+    </div>
+
+    <header>WORLD HISTORY DOCUMENTARY</header>
+
+    <div id="topBar">
+        <button class="top-bar-btn" id="settingsBtn" onclick="openSettings()">⚙ Settings</button>
+        <button class="top-bar-btn" id="playlistsBtn" onclick="openPlaylists()">🎬 Playlists</button>
+        <button class="top-bar-btn" id="bookmarksBtn" onclick="openBookmarks()">★ Bookmarks</button>
+    </div>
+    <button id="startBtn" onclick="startStory()">▶ Start Story Mode</button>
+    <button id="randomBtn" onclick="goRandomScene()">🎲 Take Me Somewhere, Sometime</button>
+
+    <div id="uiLayer"></div>
+    <div id="controlButtons">
+        <div id="shareSceneBtn" onclick="shareCurrentScene()">🔗 Share</div>
+        <div id="storyBookmarkBtn" onclick="storyToggleBookmark()">★ Bookmark</div>
+        <div id="storyPlaylistBtn" onclick="storyAddToPlaylist()">＋ Playlist</div>
+        <div id="muteBtn" onclick="toggleMute()">🔕 Mute</div>
+        <div id="pauseBtn" onclick="togglePause()">⏸ Pause</div>
+        <div id="exitBtn" onclick="exitStory()">Exit</div>
+    </div>
+
+    <div id="sceneProgress">
+        <div id="sceneProgressLabel"></div>
+        <div id="sceneProgressDots"></div>
+    </div>
+
+    <div id="rowTitle">Explore History</div>
+    <div id="seasons"></div>
+    <div id="episodePanel" style="display:none;"></div>
+
+    <div id="infoPanel">
+        <div class="resize-handle" data-dir="r"></div>
+        <div class="resize-handle" data-dir="b"></div>
+        <div class="resize-handle" data-dir="br"></div>
+        <div class="resize-handle" data-dir="l"></div>
+        <div class="resize-handle" data-dir="t"></div>
+        <div class="resize-handle" data-dir="tl"></div>
+        <div class="resize-handle" data-dir="bl"></div>
+        <div class="resize-handle" data-dir="tr"></div>
+        <div id="infoPanelHeader">
+            <div id="infoPanelTopRow">
+                <div id="infoYearBadge"></div>
+                <div id="nowPlayingPanel">
+                    <div id="nowPlayingWave">
+                        <span></span><span></span><span></span><span></span>
+                    </div>
+                    <div id="nowPlayingTrack">—</div>
+                </div>
+            </div>
+            <div id="infoTitle"></div>
+            <div id="infoRegion"></div>
+        </div>
+        <div id="infoContent">
+            <img id="infoImage" alt="" loading="lazy" />
+            <div id="infoText"></div>
+            <ul id="infoEvents"></ul>
+        </div>
+    </div>
+
+    <div id="playlistModal">
+        <div id="playlistModalContent">
+            <div id="playlistModalHeader">
+                <div id="playlistModalTabs">
+                    <button class="panel-tab active" data-panel-tab="playlists" onclick="switchPanelTab('playlists')">🎬 Playlists</button>
+                    <button class="panel-tab" data-panel-tab="bookmarks" onclick="switchPanelTab('bookmarks')">★ Bookmarks</button>
+                    <button class="panel-tab" data-panel-tab="explore" onclick="switchPanelTab('explore')">🔍 Explore</button>
+                </div>
+                <button id="playlistCloseBtn" onclick="closePlaylists()">✕</button>
+            </div>
+
+            <!-- PLAYLISTS TAB -->
+            <div id="panelTabPlaylists" class="panel-tab-content active">
+                <div id="playlistSidebar">
+                    <div id="playlistListHeader">
+                        <span>Your Playlists</span>
+                        <button id="newPlaylistBtn" onclick="createNewPlaylist()">+</button>
+                    </div>
+                    <div id="playlistList"></div>
+                </div>
+                <div id="playlistEditor">
+                    <div id="playlistEditorEmpty">
+                        <div style="font-size:48px;margin-bottom:16px;">🎬</div>
+                        <div>Select or create a playlist to get started</div>
+                    </div>
+                    <div id="playlistEditorContent" style="display:none;">
+                        <div id="playlistEditorHeader">
+                            <input id="playlistNameInput" type="text" placeholder="Playlist name…" oninput="renameActivePlaylist()" />
+                            <div id="playlistEditorActions">
+                                <button id="playlistMusicSelect" onclick="openMusicPicker()" title="Choose playlist music">🎵 <span id="playlistMusicLabel">Auto</span></button>
+                                <button id="sharePlaylistBtn" onclick="shareActivePlaylist()" title="Copy shareable link">🔗 Share</button>
+                                <button onclick="playActivePlaylist()" id="playPlaylistBtn" title="Play this playlist">▶ Play</button>
+                                <button onclick="deleteActivePlaylist()" id="deletePlaylistBtn" title="Delete playlist">🗑 Delete</button>
+                            </div>
+                        </div>
+                        <div id="sceneSearchBar">
+                            <input id="sceneSearchInput" type="text" placeholder="Search scenes to add…" oninput="filterSceneSearch()" />
+                        </div>
+                        <div id="sceneSearchResults"></div>
+                        <div id="playlistScenesLabel">Scenes in playlist</div>
+                        <div id="playlistScenes"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- BOOKMARKS TAB -->
+            <div id="panelTabBookmarks" class="panel-tab-content">
+                <div id="bookmarksHeader">
+                    <div id="bookmarksHeaderLeft">
+                        <span id="bookmarksTitle">★ Bookmarks</span>
+                        <span id="bookmarksCount"></span>
+                    </div>
+                    <button class="bm-share-btn" onclick="shareBookmarks()" title="Share all bookmarks">🔗 Share</button>
+                </div>
+                <div id="bookmarksList"></div>
+            </div>
+
+            <!-- EXPLORE TAB -->
+            <div id="panelTabExplore" class="panel-tab-content">
+                <div id="exploreSearchBar">
+                    <input id="exploreSearchInput" type="text" placeholder="Search all scenes…" oninput="filterExploreSearch()" />
+                    <div id="explorePlDropdown" class="xpl-dropdown">
+                        <button id="explorePlBtn" class="xpl-btn" onclick="toggleExplorePlDropdown()" type="button">
+                            <span id="explorePlLabel">＋ Add to playlist…</span>
+                            <svg class="xpl-chevron" viewBox="0 0 10 6" width="10" height="6"><path d="M0 0l5 6 5-6z" fill="currentColor"/></svg>
+                        </button>
+                        <div id="explorePlMenu" class="xpl-menu" style="display:none;">
+                            <div class="xpl-new-row" onclick="explorePickerSelectNew()">
+                                <span class="xpl-new-icon">＋</span>
+                                <span>New playlist…</span>
+                            </div>
+                            <div class="xpl-divider"></div>
+                            <div id="explorePlList" class="xpl-list"></div>
+                        </div>
+                    </div>
+                </div>
+                <div id="exploreResults"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <div id="musicPickerModal">
+        <div id="musicPickerContent">
+            <div id="musicPickerHeader">
+                <h2>🎵 Choose Playlist Music</h2>
+                <button onclick="closeMusicPicker()">✕</button>
+            </div>
+            <div id="musicPickerList"></div>
+        </div>
+    </div>
+
+    <div id="sourcesPage">
+        <div id="sourcesContent">
+            <h1>📚 Sources & Credits</h1>
+            <h2>🖼️ Images</h2>
+            <ul>
+                <li>Encyclopedia Britannica</li>
+                <li>Wikipedia</li>
+            </ul>
+            <h2>🎵 Music</h2>
+            <ul>
+                <li>All songs AI generated</li>
+            </ul>
+            <h2>📖 Information Sources</h2>
+            <ul>
+                <li>ChatGPT Generated Information</li>
+            </ul>
+            <button onclick="closeSources()">Close</button>
+        </div>
+    </div>
+
+
+    <!-- SETTINGS MODAL -->
+    <div id="settingsPage">
+        <div id="settingsContent">
+            <div id="settingsHeader">
+                <div id="settingsTabs">
+                    <button class="settings-tab active" data-stab="general">⚙ General</button>
+                    <button class="settings-tab" data-stab="sources">📚 Sources</button>
+                    <button class="settings-tab" data-stab="help">❓ Help</button>
+                </div>
+                <button id="settingsCloseBtn" onclick="closeSettings()">✕</button>
+            </div>
+            <!-- GENERAL TAB -->
+            <div class="settings-page active" data-spage="general">
+                <div class="settings-section-title">🔊 Audio</div>
+                <div class="settings-row">
+                    <div class="settings-label"><span>BGM Volume</span><span class="settings-hint">Ambient music volume during story mode</span></div>
+                    <div class="settings-control">
+                        <input type="range" id="bgmVolumeSlider" min="0" max="100" value="30" class="settings-slider" oninput="onBgmVolumeChange(this.value)"/>
+                        <span class="settings-value-badge" id="bgmVolumeLabel">30%</span>
+                    </div>
+                </div>
+                <div class="settings-row">
+                    <div class="settings-label"><span>SFX Volume</span><span class="settings-hint">Scene transition sound effects</span></div>
+                    <div class="settings-control">
+                        <input type="range" id="sfxVolumeSlider" min="0" max="100" value="70" class="settings-slider" oninput="onSfxVolumeChange(this.value)"/>
+                        <span class="settings-value-badge" id="sfxVolumeLabel">70%</span>
+                    </div>
+                </div>
+                <div class="settings-row">
+                    <div class="settings-label"><span>Music Crossfade Speed</span><span class="settings-hint">How quickly music fades between regions</span></div>
+                    <div class="settings-control">
+                        <select id="crossfadeSelect" class="settings-select" onchange="onCrossfadeChange(this.value)">
+                            <option value="600">Fast (0.6s)</option>
+                            <option value="1400" selected>Normal (1.4s)</option>
+                            <option value="2500">Slow (2.5s)</option>
+                            <option value="4000">Very Slow (4s)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="settings-section-title" style="margin-top:22px;">🎨 Appearance</div>
+                <div class="settings-row settings-colour-row">
+                    <div class="settings-label"><span>Accent Colour</span><span class="settings-hint">Pick any colour — or choose a preset below</span></div>
+                    <div class="settings-control settings-colour-control">
+                        <input type="color" id="accentColorPicker" class="settings-color-input" title="Pick accent colour" oninput="onAccentColorInput(this.value)" onchange="onAccentColorChange(this.value)" />
+                        <div class="settings-swatches" id="themeSwatches">
+                            <button class="swatch active" data-theme="red"    style="background:#c0161f" title="Crimson Red"></button>
+                            <button class="swatch"        data-theme="blue"   style="background:#0d18b6" title="Indigo Blue"></button>
+                            <button class="swatch"        data-theme="white"  style="background:#ffffff" title="Pure White"></button>
+                            <button class="swatch"        data-theme="orange" style="background:#ff7700" title="Orange"></button>
+                            <button class="swatch"        data-theme="purple" style="background:#4300b7" title="DarkPurple"></button>
+                            <button class="swatch"        data-theme="lightblue"  style="background:#00eeff" title="Light Blue"></button>
+                            <button class="swatch"        data-theme="colorfusion1"  style="background:#be3300" title="Color Fusion Rouge"></button>
+                            <button class="swatch"        data-theme="colorfusion2"  style="background:#ff0099" title="Color Fusion Rose"></button>
+                        </div>
+                    </div>
+                </div>
+                <div class="settings-row">
+                    <div class="settings-label"><span>Map Style</span><span class="settings-hint">Base tile layer for the map</span></div>
+                    <div class="settings-control">
+                        <select id="mapStyleSelect" class="settings-select" onchange="onMapStyleChange(this.value)">
+                            <option value="light" selected>Light (CARTO)</option>
+                            <option value="dark">Dark (CARTO)</option>
+                            <option value="voyager">Voyager (CARTO)</option>
+                            <option value="satellite">Satellite (ESRI)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="settings-row">
+                    <div class="settings-label"><span>Panel Backdrop Blur</span><span class="settings-hint">Frosted glass effect on info panels</span></div>
+                    <div class="settings-control">
+                        <input type="range" id="blurSlider" min="0" max="20" value="12" class="settings-slider" oninput="onBlurChange(this.value)"/>
+                        <span class="settings-value-badge" id="blurLabel">12px</span>
+                    </div>
+                </div>
+                <div class="settings-row">
+                    <div class="settings-label"><span>Overlay Darkness</span><span class="settings-hint">Vignette dimming over the map</span></div>
+                    <div class="settings-control">
+                        <input type="range" id="overlaySlider" min="0" max="100" value="75" class="settings-slider" oninput="onOverlayChange(this.value)"/>
+                        <span class="settings-value-badge" id="overlayLabel">75%</span>
+                    </div>
+                </div>
+                <div class="settings-row">
+                    <div class="settings-label"><span>Corner Radius</span><span class="settings-hint">Roundness of panels and cards</span></div>
+                    <div class="settings-control">
+                        <input type="range" id="radiusSlider" min="0" max="24" value="10" class="settings-slider" oninput="onRadiusChange(this.value)"/>
+                        <span class="settings-value-badge" id="radiusLabel">10px</span>
+                    </div>
+                </div>
+                <div class="settings-section-title" style="margin-top:22px;">📖 Readability</div>
+                <div class="settings-row">
+                    <div class="settings-label"><span>Story Speed</span><span class="settings-hint">How long each scene is shown in story mode</span></div>
+                    <div class="settings-control">
+                        <select id="storySpeedSelect" class="settings-select" onchange="onStorySpeedChange(this.value)">
+                            <option value="0.5">Fast (0.5×)</option>
+                            <option value="1" selected>Normal (1×)</option>
+                            <option value="1.5">Slow (1.5×)</option>
+                            <option value="2">Very Slow (2×)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="settings-row">
+                    <div class="settings-label"><span>Font Size</span><span class="settings-hint">Base text size for info panels</span></div>
+                    <div class="settings-control">
+                        <input type="range" id="fontSizeSlider" min="10" max="28" value="16" class="settings-slider" oninput="onFontSizeChange(this.value)"/>
+                        <span class="settings-value-badge" id="fontSizeLabel">16px</span>
+                    </div>
+                </div>
+                <div class="settings-section-title" style="margin-top:22px;">💾 Data</div>
+                <div class="settings-row">
+                    <div class="settings-label"><span>Reset All Settings</span><span class="settings-hint">Restore defaults (playlists and admin data kept)</span></div>
+                    <div class="settings-control">
+                        <button class="settings-btn-danger" onclick="resetAllSettings()">↺ Reset Defaults</button>
+                    </div>
+                </div>
+            </div>
+            <!-- SOURCES TAB -->
+            <div class="settings-page" data-spage="sources">
+                <div class="settings-section-title">🖼️ Images</div>
+                <div class="help-entry"><div class="help-q">Image Sources</div><div class="help-a">Encyclopedia Britannica, Wikipedia</div></div>
+                <div class="settings-section-title" style="margin-top:20px;">🎵 Music</div>
+                <div class="help-entry"><div class="help-q">Music Credits</div><div class="help-a">All songs AI generated</div></div>
+                <div class="settings-section-title" style="margin-top:20px;">📖 Information</div>
+                <div class="help-entry"><div class="help-q">Information Sources</div><div class="help-a">ChatGPT Generated Information</div></div>
+            </div>
+            <!-- HELP TAB -->
+            <div class="settings-page" data-spage="help">
+                <div class="settings-section-title">🗺 Navigation</div>
+                <div class="help-entry"><div class="help-q">How do I explore the map?</div><div class="help-a">Click and drag to pan, scroll to zoom. Click any region card in the bottom bar to jump to it.</div></div>
+                <div class="help-entry"><div class="help-q">What is Story Mode?</div><div class="help-a">Press <strong>▶ Start Story Mode</strong> to automatically travel through historical scenes in sequence. Use ⏸ Pause and ✕ Exit to control playback.</div></div>
+                <div class="help-entry"><div class="help-q">What does "Take Me Somewhere, Sometime" do?</div><div class="help-a">Jumps to a random historical scene from the entire database.</div></div>
+                <div class="settings-section-title" style="margin-top:20px;">★ Bookmarks</div>
+                <div class="help-entry"><div class="help-q">How do I bookmark a scene?</div><div class="help-a">Tap the small <strong>★</strong> star in the top-right corner of any episode card. A gold star means it's bookmarked; tap again to remove it.</div></div>
+                <div class="help-entry"><div class="help-q">Where do I find my bookmarks?</div><div class="help-a">Open <strong>🎬 My Playlists</strong> in the bottom bar and switch to the <strong>★ Bookmarks</strong> tab to see all your saved scenes grouped by region.</div></div>
+                <div class="settings-section-title" style="margin-top:20px;">📋 Playlists</div>
+                <div class="help-entry"><div class="help-q">How do I create a playlist?</div><div class="help-a">Click <strong>🎬 My Playlists</strong> in the bottom bar, press <strong>+</strong> to create one, then search and add scenes.</div></div>
+                <div class="help-entry"><div class="help-q">Can I choose music for my playlist?</div><div class="help-a">Yes — inside the playlist editor click <strong>🎵 Music</strong> to pick a track, or leave it on Auto to match the region.</div></div>
+                <div class="settings-section-title" style="margin-top:20px;">⚙ Settings</div>
+                <div class="help-entry"><div class="help-q">How do I change the colour theme?</div><div class="help-a">In the <strong>General</strong> tab, pick a colour swatch under <em>Appearance → Colour Theme</em>.</div></div>
+                <div class="help-entry"><div class="help-q">Where are my settings saved?</div><div class="help-a">All settings are saved in your browser's local storage and persist between sessions.</div></div>
+                <div class="help-entry"><div class="help-q">How do I reset everything?</div><div class="help-a">Go to <strong>General → Data</strong> and click <strong>↺ Reset Defaults</strong>.</div></div>
+                <div class="settings-section-title" style="margin-top:20px;">🎵 Audio</div>
+                <div class="help-entry"><div class="help-q">Music doesn't play on first load?</div><div class="help-a">Browsers require a user interaction before audio can start. Click anywhere and music will begin on the next scene.</div></div>
+                <div class="help-entry"><div class="help-q">Can I mute during story mode?</div><div class="help-a">Yes — click the <strong>🔕 Mute</strong> button in the top-right, or set BGM Volume to 0 in Settings.</div></div>
+                <div class="settings-section-title" style="margin-top:20px;">📬 About</div>
+                <div class="help-entry"><div class="help-q">What version is this?</div><div class="help-a">World History Documentary — an interactive single-page history explorer. See 📚 Sources for data credits.</div></div>
+                <div class="help-entry"><div class="help-q">Is there an admin / content panel?</div><div class="help-a">Yes — press the <strong>O</strong> key while not focused on a text field to open the Admin Panel. From there you can add, edit, or delete scenes and manage the navigation tree.</div></div>
+            </div>
+        </div>
+    </div>
+
+
+
+
+    <audio id="bgm"></audio>
+    <audio id="horn"></audio>
+
+    <!-- Timeline scrubber (Feature 2) -->
+    <div id="timelineScrubber">
+        <div id="timelineTrack">
+            <div id="timelineFill"></div>
+            <div id="timelineThumb"></div>
+        </div>
+        <div id="timelineYears">
+            <span id="timelineYearStart"></span>
+            <span id="timelineYearCurrent"></span>
+            <span id="timelineYearEnd"></span>
+        </div>
+    </div>
+
+    <!-- Share toast (Feature 7) -->
+    <div id="shareToast">🔗 Scene link copied!</div>
+
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="data/europe.js"></script>
+    <script src="data/asia.js"></script>
+    <script src="data/australia.js"></script>
+    <script src="data/historybites.js"></script>
+    <script src="data/africa.js"></script>
+    <script src="javascript/search.js"></script>
+    <script src="javascript/empires.js"></script>
+    <script src="javascript/script.js"></script>
+    <script src="javascript/admin.js"></script>
+</body>
+</html>
