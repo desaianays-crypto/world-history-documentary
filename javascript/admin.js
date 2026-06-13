@@ -1,11 +1,19 @@
 //Admin code
 (function () {
-    const PASSCODE         = "Passcode-Admin";      // CHANGE THIS to enable passcode protection (empty = no passcode)
+    // ── Shared admin data (Cloudflare Worker) ──────────────────────
+    // Set this to your deployed Worker URL, e.g.
+    //   "https://whd-admin-data.yourname.workers.dev"
+    // Leave empty ("") to keep everything local-only (old behaviour:
+    // no passcode, edits stay in this browser's localStorage).
+    const WORKER_URL        = "whd-admin-data.desaianays.workers.dev";
     const LS_SCENES        = "whd_admin_scenes";      // added/edited scenes
     const LS_DELETED       = "whd_admin_deleted";     // deleted scene ids
     const LS_TREE          = "whd_admin_tree";        // world tree overrides
     const LS_TREE_OPEN     = "whd_admin_tree_open";   // collapse state
     const ADMIN_SETTINGS_LS = "whd_admin_settings_v1";  // visual/audio settings
+    const SS_UNLOCKED      = "whd_admin_unlocked";    // sessionStorage: verified this tab
+    const SS_PASSCODE      = "whd_admin_passcode";    // sessionStorage: passcode used to verify
+    const LS_SYNC_VERSION  = "whd_admin_sync_version"; // last-seen shared-data version
 
     // ── HTML ──────────────────────────────────────────────────────
     const html = `
@@ -371,7 +379,7 @@
     document.body.appendChild(wrapper);
 
     // ── State ─────────────────────────────────────────────────────
-    let unlocked      = false;
+    let unlocked      = sessionStorage.getItem(SS_UNLOCKED) === "1";
     let activeTab     = "add";
     let editingId     = null;   // scene id currently being edited (null = add mode)
     let editingDbKey  = null;
@@ -392,6 +400,87 @@
     }
     function lsSet(key, val) {
         try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
+    }
+
+    // ── Shared admin data sync (Cloudflare Worker) ─────────────────
+    // Pushes the current admin overrides (scenes, deletions, tree) to the
+    // shared Worker store so every visitor sees them, not just this browser.
+    // Debounced so rapid edits don't spam the Worker.
+    let _syncTimer = null;
+    function queueWorkerSync() {
+        if (!WORKER_URL) return;
+        clearTimeout(_syncTimer);
+        _syncTimer = setTimeout(syncToWorker, 800);
+    }
+    async function syncToWorker() {
+        if (!WORKER_URL) return;
+        const passcode = sessionStorage.getItem(SS_PASSCODE);
+        if (!passcode) return; // not verified — can't write
+        const payload = {
+            passcode,
+            scenes: lsGet(LS_SCENES) || [],
+            deleted: lsGet(LS_DELETED) || [],
+            deletedStore: lsGet("whd_deleted_scene_store") || {},
+            tree: lsGet(LS_TREE) || null,
+        };
+        try {
+            const res = await fetch(WORKER_URL + "/data", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify(payload),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!res.ok || !data.ok) {
+                toast("Couldn't sync to shared storage: " + (data.error || res.status), true);
+            }
+        } catch (e) {
+            toast("Couldn't reach shared storage (offline?)", true);
+        }
+    }
+
+    // Fetches the shared admin data on page load and caches it locally for
+    // next time. Because the rest of the app already ran applyPersistedData()
+    // synchronously using last time's cache, a newly-detected change is
+    // surfaced via a small "refresh" prompt rather than a live re-render.
+    function fetchSharedAdminData() {
+        if (!WORKER_URL) return;
+        fetch(WORKER_URL + "/data")
+            .then(res => res.ok ? res.json() : null)
+            .then(data => {
+                if (!data) return;
+                const version = JSON.stringify(data);
+                if (version === localStorage.getItem(LS_SYNC_VERSION)) return; // unchanged
+
+                lsSet(LS_SCENES, data.scenes || []);
+                lsSet(LS_DELETED, data.deleted || []);
+                lsSet("whd_deleted_scene_store", data.deletedStore || {});
+                if (data.tree) lsSet(LS_TREE, data.tree);
+                localStorage.setItem(LS_SYNC_VERSION, version);
+
+                // Only bother the visitor if this isn't their first-ever visit
+                // (i.e. they had something cached already, so the page they're
+                // looking at is now stale).
+                if (localStorage.getItem("whd_admin_seen") === "1") {
+                    showRefreshBanner();
+                }
+                localStorage.setItem("whd_admin_seen", "1");
+            })
+            .catch(() => { /* offline / Worker unreachable — silently keep local cache */ });
+    }
+
+    function showRefreshBanner() {
+        if (document.getElementById("adminRefreshBanner")) return;
+        const bar = document.createElement("div");
+        bar.id = "adminRefreshBanner";
+        bar.innerHTML = `Content has been updated. <button id="adminRefreshBtn">Refresh</button>`;
+        bar.style.cssText = "position:fixed;bottom:16px;left:50%;transform:translateX(-50%);" +
+            "background:#161618;border:1px solid var(--accent-dim);border-radius:10px;" +
+            "padding:10px 16px;color:#fff;font-size:13px;z-index:9999;" +
+            "box-shadow:0 8px 24px rgba(0,0,0,0.6);display:flex;align-items:center;gap:10px;";
+        document.body.appendChild(bar);
+        document.getElementById("adminRefreshBtn").onclick = () => location.reload();
+        document.getElementById("adminRefreshBtn").style.cssText =
+            "background:var(--accent);color:#fff;border:none;border-radius:6px;padding:5px 10px;cursor:pointer;font-weight:600;";
     }
 
     // Which db does a scene belong to based on the continent / data arrays?
@@ -419,6 +508,7 @@
             });
         }
         lsSet(LS_SCENES, saved);
+        queueWorkerSync();
     }
 
     function persistDeleted() {
@@ -428,10 +518,12 @@
         }
         // Already stored separately; just re-save from state
         lsSet(LS_DELETED, Array.from(deletedIds));
+        queueWorkerSync();
     }
 
     function persistTree() {
         lsSet(LS_TREE, world);
+        queueWorkerSync();
     }
 
 // Deleted IDs set (persisted)
@@ -501,6 +593,7 @@ lsSet("whd_deleted_scene_store", deletedSceneStore);
 
     // Run on load
     applyPersistedData();
+    fetchSharedAdminData();
 
     // ── Helpers ───────────────────────────────────────────────────
     function toast(msg, isErr = false) {
@@ -594,17 +687,23 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         document.getElementById("adminOverlay").style.display = "block";
         document.getElementById("adminPanel").classList.add("visible");
         setTimeout(() => document.getElementById("adminOverlay").classList.add("active"), 10);
-        if (!unlocked) {
-            if (PASSCODE === "") {
-                unlocked = true;
-                document.getElementById("adminPassRow").style.display = "none";
-                document.getElementById("adminBody").classList.add("unlocked");
-                refreshManageList();
-                refreshTree();
-                initEventRows();
-            } else {
-                setTimeout(() => document.getElementById("adminPassInput").focus(), 60);
-            }
+        if (unlocked) {
+            // Already verified earlier this session — skip the passcode prompt.
+            document.getElementById("adminPassRow").style.display = "none";
+            document.getElementById("adminBody").classList.add("unlocked");
+            refreshManageList();
+            refreshTree();
+            initEventRows();
+        } else if (WORKER_URL === "") {
+            // No shared backend configured — fall back to local-only, no-passcode mode.
+            unlocked = true;
+            document.getElementById("adminPassRow").style.display = "none";
+            document.getElementById("adminBody").classList.add("unlocked");
+            refreshManageList();
+            refreshTree();
+            initEventRows();
+        } else {
+            setTimeout(() => document.getElementById("adminPassInput").focus(), 60);
         }
     }
     function closePanel() {
@@ -639,18 +738,48 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
     document.getElementById("adminPassInput").addEventListener("keydown", e => { if (e.key === "Enter") checkPass(); });
     document.getElementById("adminPassInput").addEventListener("input", () => { document.getElementById("adminPassError").textContent = ""; });
 
-    function checkPass() {
-        if (document.getElementById("adminPassInput").value === PASSCODE) {
-            unlocked = true;
-            document.getElementById("adminPassRow").style.display = "none";
-            document.getElementById("adminBody").classList.add("unlocked");
-            refreshManageList();
-            refreshTree();
-            initEventRows();
-        } else {
-            document.getElementById("adminPassError").textContent = "Incorrect passcode.";
-            document.getElementById("adminPassInput").value = "";
-            document.getElementById("adminPassInput").focus();
+    function unlockAdminUI() {
+        unlocked = true;
+        sessionStorage.setItem(SS_UNLOCKED, "1");
+        document.getElementById("adminPassRow").style.display = "none";
+        document.getElementById("adminBody").classList.add("unlocked");
+        refreshManageList();
+        refreshTree();
+        initEventRows();
+    }
+
+    async function checkPass() {
+        const input = document.getElementById("adminPassInput");
+        const value = input.value;
+        const errEl = document.getElementById("adminPassError");
+
+        if (WORKER_URL === "") {
+            // No shared backend — any input "works" (passcode protection is
+            // effectively disabled until WORKER_URL is configured).
+            sessionStorage.setItem(SS_PASSCODE, value);
+            unlockAdminUI();
+            return;
+        }
+
+        errEl.textContent = "Checking…";
+        try {
+            const res = await fetch(WORKER_URL + "/verify", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ passcode: value }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (data.ok) {
+                sessionStorage.setItem(SS_PASSCODE, value);
+                errEl.textContent = "";
+                unlockAdminUI();
+            } else {
+                errEl.textContent = "Incorrect passcode.";
+                input.value = "";
+                input.focus();
+            }
+        } catch (e) {
+            errEl.textContent = "Couldn't reach server — check connection.";
         }
     }
 
