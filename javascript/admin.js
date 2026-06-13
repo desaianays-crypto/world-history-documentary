@@ -5,14 +5,14 @@
     //   "https://whd-admin-data.yourname.workers.dev"
     // Leave empty ("") to keep everything local-only (old behaviour:
     // no passcode, edits stay in this browser's localStorage).
-    const WORKER_URL       = "whd-admin-data.desaianays.workers.dev";
+    const WORKER_URL       = "https://whd-admin-data.desaianays.workers.dev";
     const LS_SCENES        = "whd_admin_scenes";      // added/edited scenes
     const LS_DELETED       = "whd_admin_deleted";     // deleted scene ids
     const LS_TREE          = "whd_admin_tree";        // world tree overrides
     const LS_TREE_OPEN     = "whd_admin_tree_open";   // collapse state
     const ADMIN_SETTINGS_LS = "whd_admin_settings_v1";  // visual/audio settings
     const SS_UNLOCKED      = "whd_admin_unlocked";    // sessionStorage: verified this tab
-    const SS_PASSCODE      = "whd_admin_passcode";    // sessionStorage: passcode used to verify
+    const SS_PASSCODE      = "whd_ADMIN_PASSCODE";    // sessionStorage: passcode used to verify
     const LS_SYNC_VERSION  = "whd_admin_sync_version"; // last-seen shared-data version
 
     // ── HTML ──────────────────────────────────────────────────────
