@@ -377,22 +377,26 @@
     <div id="shareToast">🔗 Scene link copied!</div>
 
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+
+    <!-- Regional scene data -->
     <script src="data/europe.js"></script>
     <script src="data/asia.js"></script>
     <script src="data/australia.js"></script>
     <script src="data/historybites.js"></script>
     <script src="data/africa.js"></script>
-    <script src="javascript/functions_1.js"></script>
-    <script src="javascript/functions_2.js"></script>
-    <script src="javascript/functions_3.js"></script>
-    <script src="javascript/functions_4.js"></script>
-    <script src="javascript/functions_5.js"></script>
-    <script src="javascript/functions_6.js"></script>
-    <script src="javascript/functions_7.js"></script>
-    <script src="javascript/functions_8.js"></script>
-    <script src="javascript/otherstuff.js"></script>
-    <script src="javascript/search.js"></script>
-    <script src="javascript/empires.js"></script>
-    <script src="javascript/admin.js"></script>
+
+    <!-- App scripts (load order preserved from original) -->
+    <script src="javascript/audio-nav.js"></script>      <!-- audio, nav stack, setUIState, startStory -->
+    <script src="javascript/story-scene.js"></script>    <!-- showScene, loopStory, showToast, timeline -->
+    <script src="javascript/timeline-share.js"></script> <!-- scrubber, keyboard, nowPlaying, share, URL hash -->
+    <script src="javascript/map-panel.js"></script>      <!-- loadTree, renderContinents, togglePause, loadPanelSize, window.onload -->
+    <script src="javascript/playlists-ui.js"></script>   <!-- playlist CRUD, renderPlaylistSidebar, filterSceneSearch -->
+    <script src="javascript/playlists-play.js"></script> <!-- musicPicker, playActivePlaylist, settings core -->
+    <script src="javascript/settings-ui.js"></script>    <!-- applyMapTile, openSettings, sliders, bookmarks -->
+    <script src="javascript/explore-story.js"></script>  <!-- explore tab, story bookmark/playlist controls -->
+    <script src="javascript/init.js"></script>           <!-- map init, scenes, world tree, panel resize, globals -->
+    <script src="javascript/search.js"></script>         <!-- fuzzy search engine -->
+    <script src="javascript/empires.js"></script>        <!-- empire GeoJSON map -->
+    <script src="javascript/admin.js"></script>          <!-- admin panel -->
 </body>
 </html>
