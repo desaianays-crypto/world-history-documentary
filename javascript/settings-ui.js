@@ -39,12 +39,23 @@ function syncSettingsUI(s) {
     syncCustomSelects(s);
 }
 
-function openSettings() {
+function openSettings(tabName) {
     const page = document.getElementById("settingsPage");
     const s = loadSettings();
     syncSettingsUI(s);
     page.style.display = "flex";
     setTimeout(() => page.classList.add("active"), 10);
+    // Jump to a specific tab if requested (e.g. "account" from topbar button)
+    if (tabName) {
+        document.querySelectorAll(".settings-tab").forEach(t => t.classList.remove("active"));
+        document.querySelectorAll(".settings-page").forEach(p => p.classList.remove("active"));
+        const tab = document.querySelector(`.settings-tab[data-stab="${tabName}"]`);
+        const pg  = document.querySelector(`.settings-page[data-spage="${tabName}"]`);
+        if (tab) tab.classList.add("active");
+        if (pg)  pg.classList.add("active");
+        if (tabName === "account" && typeof renderSettingsAccountPage === "function")
+            setTimeout(renderSettingsAccountPage, 0);
+    }
 }
 
 function closeSettings() {

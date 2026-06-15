@@ -4,24 +4,25 @@
 //    POST /auth/signup  { username, password }        → { ok, token, error? }
 //    POST /auth/login   { username, password }        → { ok, token, error? }
 //    POST /auth/save    { token, data:{…} }           → { ok }
-//    POST /auth/load    { token }                     → { ok, data:{…}, joinedAt? }
+//    POST /auth/load    { token }                     → { ok, data:{…} }
+//    POST /auth/delete  { token, password }           → { ok }
 // ═══════════════════════════════════════════════════════════════════════════
 
 (function () {
     const WORKER_URL    = "https://whd-admin-data.desaianays.workers.dev";
     const LS_TOKEN      = "whd_auth_token";
     const LS_USERNAME   = "whd_auth_username";
-    const LS_JOINED     = "whd_auth_joined";      // cached joinedAt timestamp
-    const LS_GUEST      = "whd_auth_guest";       // "1" if guest mode chosen
-    const SYNC_DEBOUNCE = 1500;                   // ms after last change to cloud-push
+    const LS_JOINED     = "whd_auth_joined";
+    const LS_GUEST      = "whd_auth_guest";
+    const SYNC_DEBOUNCE = 1500;
 
     // ── State ─────────────────────────────────────────────────────────────
     let _token    = localStorage.getItem(LS_TOKEN)    || null;
     let _username = localStorage.getItem(LS_USERNAME) || null;
     let _joined   = localStorage.getItem(LS_JOINED)   || null;
     let _guest    = localStorage.getItem(LS_GUEST)    === "1";
-    let _syncTimer = null;
-    let _lastSyncAt = null;   // timestamp of last successful push
+    let _syncTimer  = null;
+    let _lastSyncAt = null;
     let _pendingAdminCallback = null;
 
     // ── Public API ────────────────────────────────────────────────────────
@@ -51,69 +52,83 @@
     };
 
     // ═════════════════════════════════════════════════════════════════════
-    //  AUTH MODAL
+    //  AUTH MODAL  —  full-screen two-panel layout
     // ═════════════════════════════════════════════════════════════════════
     function _buildAuthModalHTML() {
         return `
 <div id="authOverlay"></div>
 <div id="authPanel">
-  <div id="authPanelInner">
-    <div id="authLogo">◈ WHD</div>
-    <div id="authTagline">World History Documentary</div>
-
-    <div id="authTabs">
-      <button class="auth-tab active" data-tab="login">Sign In</button>
-      <button class="auth-tab" data-tab="signup">Create Account</button>
+  <div id="authPanelLeft">
+    <div id="authBrand">
+      <div id="authBrandGlyph">◈</div>
+      <div id="authBrandName">World History Documentary</div>
+      <div id="authBrandSub">Sync your playlists, bookmarks &amp; settings across every device.</div>
     </div>
-
-    <div class="auth-form active" id="authFormLogin">
-      <div class="auth-field">
-        <label>Username</label>
-        <input id="authLoginUser" type="text" autocomplete="username" placeholder="your username" spellcheck="false"/>
-      </div>
-      <div class="auth-field">
-        <label>Password</label>
-        <input id="authLoginPass" type="password" autocomplete="current-password" placeholder="••••••••"/>
-      </div>
-      <div class="auth-error" id="authLoginError"></div>
-      <button class="auth-primary-btn" id="authLoginBtn">Sign In</button>
+    <div id="authFeatures">
+      <div class="auth-feature"><span class="auth-feature-icon">🎬</span><span>Custom playlists</span></div>
+      <div class="auth-feature"><span class="auth-feature-icon">★</span><span>Bookmarked scenes</span></div>
+      <div class="auth-feature"><span class="auth-feature-icon">☁</span><span>Cloud sync across devices</span></div>
+      <div class="auth-feature"><span class="auth-feature-icon">⚙</span><span>Saved settings &amp; themes</span></div>
     </div>
+  </div>
+  <div id="authPanelRight">
+    <div id="authPanelInner">
 
-    <div class="auth-form" id="authFormSignup">
-      <div class="auth-field">
-        <label>Username <span class="auth-hint">3–24 chars, letters / numbers / _</span></label>
-        <input id="authSignupUser" type="text" autocomplete="username" placeholder="choose a username" spellcheck="false" maxlength="24"/>
+      <div id="authTabs">
+        <button class="auth-tab active" data-tab="login">Sign In</button>
+        <button class="auth-tab" data-tab="signup">Create Account</button>
       </div>
-      <div class="auth-field">
-        <label>Password <span class="auth-hint">8+ characters</span></label>
-        <input id="authSignupPass" type="password" autocomplete="new-password" placeholder="••••••••" minlength="8"/>
+
+      <div class="auth-form active" id="authFormLogin">
+        <div class="auth-field">
+          <label>Username</label>
+          <input id="authLoginUser" type="text" autocomplete="username" placeholder="your username" spellcheck="false"/>
+        </div>
+        <div class="auth-field">
+          <label>Password</label>
+          <input id="authLoginPass" type="password" autocomplete="current-password" placeholder="••••••••"/>
+        </div>
+        <div class="auth-error" id="authLoginError"></div>
+        <button class="auth-primary-btn" id="authLoginBtn">Sign In</button>
       </div>
-      <div class="auth-field">
-        <label>Confirm Password</label>
-        <input id="authSignupPass2" type="password" autocomplete="new-password" placeholder="••••••••"/>
+
+      <div class="auth-form" id="authFormSignup">
+        <div class="auth-field">
+          <label>Username <span class="auth-hint">3–24 chars, letters / numbers / _</span></label>
+          <input id="authSignupUser" type="text" autocomplete="username" placeholder="choose a username" spellcheck="false" maxlength="24"/>
+        </div>
+        <div class="auth-field">
+          <label>Password <span class="auth-hint">8+ characters</span></label>
+          <input id="authSignupPass" type="password" autocomplete="new-password" placeholder="••••••••" minlength="8"/>
+        </div>
+        <div class="auth-field">
+          <label>Confirm Password</label>
+          <input id="authSignupPass2" type="password" autocomplete="new-password" placeholder="••••••••"/>
+        </div>
+        <div id="authTransferRow" class="auth-transfer-row" style="display:none">
+          <label class="auth-checkbox-label">
+            <input type="checkbox" id="authTransferCheck" checked/>
+            Import my local playlists, bookmarks &amp; settings into this account
+          </label>
+        </div>
+        <div class="auth-error" id="authSignupError"></div>
+        <button class="auth-primary-btn" id="authSignupBtn">Create Account</button>
       </div>
-      <div id="authTransferRow" class="auth-transfer-row">
-        <label class="auth-checkbox-label">
-          <input type="checkbox" id="authTransferCheck" checked/>
-          Import my local playlists, bookmarks &amp; settings into this account
-        </label>
+
+      <div id="authLoggedInRow" style="display:none">
+        <div id="authWelcome"></div>
+        <div id="authSyncStatus"></div>
+        <button class="auth-ghost-btn" id="authLogoutBtn">Sign Out</button>
       </div>
-      <div class="auth-error" id="authSignupError"></div>
-      <button class="auth-primary-btn" id="authSignupBtn">Create Account</button>
+
+      <div class="auth-divider"><span>or</span></div>
+
+      <div id="authGuestRow">
+        <button class="auth-ghost-btn" id="authGuestBtn">Continue as Guest</button>
+        <p class="auth-notice">Guest data stays in this browser only. No account needed.</p>
+      </div>
+
     </div>
-
-    <div class="auth-divider"><span>or</span></div>
-
-    <div id="authGuestRow">
-      <button class="auth-ghost-btn" id="authGuestBtn">Continue as Guest</button>
-    </div>
-    <div id="authLoggedInRow" style="display:none">
-      <div id="authWelcome"></div>
-      <div id="authSyncStatus"></div>
-      <button class="auth-ghost-btn" id="authLogoutBtn">Sign Out</button>
-    </div>
-
-    <p class="auth-notice">Sign in to sync playlists, bookmarks &amp; settings across devices. Guest data stays local.</p>
   </div>
 </div>`;
     }
@@ -125,22 +140,24 @@
         el.innerHTML = _buildAuthModalHTML();
         document.body.appendChild(el);
 
-        document.getElementById("authOverlay").addEventListener("click", closeAuthModal);
+        // Clicking the left panel (backdrop area on mobile) dismisses the modal
+        // only when already logged in or guest; otherwise it's required on first visit
+        document.getElementById("authOverlay").addEventListener("click", () => {
+            if (_token || _guest) closeAuthModal();
+        });
+
         document.querySelectorAll(".auth-tab").forEach(tab =>
             tab.addEventListener("click", () => _switchModalTab(tab.dataset.tab)));
-        document.getElementById("authLoginBtn").addEventListener("click", doLogin);
+
+        document.getElementById("authLoginBtn").addEventListener("click",  doLogin);
         document.getElementById("authSignupBtn").addEventListener("click", doSignup);
-        document.getElementById("authGuestBtn").addEventListener("click", chooseGuest);
+        document.getElementById("authGuestBtn").addEventListener("click",  chooseGuest);
         document.getElementById("authLogoutBtn").addEventListener("click", () => { logout(); closeAuthModal(); });
 
         ["authLoginUser", "authLoginPass"].forEach(id =>
             document.getElementById(id).addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); }));
         ["authSignupUser", "authSignupPass", "authSignupPass2"].forEach(id =>
             document.getElementById(id).addEventListener("keydown", e => { if (e.key === "Enter") doSignup(); }));
-        ["authLoginError", "authSignupError"].forEach(id => {
-            document.getElementById(id).parentElement.querySelectorAll("input")
-                .forEach(inp => inp.addEventListener("input", () => { document.getElementById(id).textContent = ""; }));
-        });
 
         _renderAuthModal();
     }
@@ -152,7 +169,6 @@
         ["authLoginError", "authSignupError"].forEach(id => {
             const e = document.getElementById(id); if (e) e.textContent = "";
         });
-        // Show transfer checkbox only on signup and only when local data exists
         const tr = document.getElementById("authTransferRow");
         if (tr) tr.style.display = (tab === "signup" && _hasLocalData()) ? "" : "none";
     }
@@ -163,15 +179,15 @@
         const guestRow    = document.getElementById("authGuestRow");
         const tabs        = document.getElementById("authTabs");
         const forms       = document.querySelectorAll(".auth-form");
-        const notice      = document.querySelector(".auth-notice");
+        const divider     = document.querySelector(".auth-divider");
 
         if (_token && _username) {
             loggedInRow.style.display = "";
             guestRow.style.display    = "none";
             tabs.style.display        = "none";
             forms.forEach(f => f.style.display = "none");
-            notice.style.display      = "none";
-            document.getElementById("authWelcome").textContent = `Signed in as ${_username}`;
+            if (divider) divider.style.display = "none";
+            document.getElementById("authWelcome").textContent    = `Signed in as ${_username}`;
             document.getElementById("authSyncStatus").textContent =
                 _lastSyncAt ? `✓ Last synced ${_friendlyTime(_lastSyncAt)}` : "✓ Syncing automatically";
         } else {
@@ -179,8 +195,7 @@
             guestRow.style.display    = "";
             tabs.style.display        = "";
             forms.forEach(f => f.style.display = "");
-            notice.style.display      = "";
-            // Honour current active tab
+            if (divider) divider.style.display = "";
             const activeTab = document.querySelector(".auth-tab.active");
             if (activeTab) _switchModalTab(activeTab.dataset.tab);
         }
@@ -189,8 +204,8 @@
 
     function openAuthModal() {
         _injectAuthModal();
-        document.getElementById("authModal").classList.add("visible");
-        setTimeout(() => document.getElementById("authOverlay").classList.add("active"), 10);
+        const modal = document.getElementById("authModal");
+        modal.classList.add("visible");
         _renderAuthModal();
         setTimeout(() => {
             const inp = document.querySelector(".auth-form.active input");
@@ -201,8 +216,7 @@
     function closeAuthModal() {
         const modal = document.getElementById("authModal");
         if (!modal) return;
-        document.getElementById("authOverlay").classList.remove("active");
-        setTimeout(() => modal.classList.remove("visible"), 250);
+        modal.classList.remove("visible");
     }
 
     // ═════════════════════════════════════════════════════════════════════
@@ -236,7 +250,7 @@
             } else {
                 err.textContent = data.error || "Incorrect username or password.";
             }
-        } catch (e) {
+        } catch {
             err.textContent = "Couldn't reach server. Check your connection.";
         } finally {
             btn.textContent = "Sign In"; btn.disabled = false;
@@ -252,8 +266,8 @@
 
         if (!user || !pass || !pass2) { err.textContent = "Please fill in all fields."; return; }
         if (!/^[a-zA-Z0-9_]{3,24}$/.test(user)) { err.textContent = "Username: 3–24 chars, letters/numbers/_ only."; return; }
-        if (pass.length < 8) { err.textContent = "Password must be at least 8 characters."; return; }
-        if (pass !== pass2)  { err.textContent = "Passwords don't match."; return; }
+        if (pass.length < 8)  { err.textContent = "Password must be at least 8 characters."; return; }
+        if (pass !== pass2)   { err.textContent = "Passwords don't match."; return; }
 
         const doTransfer = document.getElementById("authTransferCheck")?.checked && _hasLocalData();
 
@@ -272,7 +286,7 @@
                 document.getElementById("authSignupPass2").value = "";
 
                 if (doTransfer) {
-                    await pushNow();   // push local data immediately after account creation
+                    await pushNow();
                     _showSyncToast("Account created! Local data transferred.");
                 } else {
                     _showSyncToast("Account created! Your data will sync automatically.");
@@ -285,7 +299,7 @@
             } else {
                 err.textContent = data.error || "Could not create account. Try a different username.";
             }
-        } catch (e) {
+        } catch {
             err.textContent = "Couldn't reach server. Check your connection.";
         } finally {
             btn.textContent = "Create Account"; btn.disabled = false;
@@ -301,13 +315,25 @@
     }
 
     function logout() {
-        _token    = null;
-        _username = null;
-        _joined   = null;
+        _token      = null;
+        _username   = null;
+        _joined     = null;
         _lastSyncAt = null;
+        _guest      = false;
+
+        // Clear all personal data from this browser on sign-out
         localStorage.removeItem(LS_TOKEN);
         localStorage.removeItem(LS_USERNAME);
         localStorage.removeItem(LS_JOINED);
+        localStorage.removeItem(LS_GUEST);
+        _origSetItem("whd_bookmarks",    JSON.stringify([]));
+        _origSetItem("whd_playlists_v1", JSON.stringify([]));
+        // Retain settings (theme/volume) — those are device preferences, not personal data
+
+        // Live refresh of UI
+        if (typeof renderBookmarksList   === "function") renderBookmarksList();
+        if (typeof renderPlaylistSidebar === "function") renderPlaylistSidebar();
+
         _updateTopBarBtn();
         _renderAuthModal();
         renderSettingsAccountPage();
@@ -332,14 +358,12 @@
         if (!el) return;
 
         if (_token && _username) {
-            // ── Logged-in view ────────────────────────────────────────────
             const joinedStr = _joined ? _formatDate(_joined) : "—";
-            const bms  = _tryJSON(localStorage.getItem("whd_bookmarks"))  || [];
-            const pls  = _tryJSON(localStorage.getItem("whd_playlists_v1")) || [];
+            const bms = _tryJSON(localStorage.getItem("whd_bookmarks"))    || [];
+            const pls = _tryJSON(localStorage.getItem("whd_playlists_v1")) || [];
             const syncStr = _lastSyncAt ? _friendlyTime(_lastSyncAt) : "Not yet synced this session";
 
             el.innerHTML = `
-<div class="settings-section-title">👤 Signed In</div>
 <div class="acct-card">
   <div class="acct-avatar">${_username.charAt(0).toUpperCase()}</div>
   <div class="acct-info">
@@ -348,111 +372,156 @@
   </div>
 </div>
 
-<div class="settings-section-title" style="margin-top:22px;">☁ Sync</div>
+<div class="settings-section-title" style="margin-top:20px;">☁ Sync</div>
 <div class="settings-row">
-  <div class="settings-label"><span>Last sync</span><span class="settings-hint">Cloud push of your data</span></div>
+  <div class="settings-label"><span>Status</span><span class="settings-hint">Auto-syncs after each change</span></div>
   <div class="settings-control"><span class="acct-sync-badge" id="acctSyncBadge">${_escHtml(syncStr)}</span></div>
 </div>
 <div class="settings-row">
-  <div class="settings-label"><span>Sync now</span><span class="settings-hint">Push current data to account</span></div>
-  <div class="settings-control"><button class="settings-btn" id="acctPushBtn" onclick="window._acctPushNow()">↑ Push to Cloud</button></div>
+  <div class="settings-label"><span>Push now</span><span class="settings-hint">Force upload current data</span></div>
+  <div class="settings-control"><button class="settings-btn" id="acctPushBtn">↑ Push</button></div>
 </div>
 <div class="settings-row">
-  <div class="settings-label"><span>Restore from cloud</span><span class="settings-hint">Pull saved data and overwrite local</span></div>
-  <div class="settings-control"><button class="settings-btn" id="acctPullBtn" onclick="window._acctPullNow()">↓ Pull from Cloud</button></div>
+  <div class="settings-label"><span>Pull now</span><span class="settings-hint">Restore from cloud, overwriting local</span></div>
+  <div class="settings-control"><button class="settings-btn" id="acctPullBtn">↓ Pull</button></div>
 </div>
 
-<div class="settings-section-title" style="margin-top:22px;">📊 Your Data</div>
+<div class="settings-section-title" style="margin-top:20px;">📊 Your Data</div>
 <div class="settings-row">
-  <div class="settings-label"><span>Bookmarks</span><span class="settings-hint">Saved scenes</span></div>
+  <div class="settings-label"><span>Bookmarks</span></div>
   <div class="settings-control"><span class="acct-count-badge">${bms.length} scene${bms.length !== 1 ? "s" : ""}</span></div>
 </div>
 <div class="settings-row">
-  <div class="settings-label"><span>Playlists</span><span class="settings-hint">Custom playlists</span></div>
+  <div class="settings-label"><span>Playlists</span></div>
   <div class="settings-control"><span class="acct-count-badge">${pls.length} playlist${pls.length !== 1 ? "s" : ""}</span></div>
 </div>
 
-<div class="settings-section-title" style="margin-top:22px;">⚠ Account</div>
+<div class="settings-section-title" style="margin-top:20px;">⚠ Account Actions</div>
 <div class="settings-row">
-  <div class="settings-label"><span>Sign out</span><span class="settings-hint">Keeps local data; stops syncing</span></div>
-  <div class="settings-control"><button class="settings-btn-danger" onclick="window._acctLogout()">Sign Out</button></div>
+  <div class="settings-label"><span>Sign out</span><span class="settings-hint">Clears local playlists &amp; bookmarks</span></div>
+  <div class="settings-control"><button class="settings-btn-danger" id="acctLogoutBtn">Sign Out</button></div>
+</div>
+<div class="settings-row">
+  <div class="settings-label"><span>Delete account</span><span class="settings-hint">Permanently removes your account and all data</span></div>
+  <div class="settings-control"><button class="settings-btn-danger" id="acctDeleteBtn">Delete Account</button></div>
 </div>`;
 
-            // Expose helpers for inline onclick
-            window._acctPushNow = async () => {
+            document.getElementById("acctPushBtn").onclick = async () => {
                 const btn = document.getElementById("acctPushBtn");
-                if (btn) { btn.textContent = "Pushing…"; btn.disabled = true; }
+                btn.textContent = "Pushing…"; btn.disabled = true;
                 await pushNow();
                 renderSettingsAccountPage();
-                if (btn) { btn.textContent = "↑ Push to Cloud"; btn.disabled = false; }
                 _showSyncToast("Data pushed to cloud.");
             };
-            window._acctPullNow = async () => {
+            document.getElementById("acctPullBtn").onclick = async () => {
                 const btn = document.getElementById("acctPullBtn");
-                if (btn) { btn.textContent = "Pulling…"; btn.disabled = true; }
+                btn.textContent = "Pulling…"; btn.disabled = true;
                 await _pullAndApply();
                 renderSettingsAccountPage();
-                if (btn) { btn.textContent = "↓ Pull from Cloud"; btn.disabled = false; }
                 _showSyncToast("Data restored from cloud.");
             };
-            window._acctLogout = () => { logout(); };
+            document.getElementById("acctLogoutBtn").onclick = () => {
+                _showAppConfirm(
+                    "Sign out?",
+                    "This will clear your local playlists and bookmarks from this device.",
+                    "Sign Out",
+                    logout
+                );
+            };
+            document.getElementById("acctDeleteBtn").onclick = () => _showDeleteConfirm();
 
         } else {
-            // ── Guest / signed-out view ───────────────────────────────────
-            const hasLocal = _hasLocalData();
             el.innerHTML = `
-<div class="settings-section-title">👤 Account</div>
 <div class="acct-guest-block">
   <div class="acct-guest-icon">◈</div>
   <div class="acct-guest-title">${_guest ? "You're in Guest Mode" : "Not signed in"}</div>
   <div class="acct-guest-sub">Sign in to sync playlists, bookmarks &amp; settings across devices.</div>
-  <button class="auth-primary-btn acct-signin-btn" onclick="window.WHDAuth.openModal()">Sign In / Create Account</button>
-</div>
-
-${hasLocal ? `
-<div class="settings-section-title" style="margin-top:22px;">📦 Transfer Local Data</div>
-<div class="settings-row">
-  <div class="settings-label">
-    <span>Import into account</span>
-    <span class="settings-hint">When you sign in or create an account, check "Import local data" to transfer your local playlists, bookmarks &amp; settings.</span>
-  </div>
-</div>
-<div class="acct-local-summary">
-  ${_localDataSummary()}
-</div>
-` : `
-<div class="settings-section-title" style="margin-top:22px;">💾 Local Data</div>
-<div class="settings-row">
-  <div class="settings-label"><span>No local data yet</span><span class="settings-hint">Your playlists and bookmarks will appear here as you create them.</span></div>
-</div>
-`}`;
+  <button class="auth-primary-btn acct-signin-btn" id="acctSignInBtn">Sign In / Create Account</button>
+</div>`;
+            document.getElementById("acctSignInBtn").onclick = () => window.WHDAuth.openModal();
         }
     }
 
-    function _hasLocalData() {
-        const bms = _tryJSON(localStorage.getItem("whd_bookmarks"))    || [];
-        const pls = _tryJSON(localStorage.getItem("whd_playlists_v1")) || [];
-        return bms.length > 0 || pls.length > 0;
+    // ── Delete account confirmation UI ────────────────────────────────────
+    function _showDeleteConfirm() {
+        // Re-use the app's confirm modal if available, otherwise build our own
+        const existing = document.getElementById("acctDeleteModal");
+        if (existing) existing.remove();
+
+        const modal = document.createElement("div");
+        modal.id = "acctDeleteModal";
+        modal.innerHTML = `
+<div class="acct-delete-backdrop"></div>
+<div class="acct-delete-box">
+  <div class="acct-delete-title">⚠ Delete Account</div>
+  <div class="acct-delete-body">
+    This will permanently delete your account and all saved data.
+    This cannot be undone. Enter your password to confirm.
+  </div>
+  <div class="auth-field" style="margin-top:16px;">
+    <label>Password</label>
+    <input id="acctDeletePass" type="password" placeholder="••••••••" autocomplete="current-password"/>
+  </div>
+  <div class="auth-error" id="acctDeleteError"></div>
+  <div class="acct-delete-btns">
+    <button class="auth-ghost-btn" id="acctDeleteCancelBtn">Cancel</button>
+    <button class="settings-btn-danger" id="acctDeleteConfirmBtn">Delete Forever</button>
+  </div>
+</div>`;
+        document.body.appendChild(modal);
+
+        document.getElementById("acctDeleteCancelBtn").onclick  = () => modal.remove();
+        document.getElementById("acctDeletePass").addEventListener("keydown", e => {
+            if (e.key === "Enter") doDeleteAccount();
+        });
+        document.getElementById("acctDeleteConfirmBtn").onclick = doDeleteAccount;
+        setTimeout(() => document.getElementById("acctDeletePass").focus(), 60);
     }
 
-    function _localDataSummary() {
-        const bms = _tryJSON(localStorage.getItem("whd_bookmarks"))    || [];
-        const pls = _tryJSON(localStorage.getItem("whd_playlists_v1")) || [];
-        const parts = [];
-        if (bms.length) parts.push(`<span class="acct-local-item">★ ${bms.length} bookmark${bms.length !== 1 ? "s" : ""}</span>`);
-        if (pls.length) parts.push(`<span class="acct-local-item">🎬 ${pls.length} playlist${pls.length !== 1 ? "s" : ""}</span>`);
-        return parts.length ? `<div class="acct-local-row">${parts.join("")}</div>` : "";
+    async function doDeleteAccount() {
+        const pass  = document.getElementById("acctDeletePass")?.value;
+        const errEl = document.getElementById("acctDeleteError");
+        const btn   = document.getElementById("acctDeleteConfirmBtn");
+        if (!pass) { if (errEl) errEl.textContent = "Enter your password."; return; }
+        if (btn) { btn.textContent = "Deleting…"; btn.disabled = true; }
+        try {
+            const res  = await fetch(WORKER_URL + "/auth/delete", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token: _token, password: pass }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (data.ok) {
+                document.getElementById("acctDeleteModal")?.remove();
+                logout();
+                _showSyncToast("Account deleted.");
+            } else {
+                if (errEl) errEl.textContent = data.error || "Could not delete account.";
+                if (btn) { btn.textContent = "Delete Forever"; btn.disabled = false; }
+            }
+        } catch {
+            if (errEl) errEl.textContent = "Couldn't reach server.";
+            if (btn)   { btn.textContent = "Delete Forever"; btn.disabled = false; }
+        }
+    }
+
+    // ── Reusable confirm helper (uses app modal if present) ───────────────
+    function _showAppConfirm(title, body, confirmLabel, onConfirm) {
+        if (typeof showAppConfirm === "function") {
+            showAppConfirm(title, body, confirmLabel, onConfirm);
+            return;
+        }
+        if (window.confirm(body)) onConfirm();
     }
 
     // ═════════════════════════════════════════════════════════════════════
-    //  TOP BAR BUTTON
+    //  TOP BAR BUTTON  (sign-in button only — no tab)
     // ═════════════════════════════════════════════════════════════════════
     function _injectTopBarBtn() {
         if (document.getElementById("authTopBtn")) return;
         const btn = document.createElement("button");
-        btn.id = "authTopBtn";
+        btn.id        = "authTopBtn";
         btn.className = "top-bar-btn";
-        btn.onclick = openAuthModal;
+        btn.onclick   = openAuthModal;
         const topBar = document.getElementById("topBar");
         if (topBar) topBar.prepend(btn);
         _updateTopBarBtn();
@@ -463,12 +532,18 @@ ${hasLocal ? `
         if (!btn) return;
         if (_token && _username) {
             btn.textContent = `👤 ${_username}`;
-            btn.title = "Account";
+            btn.title = "Account settings";
             btn.classList.add("auth-btn-signed-in");
+            btn.onclick = () => {
+                // Open settings directly on the Account tab
+                if (typeof openSettings === "function") openSettings("account");
+                else openAuthModal();
+            };
         } else {
             btn.textContent = "👤 Sign In";
             btn.title = "Sign in or create an account";
             btn.classList.remove("auth-btn-signed-in");
+            btn.onclick = openAuthModal;
         }
     }
 
@@ -493,11 +568,10 @@ ${hasLocal ? `
             const d = await res.json().catch(() => ({}));
             if (d.ok) {
                 _lastSyncAt = Date.now();
-                // Refresh the sync badge without a full re-render
                 const badge = document.getElementById("acctSyncBadge");
                 if (badge) badge.textContent = _friendlyTime(_lastSyncAt);
             }
-        } catch (e) { /* silent */ }
+        } catch { /* silent — offline */ }
     }
 
     function scheduleSyncPush() {
@@ -516,7 +590,6 @@ ${hasLocal ? `
             const resp = await res.json().catch(() => ({}));
             if (!resp.ok || !resp.data) return;
 
-            // Cache joinedAt if returned
             if (resp.joinedAt && !_joined) {
                 _joined = resp.joinedAt;
                 localStorage.setItem(LS_JOINED, _joined);
@@ -529,18 +602,17 @@ ${hasLocal ? `
 
             _lastSyncAt = Date.now();
 
-            // Live re-apply
-            if (typeof loadSettings === "function" && typeof applySettings === "function")
+            if (typeof loadSettings  === "function" && typeof applySettings === "function")
                 applySettings(loadSettings(), { skipAudio: false });
             if (typeof syncSettingsUI === "function")
                 syncSettingsUI(loadSettings());
             if (typeof renderPlaylistSidebar === "function") renderPlaylistSidebar();
             if (typeof renderBookmarksList   === "function") renderBookmarksList();
-        } catch (e) { /* silent */ }
+        } catch { /* silent */ }
     }
 
     // ═════════════════════════════════════════════════════════════════════
-    //  ADMIN GATE — whd:auth:loggedin event fires requireLogin callback
+    //  ADMIN GATE
     // ═════════════════════════════════════════════════════════════════════
     window.addEventListener("whd:auth:loggedin", () => {
         if (_pendingAdminCallback) {
@@ -554,6 +626,11 @@ ${hasLocal ? `
     // ═════════════════════════════════════════════════════════════════════
     //  HELPERS
     // ═════════════════════════════════════════════════════════════════════
+    function _hasLocalData() {
+        const bms = _tryJSON(localStorage.getItem("whd_bookmarks"))    || [];
+        const pls = _tryJSON(localStorage.getItem("whd_playlists_v1")) || [];
+        return bms.length > 0 || pls.length > 0;
+    }
     function _tryJSON(str) {
         try { return str ? JSON.parse(str) : null; } catch { return null; }
     }
@@ -563,44 +640,36 @@ ${hasLocal ? `
     function _friendlyTime(ts) {
         if (!ts) return "—";
         const diff = Date.now() - ts;
-        if (diff < 60000)  return "just now";
+        if (diff < 60000)   return "just now";
         if (diff < 3600000) return Math.floor(diff / 60000) + "m ago";
         return Math.floor(diff / 3600000) + "h ago";
     }
     function _formatDate(ts) {
-        if (!ts) return "—";
         try {
             const d = new Date(typeof ts === "number" ? ts : parseInt(ts));
-            if (isNaN(d)) return "—";
-            return d.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
+            return isNaN(d) ? "—" : d.toLocaleDateString(undefined, { year: "numeric", month: "long", day: "numeric" });
         } catch { return "—"; }
     }
-
     function _showSyncToast(msg) {
         if (typeof showToast === "function") { showToast(msg); return; }
         let t = document.getElementById("authSyncToast");
         if (!t) {
             t = document.createElement("div"); t.id = "authSyncToast";
-            t.style.cssText = "position:fixed;bottom:80px;left:50%;transform:translateX(-50%);" +
-                "background:rgba(20,20,20,.95);color:#f5e6c8;padding:10px 22px;border-radius:8px;" +
-                "z-index:99999;font-size:13px;pointer-events:none;opacity:0;transition:opacity .3s;";
             document.body.appendChild(t);
         }
-        t.textContent = msg; t.style.opacity = "1";
+        t.textContent = msg; t.classList.add("auth-sync-toast-visible");
         clearTimeout(t._timer);
-        t._timer = setTimeout(() => { t.style.opacity = "0"; }, 3200);
+        t._timer = setTimeout(() => t.classList.remove("auth-sync-toast-visible"), 3200);
     }
 
     // ═════════════════════════════════════════════════════════════════════
-    //  SETTINGS TAB — wire up account tab click to re-render
+    //  SETTINGS TAB HOOK
     // ═════════════════════════════════════════════════════════════════════
     function _hookSettingsAccountTab() {
         const tabBtn = document.querySelector('.settings-tab[data-stab="account"]');
         if (!tabBtn || tabBtn._acctHooked) return;
         tabBtn._acctHooked = true;
-        tabBtn.addEventListener("click", () => {
-            setTimeout(renderSettingsAccountPage, 0);
-        });
+        tabBtn.addEventListener("click", () => setTimeout(renderSettingsAccountPage, 0));
     }
 
     // ═════════════════════════════════════════════════════════════════════
@@ -627,6 +696,5 @@ ${hasLocal ? `
         init();
     }
 
-    // Expose renderSettingsAccountPage globally for other modules
     window.renderSettingsAccountPage = renderSettingsAccountPage;
 })();

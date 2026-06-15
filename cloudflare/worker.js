@@ -92,6 +92,21 @@ async function handleLoad(request, env) {
     return json({ ok: true, data: user.data || {}, joinedAt: user.joinedAt });
 }
 
+async function handleDelete(request, env) {
+    const { token, password } = await request.json().catch(() => ({}));
+    if (!token) return json({ ok: false, error: "Missing token." }, 401);
+    const username = await env.WHD_TOKENS.get(token);
+    if (!username) return json({ ok: false, error: "Invalid or expired session." }, 401);
+    const raw = await env.WHD_USERS.get(username);
+    if (!raw) return json({ ok: false, error: "User not found." }, 404);
+    const user = JSON.parse(raw);
+    if (!password || !await verifyPassword(password, user.hash))
+        return json({ ok: false, error: "Incorrect password." }, 401);
+    await env.WHD_USERS.delete(username);
+    await env.WHD_TOKENS.delete(token);
+    return json({ ok: true });
+}
+
 // ── Main fetch handler ────────────────────────────────────────────────────
 
 export default {
@@ -129,6 +144,7 @@ export default {
         if (url.pathname === "/auth/login")  return handleLogin(request, env);
         if (url.pathname === "/auth/save")   return handleSave(request, env);
         if (url.pathname === "/auth/load")   return handleLoad(request, env);
+        if (url.pathname === "/auth/delete") return handleDelete(request, env);
 
         return json({ ok: false, error: "Not found" }, 404);
     },
