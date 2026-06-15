@@ -684,6 +684,12 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
     }
 
     function openPanel() {
+        // ── Auth gate: must be signed in before admin is accessible ───────
+        if (typeof window.WHDAuth !== "undefined" && !window.WHDAuth.isLoggedIn()) {
+            window.WHDAuth.requireLogin(() => openPanel());
+            return;
+        }
+
         document.getElementById("adminOverlay").style.display = "block";
         document.getElementById("adminPanel").classList.add("visible");
         setTimeout(() => document.getElementById("adminOverlay").classList.add("active"), 10);

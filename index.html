@@ -11,6 +11,141 @@
     <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
+    <style>
+    /* ── Auth Modal ──────────────────────────────────────────────────────── */
+    #authModal { display:none; }
+    #authModal.visible { display:block; }
+    #authOverlay {
+        position:fixed;inset:0;background:rgba(0,0,0,.65);z-index:10000;
+        opacity:0;transition:opacity .25s;pointer-events:none;
+    }
+    #authOverlay.active { opacity:1;pointer-events:auto; }
+    #authPanel {
+        position:fixed;top:50%;left:50%;transform:translate(-50%,-50%);
+        z-index:10001;width:min(420px,92vw);
+        background:#0e0e12;border:1px solid rgba(255,255,255,.1);
+        border-radius:14px;box-shadow:0 24px 64px rgba(0,0,0,.7);
+        overflow:hidden;
+    }
+    #authPanelInner { padding:32px 28px 24px; }
+    #authLogo {
+        font-size:22px;font-weight:700;letter-spacing:.12em;
+        color:var(--accent,#c0161f);text-align:center;margin-bottom:2px;
+    }
+    #authTagline {
+        text-align:center;color:rgba(255,255,255,.35);font-size:11px;
+        letter-spacing:.15em;text-transform:uppercase;margin-bottom:22px;
+    }
+    #authTabs {
+        display:flex;gap:4px;margin-bottom:20px;
+        background:rgba(255,255,255,.04);border-radius:8px;padding:4px;
+    }
+    .auth-tab {
+        flex:1;padding:7px 0;border:none;border-radius:6px;cursor:pointer;
+        background:transparent;color:rgba(255,255,255,.45);font-size:13px;
+        transition:all .18s;
+    }
+    .auth-tab.active {
+        background:rgba(255,255,255,.10);color:#f5e6c8;font-weight:600;
+    }
+    .auth-form { display:none; }
+    .auth-form.active { display:block; }
+    .auth-field { margin-bottom:14px; }
+    .auth-field label {
+        display:block;font-size:11px;color:rgba(255,255,255,.5);
+        text-transform:uppercase;letter-spacing:.08em;margin-bottom:5px;
+    }
+    .auth-hint { font-size:10px;color:rgba(255,255,255,.3);text-transform:none;letter-spacing:0; }
+    .auth-field input {
+        width:100%;box-sizing:border-box;
+        background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.12);
+        border-radius:7px;padding:10px 12px;color:#f5e6c8;font-size:14px;
+        outline:none;transition:border-color .15s;
+    }
+    .auth-field input:focus { border-color:var(--accent,#c0161f); }
+    .auth-error {
+        min-height:16px;font-size:12px;color:#ff6b6b;margin-bottom:10px;
+        margin-top:-6px;
+    }
+    .auth-primary-btn {
+        width:100%;padding:11px;border:none;border-radius:8px;cursor:pointer;
+        background:var(--accent,#c0161f);color:#fff;font-size:14px;font-weight:600;
+        transition:opacity .15s;margin-bottom:4px;
+    }
+    .auth-primary-btn:hover { opacity:.85; }
+    .auth-primary-btn:disabled { opacity:.5;cursor:default; }
+    .auth-divider {
+        display:flex;align-items:center;gap:10px;margin:16px 0 12px;
+        color:rgba(255,255,255,.2);font-size:12px;
+    }
+    .auth-divider::before,.auth-divider::after {
+        content:'';flex:1;height:1px;background:rgba(255,255,255,.08);
+    }
+    .auth-ghost-btn {
+        width:100%;padding:10px;border:1px solid rgba(255,255,255,.12);
+        border-radius:8px;cursor:pointer;background:transparent;
+        color:rgba(255,255,255,.55);font-size:13px;transition:all .15s;
+    }
+    .auth-ghost-btn:hover { border-color:rgba(255,255,255,.3);color:#f5e6c8; }
+    #authLoggedInRow { text-align:center;padding:8px 0 4px; }
+    #authWelcome { font-size:15px;font-weight:600;color:#f5e6c8;margin-bottom:4px; }
+    #authSyncStatus { font-size:12px;color:rgba(255,255,255,.4);margin-bottom:14px; }
+    .auth-notice {
+        text-align:center;font-size:11px;color:rgba(255,255,255,.2);
+        margin-top:14px;margin-bottom:0;line-height:1.5;
+    }
+    /* Top bar account button accent */
+    #authTopBtn.auth-btn-signed-in { color:var(--accent,#c0161f); }
+
+    /* ── Auth transfer checkbox ─────────────────────────────────────────── */
+    .auth-transfer-row {
+        background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+        border-radius:7px;padding:10px 12px;margin-bottom:12px;
+    }
+    .auth-checkbox-label {
+        display:flex;align-items:flex-start;gap:9px;cursor:pointer;
+        font-size:12px;color:rgba(255,255,255,.6);line-height:1.45;
+    }
+    .auth-checkbox-label input[type="checkbox"] { margin-top:2px;accent-color:var(--accent,#c0161f); }
+
+    /* ── Settings — Account tab ─────────────────────────────────────────── */
+    .acct-card {
+        display:flex;align-items:center;gap:14px;
+        background:rgba(255,255,255,.05);border:1px solid rgba(255,255,255,.09);
+        border-radius:10px;padding:14px 16px;margin-bottom:4px;
+    }
+    .acct-avatar {
+        width:42px;height:42px;border-radius:50%;
+        background:var(--accent,#c0161f);display:flex;align-items:center;justify-content:center;
+        font-size:18px;font-weight:700;color:#fff;flex-shrink:0;
+    }
+    .acct-username { font-size:15px;font-weight:600;color:#f5e6c8; }
+    .acct-meta { font-size:11px;color:rgba(255,255,255,.35);margin-top:2px; }
+    .acct-sync-badge,.acct-count-badge {
+        font-size:12px;color:rgba(255,255,255,.5);
+        background:rgba(255,255,255,.06);border-radius:6px;padding:4px 10px;
+        border:1px solid rgba(255,255,255,.08);
+    }
+    .acct-guest-block {
+        display:flex;flex-direction:column;align-items:center;
+        text-align:center;padding:22px 12px 16px;
+        background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
+        border-radius:10px;gap:6px;
+    }
+    .acct-guest-icon { font-size:28px;color:var(--accent,#c0161f);margin-bottom:4px; }
+    .acct-guest-title { font-size:15px;font-weight:600;color:#f5e6c8; }
+    .acct-guest-sub { font-size:12px;color:rgba(255,255,255,.4);line-height:1.5;max-width:280px; }
+    .acct-signin-btn { margin-top:10px;width:auto;padding:10px 28px; }
+    .acct-local-summary {
+        background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+        border-radius:8px;padding:10px 14px;margin-top:4px;
+    }
+    .acct-local-row { display:flex;flex-wrap:wrap;gap:8px; }
+    .acct-local-item {
+        font-size:12px;color:rgba(255,255,255,.55);
+        background:rgba(255,255,255,.06);border-radius:6px;padding:4px 10px;
+    }
+    </style>
 </head>
 
 <body>
@@ -210,6 +345,7 @@
             <div id="settingsHeader">
                 <div id="settingsTabs">
                     <button class="settings-tab active" data-stab="general">⚙ General</button>
+                    <button class="settings-tab" data-stab="account">👤 Account</button>
                     <button class="settings-tab" data-stab="sources">📚 Sources</button>
                     <button class="settings-tab" data-stab="help">❓ Help</button>
                 </div>
@@ -319,6 +455,11 @@
                     </div>
                 </div>
             </div>
+            <!-- ACCOUNT TAB -->
+            <div class="settings-page" data-spage="account" id="settingsAccountPage">
+                <!-- Content injected by auth.js via renderSettingsAccountPage() -->
+                <div id="settingsAccountContent"></div>
+            </div>
             <!-- SOURCES TAB -->
             <div class="settings-page" data-spage="sources">
                 <div class="settings-section-title">🖼️ Images</div>
@@ -342,14 +483,19 @@
                 <div class="help-entry"><div class="help-q">Can I choose music for my playlist?</div><div class="help-a">Yes — inside the playlist editor click <strong>🎵 Music</strong> to pick a track, or leave it on Auto to match the region.</div></div>
                 <div class="settings-section-title" style="margin-top:20px;">⚙ Settings</div>
                 <div class="help-entry"><div class="help-q">How do I change the colour theme?</div><div class="help-a">In the <strong>General</strong> tab, pick a colour swatch under <em>Appearance → Colour Theme</em>.</div></div>
-                <div class="help-entry"><div class="help-q">Where are my settings saved?</div><div class="help-a">All settings are saved in your browser's local storage and persist between sessions.</div></div>
+                <div class="help-entry"><div class="help-q">Where are my settings saved?</div><div class="help-a">If you're signed in, all settings sync automatically to your account across devices. In guest mode, settings are saved in this browser's local storage.</div></div>
                 <div class="help-entry"><div class="help-q">How do I reset everything?</div><div class="help-a">Go to <strong>General → Data</strong> and click <strong>↺ Reset Defaults</strong>.</div></div>
                 <div class="settings-section-title" style="margin-top:20px;">🎵 Audio</div>
                 <div class="help-entry"><div class="help-q">Music doesn't play on first load?</div><div class="help-a">Browsers require a user interaction before audio can start. Click anywhere and music will begin on the next scene.</div></div>
                 <div class="help-entry"><div class="help-q">Can I mute during story mode?</div><div class="help-a">Yes — click the <strong>🔕 Mute</strong> button in the top-right, or set BGM Volume to 0 in Settings.</div></div>
                 <div class="settings-section-title" style="margin-top:20px;">📬 About</div>
                 <div class="help-entry"><div class="help-q">What version is this?</div><div class="help-a">World History Documentary — an interactive single-page history explorer. See 📚 Sources for data credits.</div></div>
-                <div class="help-entry"><div class="help-q">Is there an admin / content panel?</div><div class="help-a">Yes — press the <strong>O</strong> key while not focused on a text field to open the Admin Panel. From there you can add, edit, or delete scenes and manage the navigation tree.</div></div>
+                <div class="settings-section-title" style="margin-top:20px;">👤 Account</div>
+                <div class="help-entry"><div class="help-q">Do I need an account?</div><div class="help-a">No — you can use Guest Mode and everything is saved locally in your browser. Sign in to sync your playlists, bookmarks and settings across devices.</div></div>
+                <div class="help-entry"><div class="help-q">How do I sign in or create an account?</div><div class="help-a">Click the <strong>👤 Sign In</strong> button at the top left, or go to <strong>⚙ Settings → Account</strong>. You can sign in or create a new account from there.</div></div>
+                <div class="help-entry"><div class="help-q">Can I transfer my guest data to an account?</div><div class="help-a">Yes — go to <strong>Settings → Account</strong> while in Guest Mode and click <strong>Import Local Data</strong> before signing in. This uploads your local playlists, bookmarks and settings to your account.</div></div>
+                <div class="help-entry"><div class="help-q">How does sync work?</div><div class="help-a">When signed in, any change to playlists, bookmarks or settings is automatically pushed to the cloud within a few seconds. On a new device, just sign in and your data will load immediately.</div></div>
+                <div class="help-entry"><div class="help-q">How do I sign out?</div><div class="help-a">Go to <strong>Settings → Account</strong> and click <strong>Sign Out</strong>. Your local data is kept; it just stops syncing until you sign in again.</div></div>
             </div>
         </div>
     </div>
@@ -386,6 +532,7 @@
     <script src="data/africa.js"></script>
 
     <!-- App scripts (load order preserved from original) -->
+    <script src="javascript/auth.js"></script>           <!-- account login/signup/guest, cloud sync -->
     <script src="javascript/audio-nav.js"></script>      <!-- audio, nav stack, setUIState, startStory -->
     <script src="javascript/story-scene.js"></script>    <!-- showScene, loopStory, showToast, timeline -->
     <script src="javascript/timeline-share.js"></script> <!-- scrubber, keyboard, nowPlaying, share, URL hash -->
