@@ -2811,7 +2811,6 @@ body.story-mode #topBar {
 #adminCloseBtn{background:none;border:none;color:rgba(255,255,255,0.4);font-size:20px;cursor:pointer;padding:0 4px;transition:color .15s;}
 #adminCloseBtn:hover{color:#fff;}
 
-/* ── Tab navigation ───────────────────────────────── */
 #adminTabs{display:flex;gap:2px;padding:10px 20px 0;border-bottom:1px solid rgba(255,255,255,0.07);background:rgba(0,0,0,0.3);}
 .admin-tab{
     padding:7px 14px;border-radius:8px 8px 0 0;border:1px solid transparent;border-bottom:none;
