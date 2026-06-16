@@ -3284,6 +3284,18 @@ body.accent-is-light .admin-color-preset.active {
     box-shadow: 0 0 0 2px rgba(0,0,0,0.4);
 }
 
+/* ── Light accent: auth & account elements ────────────────────────────────
+   Any element that uses var(--accent) as a background gets dark text
+   so white-on-white is never produced. */
+body.accent-is-light .auth-primary-btn,
+body.accent-is-light .acct-avatar,
+body.accent-is-light .acct-signin-btn       { color: #111; }
+body.accent-is-light .auth-field input:focus { box-shadow: 0 0 0 2px rgba(0,0,0,0.15); }
+body.accent-is-light .acct-guest-icon        { color: #333; }
+body.accent-is-light #authBrandGlyph         { color: #333; }
+body.accent-is-light .auth-tab.active        { color: #111; }
+body.accent-is-light .settings-btn-danger    { color: #333; }
+
 /* ═══════════════════════════════════════════════════════════════
    AUTH — full-screen login/signup modal, account settings tab,
           delete confirm dialog, sync toast.
@@ -3415,11 +3427,13 @@ body.accent-is-light .admin-color-preset.active {
     background: rgba(255, 255, 255, 0.05);
     border-radius: 8px;
     padding: 4px;
+    overflow: hidden; /* clips active highlight to pill shape */
 }
 
 .auth-tab {
     flex: 1;
-    padding: 8px 0;
+    min-width: 0;
+    padding: 8px 4px;
     border: none;
     border-radius: 6px;
     cursor: pointer;
@@ -3428,7 +3442,8 @@ body.accent-is-light .admin-color-preset.active {
     font-size: 13px;
     font-family: inherit;
     transition: all 0.18s;
-    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .auth-tab.active {
@@ -3510,9 +3525,6 @@ body.accent-is-light .admin-color-preset.active {
 .auth-primary-btn:hover  { opacity: 0.88; transform: translateY(-1px); }
 .auth-primary-btn:active { transform: translateY(0); }
 .auth-primary-btn:disabled { opacity: 0.5; cursor: default; transform: none; }
-
-/* Light accent: white button needs dark text */
-body.accent-is-light .auth-primary-btn { color: #111; }
 
 /* ── Ghost button ────────────────────────────────────────────── */
 .auth-ghost-btn {
@@ -3630,9 +3642,6 @@ body.accent-is-light .auth-primary-btn { color: #111; }
     flex-shrink: 0;
 }
 
-/* Light accent: accent bg → avatar text needs dark */
-body.accent-is-light .acct-avatar { color: #111; }
-
 .acct-username {
     font-size: 15px;
     font-weight: 600;
@@ -3694,10 +3703,7 @@ body.accent-is-light .acct-avatar { color: #111; }
     padding: 10px 28px !important;
 }
 
-/* Light accent: sign-in button in account tab */
-body.accent-is-light .acct-signin-btn { color: #111; }
-
-/* ── Delete account confirm modal ────────────────────────────── */
+/* ── Settings → Account tab ──────────────────────────────────── */
 #acctDeleteModal {
     position: fixed;
     inset: 0;
@@ -3742,12 +3748,20 @@ body.accent-is-light .acct-signin-btn { color: #111; }
 
 .acct-delete-btns {
     display: flex;
-    gap: 10px;
+    gap: 8px;
     margin-top: 14px;
+    flex-wrap: wrap;
 }
 
 .acct-delete-btns .auth-ghost-btn,
-.acct-delete-btns .settings-btn-danger { flex: 1; }
+.acct-delete-btns .settings-btn-danger {
+    flex: 1;
+    min-width: 0;
+    box-sizing: border-box;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
 
 /* ── Sync toast ──────────────────────────────────────────────── */
 #authSyncToast {

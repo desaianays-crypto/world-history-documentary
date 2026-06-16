@@ -72,6 +72,10 @@ document.querySelectorAll(".settings-tab").forEach(tab => {
         tab.classList.add("active");
         const pg = document.querySelector(`.settings-page[data-spage="${tab.dataset.stab}"]`);
         if (pg) pg.classList.add("active");
+        // Re-render account page whenever that tab is opened
+        if (tab.dataset.stab === "account" && typeof renderSettingsAccountPage === "function") {
+            setTimeout(renderSettingsAccountPage, 0);
+        }
     });
 });
 

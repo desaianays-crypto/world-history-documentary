@@ -467,6 +467,8 @@
             const data = await res.json().catch(() => ({}));
             if (data.ok) {
                 document.getElementById("acctDeleteModal")?.remove();
+                // Close settings panel if open
+                if (typeof closeSettings === "function") closeSettings();
                 logout();
                 _showSyncToast("Account deleted.");
             } else {
@@ -479,12 +481,19 @@
         }
     }
 
-    // ── Reusable confirm helper (uses app modal if present) ───────────────
+    // ── Reusable confirm helper (uses app modal) ──────────────────────
     function _showAppConfirm(title, body, confirmLabel, onConfirm) {
         if (typeof showAppConfirm === "function") {
-            showAppConfirm(title, body, confirmLabel, onConfirm);
+            showAppConfirm({
+                icon:     "⚠️",
+                title:    title,
+                msg:      body,
+                okLabel:  confirmLabel,
+                okDanger: true,
+            }).then(ok => { if (ok) onConfirm(); });
             return;
         }
+        // Fallback if app modal not available
         if (window.confirm(body)) onConfirm();
     }
     //  SYNC
