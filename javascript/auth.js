@@ -244,6 +244,7 @@
             const data = await res.json().catch(() => ({}));
             if (data.ok && data.token) {
                 _setSession(user, data.token, data.joinedAt || null, data.role || "user");
+                await _pullAndApply();
                 _renderAuthModal();
                 renderSettingsAccountPage();
                 window.dispatchEvent(new Event("whd:auth:loggedin"));
@@ -398,6 +399,8 @@
   <div class="settings-control"><span class="acct-count-badge">Synced</span></div>
 </div>
 
+${_role === "owner" ? _buildOwnerPanel() : ""}
+
 <div class="settings-section-title" style="margin-top:20px;">⚠ Account Actions</div>
 <div class="settings-row">
   <div class="settings-label"><span>Sign out</span><span class="settings-hint">Clears local playlists &amp; bookmarks</span></div>
@@ -418,6 +421,9 @@
             };
             document.getElementById("acctDeleteBtn").onclick = () => _showDeleteConfirm();
 
+            // Wire owner panel if present
+            if (_role === "owner") _wireOwnerPanel();
+
         } else {
             el.innerHTML = `
 <div class="acct-guest-block">
@@ -427,6 +433,104 @@
   <button class="auth-primary-btn acct-signin-btn" id="acctSignInBtn">Sign In / Create Account</button>
 </div>`;
             document.getElementById("acctSignInBtn").onclick = () => window.WHDAuth.openModal();
+        }
+    }
+
+    // ── Owner panel ───────────────────────────────────────────────────────────
+    function _buildOwnerPanel() {
+        return `
+<div class="settings-section-title" style="margin-top:20px;">👑 Owner Controls</div>
+<div class="acct-owner-panel">
+  <div class="acct-owner-desc">Promote a user to admin or strip their admin status. Admins can access the content editor panel.</div>
+  <div class="acct-owner-form">
+    <input id="ownerTargetUser" type="text" placeholder="Username…" spellcheck="false" autocomplete="off"/>
+    <div class="acct-owner-btns">
+      <button class="acct-owner-btn acct-promote-btn" id="ownerPromoteBtn">⚡ Make Admin</button>
+      <button class="acct-owner-btn acct-demote-btn"  id="ownerDemoteBtn">✕ Remove Admin</button>
+    </div>
+  </div>
+  <div class="acct-owner-result" id="ownerResult"></div>
+  <div class="acct-admin-list-header">Current Admins</div>
+  <div class="acct-admin-list" id="ownerAdminList"><span class="acct-admin-loading">Loading…</span></div>
+</div>`;
+    }
+
+    function _wireOwnerPanel() {
+        _loadAdminList();
+        const promoteBtn = document.getElementById("ownerPromoteBtn");
+        const demoteBtn  = document.getElementById("ownerDemoteBtn");
+        if (promoteBtn) promoteBtn.onclick = () => _doPromote("admin");
+        if (demoteBtn)  demoteBtn.onclick  = () => _doPromote("user");
+    }
+
+    async function _loadAdminList() {
+        const listEl = document.getElementById("ownerAdminList");
+        if (!listEl) return;
+        try {
+            const res  = await fetch(WORKER_URL + "/auth/listadmins", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token: _token }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!data.ok) { listEl.innerHTML = `<span class="acct-admin-loading">Failed to load.</span>`; return; }
+            if (!data.admins || !data.admins.length) {
+                listEl.innerHTML = `<span class="acct-admin-loading">No admins yet.</span>`;
+            } else {
+                listEl.innerHTML = data.admins.map(a =>
+                    `<div class="acct-admin-row">
+                       <span class="acct-admin-name">⚡ ${_escHtml(a.username)}</span>
+                       <button class="acct-admin-revoke" data-user="${_escHtml(a.username)}">Remove</button>
+                     </div>`
+                ).join("");
+                listEl.querySelectorAll(".acct-admin-revoke").forEach(btn => {
+                    btn.onclick = async () => {
+                        const result = document.getElementById("ownerResult");
+                        const uname = btn.dataset.user;
+                        btn.disabled = true; btn.textContent = "Removing…";
+                        const ok = await _callPromote(uname, "user");
+                        if (ok) {
+                            if (result) result.textContent = `${uname} is no longer an admin.`;
+                            _loadAdminList();
+                        } else {
+                            btn.disabled = false; btn.textContent = "Remove";
+                        }
+                    };
+                });
+            }
+        } catch {
+            listEl.innerHTML = `<span class="acct-admin-loading">Error loading admins.</span>`;
+        }
+    }
+
+    async function _doPromote(newRole) {
+        const inp    = document.getElementById("ownerTargetUser");
+        const result = document.getElementById("ownerResult");
+        const target = inp?.value.trim();
+        if (!target) { if (result) result.textContent = "Enter a username first."; return; }
+        if (result) result.textContent = newRole === "admin" ? "Promoting…" : "Removing admin…";
+        const ok = await _callPromote(target, newRole);
+        if (ok) {
+            if (result) result.textContent = newRole === "admin"
+                ? `✓ ${target} is now an admin.`
+                : `✓ ${target}'s admin status removed.`;
+            if (inp) inp.value = "";
+            _loadAdminList();
+        }
+    }
+
+    async function _callPromote(targetUsername, newRole) {
+        const result = document.getElementById("ownerResult");
+        try {
+            const res  = await fetch(WORKER_URL + "/auth/promote", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token: _token, targetUsername, newRole }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (!data.ok && result) result.textContent = data.error || "Failed.";
+            return !!data.ok;
+        } catch {
+            if (result) result.textContent = "Couldn't reach server.";
+            return false;
         }
     }
 

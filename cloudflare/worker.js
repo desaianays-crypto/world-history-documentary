@@ -14,7 +14,7 @@
 //   user   — default for everyone else.
 
 const KV_KEY     = "admin_data";
-const OWNER_NAME = "Anay"; // lowercase — the owner account username
+const OWNER_NAME = "Anay"; 
 
 const CORS_HEADERS = {
     "Access-Control-Allow-Origin": "*",
