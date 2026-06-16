@@ -190,6 +190,41 @@ async function handlePromote(request, env) {
     return json({ ok: true, username: target.username, role: target.role });
 }
 
+// ── List admins only (owner only, used by settings owner panel) ───────────
+
+async function handleListAdmins(request, env) {
+    const { token } = await request.json().catch(() => ({}));
+    const caller = await getUserFromToken(token, env);
+    if (!caller) return json({ ok: false, error: "Not authenticated." }, 401);
+    if (!isOwner(caller)) return json({ ok: false, error: "Owner access required." }, 403);
+    const listed = await env.WHD_USERS.list();
+    const admins = [];
+    for (const { name } of listed.keys) {
+        const raw = await env.WHD_USERS.get(name);
+        if (!raw) continue;
+        const u = JSON.parse(raw);
+        if (u.role === "admin") admins.push({ username: u.username, joinedAt: u.joinedAt });
+    }
+    return json({ ok: true, admins });
+}
+
+// ── Change password ────────────────────────────────────────────────────────
+
+async function handleChangePassword(request, env) {
+    const { token, currentPassword, newPassword } = await request.json().catch(() => ({}));
+    const user = await getUserFromToken(token, env);
+    if (!user) return json({ ok: false, error: "Invalid or expired session." }, 401);
+    if (!currentPassword || !newPassword)
+        return json({ ok: false, error: "Missing fields." }, 400);
+    if (newPassword.length < 8)
+        return json({ ok: false, error: "New password must be at least 8 characters." }, 400);
+    if (!await verifyPassword(currentPassword, user.hash))
+        return json({ ok: false, error: "Current password is incorrect." }, 401);
+    user.hash = await hashPassword(newPassword);
+    await env.WHD_USERS.put(user.key, JSON.stringify(user));
+    return json({ ok: true });
+}
+
 // ── Main fetch handler ────────────────────────────────────────────────────
 
 export default {
@@ -223,13 +258,15 @@ export default {
         }
 
         // Auth
-        if (url.pathname === "/auth/signup")  return handleSignup(request, env);
-        if (url.pathname === "/auth/login")   return handleLogin(request, env);
-        if (url.pathname === "/auth/save")    return handleSave(request, env);
-        if (url.pathname === "/auth/load")    return handleLoad(request, env);
-        if (url.pathname === "/auth/delete")  return handleDelete(request, env);
-        if (url.pathname === "/auth/promote") return handlePromote(request, env);
-        if (url.pathname === "/auth/users")   return handleUsers(request, env);
+        if (url.pathname === "/auth/signup")         return handleSignup(request, env);
+        if (url.pathname === "/auth/login")           return handleLogin(request, env);
+        if (url.pathname === "/auth/save")            return handleSave(request, env);
+        if (url.pathname === "/auth/load")            return handleLoad(request, env);
+        if (url.pathname === "/auth/delete")          return handleDelete(request, env);
+        if (url.pathname === "/auth/promote")         return handlePromote(request, env);
+        if (url.pathname === "/auth/users")           return handleUsers(request, env);
+        if (url.pathname === "/auth/listadmins")      return handleListAdmins(request, env);
+        if (url.pathname === "/auth/changepassword")  return handleChangePassword(request, env);
 
         return json({ ok: false, error: "Not found" }, 404);
     },
@@ -339,5 +376,3 @@ async function handleDelete(request, env) {
     await env.WHD_TOKENS.delete(token);
     return json({ ok: true });
 }
-
-// ── Main fetch handler ────────────────────────────────────────────────────

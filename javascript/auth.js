@@ -91,7 +91,10 @@
         </div>
         <div class="auth-field">
           <label>Password</label>
-          <input id="authLoginPass" type="password" autocomplete="current-password" placeholder="••••••••"/>
+          <div class="auth-pass-wrap">
+            <input id="authLoginPass" type="password" autocomplete="current-password" placeholder="••••••••"/>
+            <button type="button" class="auth-show-pass" tabindex="-1" onclick="togglePassVis('authLoginPass',this)" aria-label="Show password">👁</button>
+          </div>
         </div>
         <div class="auth-error" id="authLoginError"></div>
         <button class="auth-primary-btn" id="authLoginBtn">Sign In</button>
@@ -104,11 +107,17 @@
         </div>
         <div class="auth-field">
           <label>Password <span class="auth-hint">8+ characters</span></label>
-          <input id="authSignupPass" type="password" autocomplete="new-password" placeholder="••••••••" minlength="8"/>
+          <div class="auth-pass-wrap">
+            <input id="authSignupPass" type="password" autocomplete="new-password" placeholder="••••••••" minlength="8"/>
+            <button type="button" class="auth-show-pass" tabindex="-1" onclick="togglePassVis('authSignupPass',this)" aria-label="Show password">👁</button>
+          </div>
         </div>
         <div class="auth-field">
           <label>Confirm Password</label>
-          <input id="authSignupPass2" type="password" autocomplete="new-password" placeholder="••••••••"/>
+          <div class="auth-pass-wrap">
+            <input id="authSignupPass2" type="password" autocomplete="new-password" placeholder="••••••••"/>
+            <button type="button" class="auth-show-pass" tabindex="-1" onclick="togglePassVis('authSignupPass2',this)" aria-label="Show password">👁</button>
+          </div>
         </div>
         <div id="authTransferRow" class="auth-transfer-row" style="display:none">
           <label class="auth-checkbox-label">
@@ -401,6 +410,8 @@
 
 ${_role === "owner" ? _buildOwnerPanel() : ""}
 
+${_buildChangePasswordHTML()}
+
 <div class="settings-section-title" style="margin-top:20px;">⚠ Account Actions</div>
 <div class="settings-row">
   <div class="settings-label"><span>Sign out</span><span class="settings-hint">Clears local playlists &amp; bookmarks</span></div>
@@ -420,6 +431,9 @@ ${_role === "owner" ? _buildOwnerPanel() : ""}
                 );
             };
             document.getElementById("acctDeleteBtn").onclick = () => _showDeleteConfirm();
+
+            // Wire change password form
+            _wireChangePassword();
 
             // Wire owner panel if present
             if (_role === "owner") _wireOwnerPanel();
@@ -534,6 +548,82 @@ ${_role === "owner" ? _buildOwnerPanel() : ""}
         }
     }
 
+    // ── Password visibility toggle (global, called by inline onclick) ────────
+    window.togglePassVis = function(inputId, btn) {
+        const inp = document.getElementById(inputId);
+        if (!inp) return;
+        const isHidden = inp.type === "password";
+        inp.type = isHidden ? "text" : "password";
+        btn.textContent = isHidden ? "🙈" : "👁";
+        btn.title = isHidden ? "Hide password" : "Show password";
+    };
+
+    // ── Change password UI ────────────────────────────────────────────────
+    function _buildChangePasswordHTML() {
+        return `
+<div class="settings-section-title" style="margin-top:20px;">🔑 Change Password</div>
+<div class="acct-change-pass-form">
+  <div class="auth-field">
+    <label>Current Password</label>
+    <div class="auth-pass-wrap">
+      <input id="acctCurrPass" type="password" placeholder="••••••••" autocomplete="current-password"/>
+      <button type="button" class="auth-show-pass" tabindex="-1" onclick="togglePassVis('acctCurrPass',this)">👁</button>
+    </div>
+  </div>
+  <div class="auth-field">
+    <label>New Password <span class="auth-hint">8+ characters</span></label>
+    <div class="auth-pass-wrap">
+      <input id="acctNewPass" type="password" placeholder="••••••••" autocomplete="new-password"/>
+      <button type="button" class="auth-show-pass" tabindex="-1" onclick="togglePassVis('acctNewPass',this)">👁</button>
+    </div>
+  </div>
+  <div class="auth-field">
+    <label>Confirm New Password</label>
+    <div class="auth-pass-wrap">
+      <input id="acctNewPass2" type="password" placeholder="••••••••" autocomplete="new-password"/>
+      <button type="button" class="auth-show-pass" tabindex="-1" onclick="togglePassVis('acctNewPass2',this)">👁</button>
+    </div>
+  </div>
+  <div class="auth-error" id="acctPassError"></div>
+  <button class="settings-btn" id="acctChangePassBtn">Update Password</button>
+</div>`;
+    }
+
+    function _wireChangePassword() {
+        const btn = document.getElementById("acctChangePassBtn");
+        if (!btn) return;
+        btn.onclick = async () => {
+            const curr  = document.getElementById("acctCurrPass")?.value;
+            const next  = document.getElementById("acctNewPass")?.value;
+            const next2 = document.getElementById("acctNewPass2")?.value;
+            const errEl = document.getElementById("acctPassError");
+            if (errEl) errEl.textContent = "";
+            if (!curr || !next || !next2) { if (errEl) errEl.textContent = "Fill in all fields."; return; }
+            if (next.length < 8)          { if (errEl) errEl.textContent = "New password must be 8+ characters."; return; }
+            if (next !== next2)           { if (errEl) errEl.textContent = "New passwords don't match."; return; }
+            btn.textContent = "Updating…"; btn.disabled = true;
+            try {
+                const res  = await fetch(WORKER_URL + "/auth/changepassword", {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ token: _token, currentPassword: curr, newPassword: next }),
+                });
+                const data = await res.json().catch(() => ({}));
+                if (data.ok) {
+                    document.getElementById("acctCurrPass").value  = "";
+                    document.getElementById("acctNewPass").value   = "";
+                    document.getElementById("acctNewPass2").value  = "";
+                    _showSyncToast("Password updated successfully.");
+                } else {
+                    if (errEl) errEl.textContent = data.error || "Could not update password.";
+                }
+            } catch {
+                if (errEl) errEl.textContent = "Couldn't reach server.";
+            } finally {
+                btn.textContent = "Update Password"; btn.disabled = false;
+            }
+        };
+    }
+
     // ── Delete account confirmation UI ────────────────────────────────────
     function _showDeleteConfirm() {
         // Re-use the app's confirm modal if available, otherwise build our own
@@ -552,7 +642,10 @@ ${_role === "owner" ? _buildOwnerPanel() : ""}
   </div>
   <div class="auth-field" style="margin-top:16px;">
     <label>Password</label>
-    <input id="acctDeletePass" type="password" placeholder="••••••••" autocomplete="current-password"/>
+    <div class="auth-pass-wrap">
+      <input id="acctDeletePass" type="password" placeholder="••••••••" autocomplete="current-password"/>
+      <button type="button" class="auth-show-pass" tabindex="-1" onclick="togglePassVis('acctDeletePass',this)">👁</button>
+    </div>
   </div>
   <div class="auth-error" id="acctDeleteError"></div>
   <div class="acct-delete-btns">
