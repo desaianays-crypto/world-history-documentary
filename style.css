@@ -3286,7 +3286,7 @@ body.accent-is-light .admin-color-preset.active {
 
 /* ═══════════════════════════════════════════════════════════════
    AUTH — full-screen login/signup modal, account settings tab,
-          delete confirm dialog, top-bar sign-in button, toast.
+          delete confirm dialog, sync toast.
    ═══════════════════════════════════════════════════════════════ */
 
 /* ── Modal shell ─────────────────────────────────────────────── */
@@ -3301,7 +3301,7 @@ body.accent-is-light .admin-color-preset.active {
 #authOverlay {
     position: absolute;
     inset: 0;
-    background: rgba(0, 0, 0, 0.55);
+    background: rgba(0, 0, 0, 0.6);
     backdrop-filter: blur(6px);
 }
 
@@ -3312,105 +3312,107 @@ body.accent-is-light .admin-color-preset.active {
     display: flex;
     width: 100%;
     height: 100%;
+    overflow: hidden;
     animation: authPanelIn 0.28s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 @keyframes authPanelIn {
-    from { opacity: 0; transform: translateY(16px); }
+    from { opacity: 0; transform: translateY(12px); }
     to   { opacity: 1; transform: translateY(0); }
 }
 
-/* Left decorative panel */
+/* ── Left decorative panel ───────────────────────────────────── */
 #authPanelLeft {
     flex: 1;
-    background: linear-gradient(160deg, rgba(192,22,31,0.18) 0%, rgba(0,0,0,0.6) 60%),
-                rgba(8, 8, 10, 0.92);
+    min-width: 0;
+    background: linear-gradient(160deg, rgba(192,22,31,0.15) 0%, rgba(0,0,0,0.5) 60%),
+                rgba(8, 8, 10, 0.96);
     border-right: 1px solid rgba(255, 255, 255, 0.07);
     display: flex;
     flex-direction: column;
     justify-content: center;
-    padding: 60px 52px;
+    padding: 56px 48px;
     backdrop-filter: blur(24px);
+    overflow: hidden;
 }
 
-#authBrand {
-    margin-bottom: 48px;
-}
+#authBrand { margin-bottom: 44px; }
 
 #authBrandGlyph {
-    font-size: 36px;
+    font-size: 32px;
     color: var(--accent);
     margin-bottom: 14px;
-    letter-spacing: 0.06em;
 }
 
 #authBrandName {
-    font-size: 26px;
+    font-size: 22px;
     font-weight: 700;
-    letter-spacing: 0.08em;
+    letter-spacing: 0.06em;
     text-transform: uppercase;
     color: #f5e6c8;
     margin-bottom: 10px;
-    line-height: 1.2;
+    line-height: 1.25;
 }
 
 #authBrandSub {
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.38);
-    line-height: 1.6;
-    max-width: 320px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.4);
+    line-height: 1.65;
+    max-width: 300px;
 }
 
 #authFeatures {
     display: flex;
     flex-direction: column;
-    gap: 16px;
+    gap: 14px;
 }
 
 .auth-feature {
     display: flex;
     align-items: center;
-    gap: 14px;
-    font-size: 14px;
-    color: rgba(255, 255, 255, 0.55);
+    gap: 12px;
+    font-size: 13px;
+    color: rgba(255, 255, 255, 0.5);
 }
 
 .auth-feature-icon {
-    width: 32px;
-    height: 32px;
-    border-radius: 8px;
+    width: 30px;
+    height: 30px;
+    border-radius: 7px;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.08);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 15px;
+    font-size: 13px;
     flex-shrink: 0;
 }
 
-/* Right form panel */
+/* ── Right form panel ────────────────────────────────────────── */
 #authPanelRight {
-    width: 420px;
+    width: 400px;
     flex-shrink: 0;
-    background: rgba(10, 10, 12, 0.97);
+    background: rgba(10, 10, 12, 0.98);
     display: flex;
     align-items: center;
     justify-content: center;
-    padding: 40px 20px;
     overflow-y: auto;
+    overflow-x: hidden;
 }
 
 #authPanelInner {
     width: 100%;
-    max-width: 340px;
+    max-width: 320px;
+    padding: 40px 0;
+    box-sizing: border-box;
 }
 
 /* ── Tabs ────────────────────────────────────────────────────── */
 #authTabs {
     display: flex;
     gap: 4px;
-    margin-bottom: 28px;
-    background: rgba(255, 255, 255, 0.04);
+    margin-bottom: 24px;
+    background: rgba(255, 255, 255, 0.05);
     border-radius: 8px;
     padding: 4px;
 }
@@ -3422,10 +3424,11 @@ body.accent-is-light .admin-color-preset.active {
     border-radius: 6px;
     cursor: pointer;
     background: transparent;
-    color: rgba(255, 255, 255, 0.45);
+    color: rgba(255, 255, 255, 0.4);
     font-size: 13px;
     font-family: inherit;
     transition: all 0.18s;
+    white-space: nowrap;
 }
 
 .auth-tab.active {
@@ -3438,22 +3441,26 @@ body.accent-is-light .admin-color-preset.active {
 .auth-form { display: none; }
 .auth-form.active { display: block; }
 
-.auth-field { margin-bottom: 16px; }
+.auth-field { margin-bottom: 14px; }
 
 .auth-field label {
-    display: block;
+    display: flex;
+    align-items: baseline;
+    gap: 6px;
     font-size: 11px;
-    color: rgba(255, 255, 255, 0.45);
+    color: rgba(255, 255, 255, 0.4);
     text-transform: uppercase;
     letter-spacing: 0.09em;
     margin-bottom: 6px;
+    flex-wrap: wrap;
 }
 
 .auth-hint {
     font-size: 10px;
-    color: rgba(255, 255, 255, 0.28);
+    color: rgba(255, 255, 255, 0.25);
     text-transform: none;
     letter-spacing: 0;
+    font-weight: 400;
 }
 
 .auth-field input {
@@ -3462,7 +3469,7 @@ body.accent-is-light .admin-color-preset.active {
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.10);
     border-radius: 8px;
-    padding: 11px 13px;
+    padding: 10px 12px;
     color: #f5e6c8;
     font-size: 14px;
     font-family: inherit;
@@ -3476,18 +3483,17 @@ body.accent-is-light .admin-color-preset.active {
 }
 
 .auth-error {
-    min-height: 18px;
+    min-height: 16px;
     font-size: 12px;
-    color: #ff6b6b;
-    margin-bottom: 10px;
-    margin-top: -8px;
+    color: #ff7070;
+    margin-bottom: 8px;
     line-height: 1.4;
 }
 
-/* ── Buttons ─────────────────────────────────────────────────── */
+/* ── Primary button ──────────────────────────────────────────── */
 .auth-primary-btn {
     width: 100%;
-    padding: 12px;
+    padding: 11px;
     border: none;
     border-radius: 8px;
     cursor: pointer;
@@ -3498,15 +3504,20 @@ body.accent-is-light .admin-color-preset.active {
     font-family: inherit;
     transition: opacity 0.15s, transform 0.12s;
     margin-bottom: 4px;
+    white-space: nowrap;
 }
 
 .auth-primary-btn:hover  { opacity: 0.88; transform: translateY(-1px); }
 .auth-primary-btn:active { transform: translateY(0); }
 .auth-primary-btn:disabled { opacity: 0.5; cursor: default; transform: none; }
 
+/* Light accent: white button needs dark text */
+body.accent-is-light .auth-primary-btn { color: #111; }
+
+/* ── Ghost button ────────────────────────────────────────────── */
 .auth-ghost-btn {
     width: 100%;
-    padding: 11px;
+    padding: 10px;
     border: 1px solid rgba(255, 255, 255, 0.11);
     border-radius: 8px;
     cursor: pointer;
@@ -3515,6 +3526,7 @@ body.accent-is-light .admin-color-preset.active {
     font-size: 13px;
     font-family: inherit;
     transition: border-color 0.15s, color 0.15s;
+    white-space: nowrap;
 }
 
 .auth-ghost-btn:hover {
@@ -3527,7 +3539,7 @@ body.accent-is-light .admin-color-preset.active {
     display: flex;
     align-items: center;
     gap: 10px;
-    margin: 18px 0 14px;
+    margin: 16px 0 12px;
     color: rgba(255, 255, 255, 0.18);
     font-size: 12px;
 }
@@ -3540,14 +3552,11 @@ body.accent-is-light .admin-color-preset.active {
     background: rgba(255, 255, 255, 0.07);
 }
 
-/* ── Logged-in row ───────────────────────────────────────────── */
-#authLoggedInRow {
-    text-align: center;
-    padding: 12px 0 6px;
-}
+/* ── Logged-in state (shown inside modal when already signed in) */
+#authLoggedInRow { text-align: center; padding: 8px 0 4px; }
 
 #authWelcome {
-    font-size: 16px;
+    font-size: 15px;
     font-weight: 600;
     color: #f5e6c8;
     margin-bottom: 6px;
@@ -3556,7 +3565,7 @@ body.accent-is-light .admin-color-preset.active {
 #authSyncStatus {
     font-size: 12px;
     color: rgba(255, 255, 255, 0.38);
-    margin-bottom: 18px;
+    margin-bottom: 16px;
 }
 
 /* ── Guest row ───────────────────────────────────────────────── */
@@ -3565,7 +3574,7 @@ body.accent-is-light .admin-color-preset.active {
 .auth-notice {
     font-size: 11px;
     color: rgba(255, 255, 255, 0.2);
-    margin-top: 10px;
+    margin-top: 8px;
     margin-bottom: 0;
     line-height: 1.5;
 }
@@ -3576,7 +3585,7 @@ body.accent-is-light .admin-color-preset.active {
     border: 1px solid rgba(255, 255, 255, 0.08);
     border-radius: 7px;
     padding: 10px 12px;
-    margin-bottom: 14px;
+    margin-bottom: 12px;
 }
 
 .auth-checkbox-label {
@@ -3595,11 +3604,6 @@ body.accent-is-light .admin-color-preset.active {
     flex-shrink: 0;
 }
 
-/* ── Top-bar sign-in button ──────────────────────────────────── */
-#authTopBtn.auth-btn-signed-in {
-    color: var(--accent);
-}
-
 /* ── Settings → Account tab ──────────────────────────────────── */
 .acct-card {
     display: flex;
@@ -3613,23 +3617,26 @@ body.accent-is-light .admin-color-preset.active {
 }
 
 .acct-avatar {
-    width: 44px;
-    height: 44px;
+    width: 42px;
+    height: 42px;
     border-radius: 50%;
     background: var(--accent);
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 20px;
+    font-size: 18px;
     font-weight: 700;
     color: #fff;
     flex-shrink: 0;
 }
 
+/* Light accent: accent bg → avatar text needs dark */
+body.accent-is-light .acct-avatar { color: #111; }
+
 .acct-username {
     font-size: 15px;
     font-weight: 600;
-    color: #f5e6c8;
+    color: var(--text, #f5e6c8);
 }
 
 .acct-meta {
@@ -3649,6 +3656,7 @@ body.accent-is-light .admin-color-preset.active {
     white-space: nowrap;
 }
 
+/* ── Guest / not signed in state ─────────────────────────────── */
 .acct-guest-block {
     display: flex;
     flex-direction: column;
@@ -3661,23 +3669,35 @@ body.accent-is-light .admin-color-preset.active {
     gap: 8px;
 }
 
-.acct-guest-icon  { font-size: 30px; color: var(--accent); margin-bottom: 4px; }
-.acct-guest-title { font-size: 15px; font-weight: 600; color: #f5e6c8; }
+.acct-guest-icon {
+    font-size: 28px;
+    color: var(--accent);
+    margin-bottom: 4px;
+}
+
+.acct-guest-title {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text, #f5e6c8);
+}
 
 .acct-guest-sub {
     font-size: 12px;
     color: rgba(255, 255, 255, 0.38);
     line-height: 1.55;
-    max-width: 280px;
+    max-width: 260px;
 }
 
 .acct-signin-btn {
     margin-top: 12px;
     width: auto !important;
-    padding: 10px 32px !important;
+    padding: 10px 28px !important;
 }
 
-/* ── Delete account modal ────────────────────────────────────── */
+/* Light accent: sign-in button in account tab */
+body.accent-is-light .acct-signin-btn { color: #111; }
+
+/* ── Delete account confirm modal ────────────────────────────── */
 #acctDeleteModal {
     position: fixed;
     inset: 0;
@@ -3698,16 +3718,16 @@ body.accent-is-light .admin-color-preset.active {
     position: relative;
     z-index: 1;
     background: #0f0f11;
-    border: 1px solid rgba(255, 80, 80, 0.25);
+    border: 1px solid rgba(255, 80, 80, 0.2);
     border-radius: 12px;
-    padding: 28px 26px 22px;
-    width: 100%;
-    max-width: 360px;
+    padding: 26px 24px 20px;
+    width: calc(100% - 40px);
+    max-width: 340px;
     box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
 }
 
 .acct-delete-title {
-    font-size: 17px;
+    font-size: 16px;
     font-weight: 700;
     color: #f5e6c8;
     margin-bottom: 10px;
@@ -3723,10 +3743,10 @@ body.accent-is-light .admin-color-preset.active {
 .acct-delete-btns {
     display: flex;
     gap: 10px;
-    margin-top: 16px;
+    margin-top: 14px;
 }
 
-.acct-delete-btns .auth-ghost-btn { flex: 1; }
+.acct-delete-btns .auth-ghost-btn,
 .acct-delete-btns .settings-btn-danger { flex: 1; }
 
 /* ── Sync toast ──────────────────────────────────────────────── */
@@ -3754,17 +3774,20 @@ body.accent-is-light .admin-color-preset.active {
 @media (max-width: 760px) {
     #authPanel { flex-direction: column; }
 
-    #authPanelLeft {
-        display: none; /* hidden on mobile — form takes full screen */
-    }
+    #authPanelLeft { display: none; }
 
     #authPanelRight {
         width: 100%;
         height: 100%;
-        padding: 32px 20px;
         align-items: flex-start;
-        padding-top: 60px;
+        padding-top: 0;
+        overflow-y: auto;
     }
 
-    #authPanelInner { max-width: 100%; }
+    #authPanelInner {
+        max-width: 100%;
+        padding: 48px 24px 40px;
+        min-height: 100%;
+        box-sizing: border-box;
+    }
 }

@@ -199,7 +199,6 @@
             const activeTab = document.querySelector(".auth-tab.active");
             if (activeTab) _switchModalTab(activeTab.dataset.tab);
         }
-        _updateTopBarBtn();
     }
 
     function openAuthModal() {
@@ -310,7 +309,6 @@
         _guest = true;
         localStorage.setItem(LS_GUEST, "1");
         closeAuthModal();
-        _updateTopBarBtn();
         renderSettingsAccountPage();
     }
 
@@ -334,7 +332,6 @@
         if (typeof renderBookmarksList   === "function") renderBookmarksList();
         if (typeof renderPlaylistSidebar === "function") renderPlaylistSidebar();
 
-        _updateTopBarBtn();
         _renderAuthModal();
         renderSettingsAccountPage();
     }
@@ -377,14 +374,6 @@
   <div class="settings-label"><span>Status</span><span class="settings-hint">Auto-syncs after each change</span></div>
   <div class="settings-control"><span class="acct-sync-badge" id="acctSyncBadge">${_escHtml(syncStr)}</span></div>
 </div>
-<div class="settings-row">
-  <div class="settings-label"><span>Push now</span><span class="settings-hint">Force upload current data</span></div>
-  <div class="settings-control"><button class="settings-btn" id="acctPushBtn">↑ Push</button></div>
-</div>
-<div class="settings-row">
-  <div class="settings-label"><span>Pull now</span><span class="settings-hint">Restore from cloud, overwriting local</span></div>
-  <div class="settings-control"><button class="settings-btn" id="acctPullBtn">↓ Pull</button></div>
-</div>
 
 <div class="settings-section-title" style="margin-top:20px;">📊 Your Data</div>
 <div class="settings-row">
@@ -406,20 +395,6 @@
   <div class="settings-control"><button class="settings-btn-danger" id="acctDeleteBtn">Delete Account</button></div>
 </div>`;
 
-            document.getElementById("acctPushBtn").onclick = async () => {
-                const btn = document.getElementById("acctPushBtn");
-                btn.textContent = "Pushing…"; btn.disabled = true;
-                await pushNow();
-                renderSettingsAccountPage();
-                _showSyncToast("Data pushed to cloud.");
-            };
-            document.getElementById("acctPullBtn").onclick = async () => {
-                const btn = document.getElementById("acctPullBtn");
-                btn.textContent = "Pulling…"; btn.disabled = true;
-                await _pullAndApply();
-                renderSettingsAccountPage();
-                _showSyncToast("Data restored from cloud.");
-            };
             document.getElementById("acctLogoutBtn").onclick = () => {
                 _showAppConfirm(
                     "Sign out?",
@@ -512,42 +487,6 @@
         }
         if (window.confirm(body)) onConfirm();
     }
-
-    // ═════════════════════════════════════════════════════════════════════
-    //  TOP BAR BUTTON  (sign-in button only — no tab)
-    // ═════════════════════════════════════════════════════════════════════
-    function _injectTopBarBtn() {
-        if (document.getElementById("authTopBtn")) return;
-        const btn = document.createElement("button");
-        btn.id        = "authTopBtn";
-        btn.className = "top-bar-btn";
-        btn.onclick   = openAuthModal;
-        const topBar = document.getElementById("topBar");
-        if (topBar) topBar.prepend(btn);
-        _updateTopBarBtn();
-    }
-
-    function _updateTopBarBtn() {
-        const btn = document.getElementById("authTopBtn");
-        if (!btn) return;
-        if (_token && _username) {
-            btn.textContent = `👤 ${_username}`;
-            btn.title = "Account settings";
-            btn.classList.add("auth-btn-signed-in");
-            btn.onclick = () => {
-                // Open settings directly on the Account tab
-                if (typeof openSettings === "function") openSettings("account");
-                else openAuthModal();
-            };
-        } else {
-            btn.textContent = "👤 Sign In";
-            btn.title = "Sign in or create an account";
-            btn.classList.remove("auth-btn-signed-in");
-            btn.onclick = openAuthModal;
-        }
-    }
-
-    // ═════════════════════════════════════════════════════════════════════
     //  SYNC
     // ═════════════════════════════════════════════════════════════════════
     function _gatherData() {
@@ -677,7 +616,6 @@
     // ═════════════════════════════════════════════════════════════════════
     function init() {
         _injectAuthModal();
-        _injectTopBarBtn();
         _hookSettingsAccountTab();
         renderSettingsAccountPage();
 
