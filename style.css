@@ -1579,9 +1579,26 @@ body.story-mode #topBar {
 }
 #settingsTabs {
     display: flex;
-    gap: 4px;
+    overflow-x:scroll;
+    gap: 0px;
     padding-bottom: 0;
+    scrollbar-width:0.01px;
+    scrollbar-color: var(--accent-dim) rgba(255,255,255,0.04);
 }
+
+#settingsTabs::-webkit-scrollbar { height: 2px; }
+#settingsTabs::-webkit-scrollbar-track {
+    background: rgba(255,255,255,0.04);
+    border-radius: 99px;
+    margin: 0 2px;
+}
+#settingsTabs::-webkit-scrollbar-thumb {
+    background: var(--accent-dim);
+    border-radius: 99px;
+}
+#settingsTabs::-webkit-scrollbar-thumb:hover { background: var(--accent); }
+#settingsTabs.dragging { cursor: grabbing; }
+
 .settings-tab {
     background: none;
     border: none;
@@ -1597,19 +1614,22 @@ body.story-mode #topBar {
     transition: color .15s, border-color .15s;
 }
 .settings-tab:hover { color: rgba(255,255,255,0.75); }
-.settings-tab.active { color: #fff; border-bottom-color: var(--accent); }
+.settings-tab.active { color: var(--accent); border-bottom-color: var(--accent); }
 #settingsCloseBtn {
     background: none;
     border: none;
+    width: 32px;
+    right: 100%;
+    position:fixed;
     color: rgba(255,255,255,0.4);
     font-size: 20px;
     cursor: pointer;
     padding: 0 4px 8px;
-    line-height: 1;
     transition: color .15s;
     margin-bottom: 4px;
+
 }
-#settingsCloseBtn:hover { color: #fff; }
+#settingsCloseBtn:hover { color: var(--accent); }
 
 .settings-page {
     display: none;
@@ -3805,3 +3825,130 @@ body.accent-is-light .settings-btn-danger    { color: #333; }
         box-sizing: border-box;
     }
 }
+
+/* ═══════════════════════════════════════════════════════════════
+   ADMIN — Users tab (owner-only) & role badges
+   ═══════════════════════════════════════════════════════════════ */
+
+.admin-tab-owner { border-left: 1px solid rgba(255,255,255,0.08); }
+
+.admin-users-search-row {
+    display: flex;
+    gap: 8px;
+    margin-bottom: 14px;
+    align-items: center;
+}
+.admin-users-search-row .admin-input { flex: 1; }
+
+.admin-users-loading {
+    text-align: center;
+    color: rgba(255,255,255,0.35);
+    font-size: 13px;
+    padding: 24px 0;
+}
+
+.admin-users-list {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.admin-user-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 10px 12px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 8px;
+    transition: border-color 0.15s;
+}
+.admin-user-row:hover { border-color: rgba(255,255,255,0.15); }
+
+.admin-user-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: var(--accent);
+    color: #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+body.accent-is-light .admin-user-avatar { color: #111; }
+
+.admin-user-info { flex: 1; min-width: 0; }
+
+.admin-user-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.85);
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.admin-user-you {
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    font-weight: 400;
+}
+
+.admin-user-meta {
+    font-size: 11px;
+    color: rgba(255,255,255,0.3);
+    margin-top: 2px;
+}
+
+.admin-user-role { flex-shrink: 0; }
+.admin-user-actions { flex-shrink: 0; }
+
+.admin-btn-sm {
+    padding: 5px 10px;
+    font-size: 11px;
+}
+
+/* ── Role badges (admin panel users tab + account settings tab) ── */
+.admin-role-badge,
+.acct-role-badge {
+    display: inline-block;
+    font-size: 10px;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    border-radius: 4px;
+    padding: 2px 6px;
+    vertical-align: middle;
+    margin-left: 4px;
+}
+
+.admin-role-owner,
+.acct-role-owner {
+    background: rgba(255, 200, 50, 0.12);
+    color: #ffc832;
+    border: 1px solid rgba(255, 200, 50, 0.3);
+}
+
+.admin-role-admin,
+.acct-role-admin {
+    background: var(--accent-glow);
+    color: var(--accent);
+    border: 1px solid var(--accent-dim);
+}
+
+.admin-role-user,
+.acct-role-user {
+    background: rgba(255,255,255,0.05);
+    color: rgba(255,255,255,0.4);
+    border: 1px solid rgba(255,255,255,0.08);
+}
+
+/* ── Hover colour fix (white/light accent) ───────────────────────
+   When the accent is light, hovering a danger button would produce
+   white text on near-white background. Override to dark text. */
+body.accent-is-light .settings-btn-danger:hover { color: #111; }
+body.accent-is-light .admin-btn-danger:hover     { color: #111; }
+body.accent-is-light .auth-ghost-btn:hover       { color: #111; border-color: rgba(0,0,0,0.3); }

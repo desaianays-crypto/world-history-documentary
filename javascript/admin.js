@@ -34,6 +34,7 @@
                 <div class="admin-tab" data-tab="manage">📋 Manage Entries</div>
                 <div class="admin-tab" data-tab="tree">🌳 World Tree</div>
                 <div class="admin-tab" data-tab="info">ℹ Info</div>
+                <div class="admin-tab admin-tab-owner" data-tab="users" id="adminUsersTab" style="display:none">👥 Users</div>
             </div>
             <div id="adminContent">
 
@@ -354,6 +355,17 @@
                         <div class="admin-info-row"><span class="admin-info-key">Local Storage Used</span><span class="admin-info-val" id="adminInfoLsSize">Calculating…</span></div>
                     </div>
 
+                </div>
+
+                <div class="admin-page" data-page="users">
+                    <p class="admin-section-title">👥 User Management <span style="font-size:11px;color:rgba(255,255,255,0.35);font-weight:400;margin-left:8px;">Owner only</span></p>
+                    <div class="admin-users-search-row">
+                        <input id="adminUserSearch" type="text" class="admin-input" placeholder="Search username…" oninput="adminUsersFilter()"/>
+                        <button class="admin-btn admin-btn-secondary" onclick="adminUsersRefresh()">↺ Refresh</button>
+                    </div>
+                    <div id="adminUsersList" class="admin-users-list">
+                        <div class="admin-users-loading">Loading users…</div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -693,15 +705,28 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         document.getElementById("adminOverlay").style.display = "block";
         document.getElementById("adminPanel").classList.add("visible");
         setTimeout(() => document.getElementById("adminOverlay").classList.add("active"), 10);
-        if (unlocked) {
-            // Already verified earlier this session — skip the passcode prompt.
+
+        // Check role from WHDAuth — admin/owner skip the passcode entirely
+        const role = window.WHDAuth ? window.WHDAuth.getRole() : null;
+        const isOwner = role === "owner";
+        const isAdminOrAbove = role === "admin" || role === "owner";
+
+        // Show Users tab only for owner
+        const usersTab = document.getElementById("adminUsersTab");
+        if (usersTab) usersTab.style.display = isOwner ? "" : "none";
+
+        if (isAdminOrAbove && !unlocked) {
+            // Admin/owner: bypass passcode, unlock immediately
+            unlockAdminUI();
+        } else if (unlocked) {
+            // Already unlocked this session
             document.getElementById("adminPassRow").style.display = "none";
             document.getElementById("adminBody").classList.add("unlocked");
             refreshManageList();
             refreshTree();
             initEventRows();
         } else if (WORKER_URL === "") {
-            // No shared backend configured — fall back to local-only, no-passcode mode.
+            // No backend — local mode, no passcode
             unlocked = true;
             document.getElementById("adminPassRow").style.display = "none";
             document.getElementById("adminBody").classList.add("unlocked");
@@ -709,6 +734,7 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
             refreshTree();
             initEventRows();
         } else {
+            // Regular user — show passcode prompt
             setTimeout(() => document.getElementById("adminPassInput").focus(), 60);
         }
     }
@@ -798,10 +824,91 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
             const page = document.querySelector(`.admin-page[data-page="${tab.dataset.tab}"]`);
             if (page) page.classList.add("active");
             activeTab = tab.dataset.tab;
-            if (activeTab === "manage") refreshManageList();
-            if (activeTab === "tree")   refreshTree();
+            if (activeTab === "users") adminUsersRefresh();
         });
     });
+
+    // ── Users tab (owner only) ─────────────────────────────────────
+    let _adminAllUsers = [];
+
+    function adminUsersRefresh() {
+        const list = document.getElementById("adminUsersList");
+        if (!list) return;
+        list.innerHTML = "<div class='admin-users-loading'>Loading…</div>";
+        const token = window.WHDAuth ? window.WHDAuth.getToken() : null;
+        if (!token) { list.innerHTML = "<div class='admin-users-loading'>Not authenticated.</div>"; return; }
+        fetch(WORKER_URL + "/auth/users", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token }),
+        })
+        .then(r => r.json()).catch(() => ({ ok: false }))
+        .then(data => {
+            if (!data.ok) {
+                list.innerHTML = "<div class='admin-users-loading'>Failed to load users.</div>";
+                return;
+            }
+            _adminAllUsers = data.users || [];
+            adminUsersRender(_adminAllUsers);
+        });
+    }
+
+    function adminUsersFilter() {
+        const q = (document.getElementById("adminUserSearch")?.value || "").toLowerCase();
+        const filtered = q ? _adminAllUsers.filter(u => u.username.toLowerCase().includes(q)) : _adminAllUsers;
+        adminUsersRender(filtered);
+    }
+
+    function adminUsersRender(users) {
+        const list = document.getElementById("adminUsersList");
+        if (!list) return;
+        if (!users.length) { list.innerHTML = "<div class='admin-users-loading'>No users found.</div>"; return; }
+        const myUsername = window.WHDAuth ? window.WHDAuth.getUsername() : "";
+        list.innerHTML = users.map(u => {
+            const isMe   = u.username.toLowerCase() === (myUsername || "").toLowerCase();
+            const isOwnerRow = u.role === "owner";
+            const roleBadge = `<span class="admin-role-badge admin-role-${u.role}">${u.role}</span>`;
+            const joined = u.joinedAt ? new Date(u.joinedAt).toLocaleDateString() : "—";
+
+            let actions = "";
+            if (!isMe && !isOwnerRow) {
+                if (u.role === "admin") {
+                    actions = `<button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="adminUsersSetRole('${escHtml(u.username)}','user')">Demote</button>`;
+                } else {
+                    actions = `<button class="admin-btn admin-btn-primary admin-btn-sm" onclick="adminUsersSetRole('${escHtml(u.username)}','admin')">Make Admin</button>`;
+                }
+            }
+            return `
+<div class="admin-user-row">
+  <div class="admin-user-avatar">${u.username.charAt(0).toUpperCase()}</div>
+  <div class="admin-user-info">
+    <div class="admin-user-name">${escHtml(u.username)}${isMe ? " <span class='admin-user-you'>(you)</span>" : ""}</div>
+    <div class="admin-user-meta">Joined ${joined}</div>
+  </div>
+  <div class="admin-user-role">${roleBadge}</div>
+  <div class="admin-user-actions">${actions}</div>
+</div>`;
+        }).join("");
+    }
+
+    window.adminUsersRefresh = adminUsersRefresh;
+    window.adminUsersFilter  = adminUsersFilter;
+
+    window.adminUsersSetRole = async function(username, newRole) {
+        const token = window.WHDAuth ? window.WHDAuth.getToken() : null;
+        if (!token) return;
+        const res = await fetch(WORKER_URL + "/auth/promote", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token, targetUsername: username, newRole }),
+        }).then(r => r.json()).catch(() => ({ ok: false }));
+        if (res.ok) {
+            toast(`${username} is now ${newRole}.`);
+            adminUsersRefresh();
+        } else {
+            toast(res.error || "Failed to change role.", true);
+        }
+    };
 
     function switchToTab(tab) {
         document.querySelector(`.admin-tab[data-tab="${tab}"]`).click();

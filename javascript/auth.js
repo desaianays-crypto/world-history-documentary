@@ -13,6 +13,7 @@
     const LS_TOKEN      = "whd_auth_token";
     const LS_USERNAME   = "whd_auth_username";
     const LS_JOINED     = "whd_auth_joined";
+    const LS_ROLE       = "whd_auth_role";
     const LS_GUEST      = "whd_auth_guest";
     const SYNC_DEBOUNCE = 1500;
 
@@ -20,6 +21,7 @@
     let _token    = localStorage.getItem(LS_TOKEN)    || null;
     let _username = localStorage.getItem(LS_USERNAME) || null;
     let _joined   = localStorage.getItem(LS_JOINED)   || null;
+    let _role     = localStorage.getItem(LS_ROLE)     || "user";
     let _guest    = localStorage.getItem(LS_GUEST)    === "1";
     let _syncTimer  = null;
     let _lastSyncAt = null;
@@ -31,6 +33,9 @@
         isGuest:     () => _guest && !_token,
         getUsername: () => _username,
         getToken:    () => _token,
+        getRole:     () => _role,
+        isAdminOrAbove: () => _role === "admin" || _role === "owner",
+        isOwner:     () => _role === "owner",
         scheduleSyncPush,
         pushNow,
         openModal:   openAuthModal,
@@ -238,9 +243,7 @@
             });
             const data = await res.json().catch(() => ({}));
             if (data.ok && data.token) {
-                _setSession(user, data.token, data.joinedAt || null);
-                document.getElementById("authLoginPass").value = "";
-                await _pullAndApply();
+                _setSession(user, data.token, data.joinedAt || null, data.role || "user");
                 _renderAuthModal();
                 renderSettingsAccountPage();
                 window.dispatchEvent(new Event("whd:auth:loggedin"));
@@ -280,7 +283,7 @@
             });
             const data = await res.json().catch(() => ({}));
             if (data.ok && data.token) {
-                _setSession(user, data.token, data.joinedAt || null);
+                _setSession(user, data.token, data.joinedAt || null, data.role || "user");
                 document.getElementById("authSignupPass").value  = "";
                 document.getElementById("authSignupPass2").value = "";
 
@@ -316,6 +319,7 @@
         _token      = null;
         _username   = null;
         _joined     = null;
+        _role       = "user";
         _lastSyncAt = null;
         _guest      = false;
 
@@ -323,6 +327,7 @@
         localStorage.removeItem(LS_TOKEN);
         localStorage.removeItem(LS_USERNAME);
         localStorage.removeItem(LS_JOINED);
+        localStorage.removeItem(LS_ROLE);
         localStorage.removeItem(LS_GUEST);
         _origSetItem("whd_bookmarks",    JSON.stringify([]));
         _origSetItem("whd_playlists_v1", JSON.stringify([]));
@@ -336,13 +341,15 @@
         renderSettingsAccountPage();
     }
 
-    function _setSession(user, token, joinedAt) {
+    function _setSession(user, token, joinedAt, role) {
         _token    = token;
         _username = user;
         _joined   = joinedAt || null;
+        _role     = role || "user";
         _guest    = false;
         localStorage.setItem(LS_TOKEN,    token);
         localStorage.setItem(LS_USERNAME, user);
+        localStorage.setItem(LS_ROLE,     _role);
         if (joinedAt) localStorage.setItem(LS_JOINED, joinedAt);
         localStorage.removeItem(LS_GUEST);
     }
@@ -359,12 +366,14 @@
             const bms = _tryJSON(localStorage.getItem("whd_bookmarks"))    || [];
             const pls = _tryJSON(localStorage.getItem("whd_playlists_v1")) || [];
             const syncStr = _lastSyncAt ? _friendlyTime(_lastSyncAt) : "Not yet synced this session";
+            const roleBadge = _role && _role !== "user"
+                ? `<span class="acct-role-badge acct-role-${_role}">${_role}</span>` : "";
 
             el.innerHTML = `
 <div class="acct-card">
   <div class="acct-avatar">${_username.charAt(0).toUpperCase()}</div>
   <div class="acct-info">
-    <div class="acct-username">${_escHtml(_username)}</div>
+    <div class="acct-username">${_escHtml(_username)} ${roleBadge}</div>
     <div class="acct-meta">Member since ${_escHtml(joinedStr)}</div>
   </div>
 </div>
@@ -384,6 +393,10 @@
   <div class="settings-label"><span>Playlists</span></div>
   <div class="settings-control"><span class="acct-count-badge">${pls.length} playlist${pls.length !== 1 ? "s" : ""}</span></div>
 </div>
+<div class="settings-row">
+  <div class="settings-label"><span>Settings</span><span class="settings-hint">Volume, theme, map style etc.</span></div>
+  <div class="settings-control"><span class="acct-count-badge">Synced</span></div>
+</div>
 
 <div class="settings-section-title" style="margin-top:20px;">⚠ Account Actions</div>
 <div class="settings-row">
@@ -391,7 +404,7 @@
   <div class="settings-control"><button class="settings-btn-danger" id="acctLogoutBtn">Sign Out</button></div>
 </div>
 <div class="settings-row">
-  <div class="settings-label"><span>Delete account</span><span class="settings-hint">Permanently removes your account and all data</span></div>
+  <div class="settings-label"><span>Delete account</span><span class="settings-hint">Permanently removes your account</span></div>
   <div class="settings-control"><button class="settings-btn-danger" id="acctDeleteBtn">Delete Account</button></div>
 </div>`;
 
@@ -541,6 +554,10 @@
             if (resp.joinedAt && !_joined) {
                 _joined = resp.joinedAt;
                 localStorage.setItem(LS_JOINED, _joined);
+            }
+            if (resp.role) {
+                _role = resp.role;
+                localStorage.setItem(LS_ROLE, _role);
             }
 
             const d = resp.data;
