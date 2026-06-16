@@ -1802,6 +1802,29 @@ body.story-mode #topBar {
     border-color: #fff;
     box-shadow: 0 0 0 2px var(--accent);
 }
+
+/* Standard (non-danger) settings action button — used by Update Password etc. */
+.settings-btn {
+    background: rgba(255, 255, 255, 0.07);
+    border: 1px solid rgba(255, 255, 255, 0.14);
+    color: rgba(255, 255, 255, 0.8);
+    border-radius: 8px;
+    padding: 7px 16px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: .05em;
+    cursor: pointer;
+    transition: background .15s, color .15s, border-color .15s;
+}
+.settings-btn:hover {
+    background: rgba(255, 255, 255, 0.12);
+    border-color: rgba(255, 255, 255, 0.25);
+    color: #fff;
+}
+.settings-btn:disabled { opacity: 0.5; cursor: default; }
+body.accent-is-light .settings-btn:hover { color: #111; border-color: rgba(0,0,0,0.25); }
+
 .settings-btn-danger {
     background: var(--accent-glow);
     border: 1px solid var(--accent-dim);
@@ -4059,90 +4082,3 @@ body.accent-is-light .admin-user-avatar { color: #111; }
 body.accent-is-light .settings-btn-danger:hover { color: #111; }
 body.accent-is-light .admin-btn-danger:hover     { color: #111; }
 body.accent-is-light .auth-ghost-btn:hover       { color: #111; border-color: rgba(0,0,0,0.3); }
-
-/* ═══════════════════════════════════════════════════════════════
-   AUTH — password visibility toggle + change password form
-   ═══════════════════════════════════════════════════════════════ */
-
-/* Wraps a password <input> + the show/hide toggle button */
-.auth-pass-wrap {
-    position: relative;
-    display: flex;
-    align-items: center;
-}
-
-.auth-pass-wrap input {
-    flex: 1;
-    padding-right: 40px !important; /* room for the eye button */
-}
-
-.auth-show-pass {
-    position: absolute;
-    right: 0;
-    top: 50%;
-    transform: translateY(-50%);
-    width: 36px;
-    height: 36px;
-    border: none;
-    background: transparent;
-    cursor: pointer;
-    font-size: 15px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    color: rgba(255, 255, 255, 0.35);
-    transition: color 0.15s;
-    flex-shrink: 0;
-    line-height: 1;
-}
-
-.auth-show-pass:hover { color: rgba(255, 255, 255, 0.7); }
-
-/* Change password form inside settings Account tab */
-.acct-change-pass-form {
-    background: rgba(255, 255, 255, 0.03);
-    border: 1px solid rgba(255, 255, 255, 0.07);
-    border-radius: 10px;
-    padding: 16px;
-    margin-top: 8px;
-}
-
-.acct-change-pass-form .auth-field { margin-bottom: 12px; }
-
-.acct-change-pass-form .auth-field:last-of-type { margin-bottom: 8px; }
-
-.acct-change-pass-form .auth-field label {
-    display: flex;
-    align-items: baseline;
-    gap: 6px;
-    font-size: 11px;
-    color: rgba(255, 255, 255, 0.4);
-    text-transform: uppercase;
-    letter-spacing: 0.09em;
-    margin-bottom: 5px;
-}
-
-.acct-change-pass-form .auth-field input {
-    width: 100%;
-    box-sizing: border-box;
-    background: rgba(255, 255, 255, 0.05);
-    border: 1px solid rgba(255, 255, 255, 0.10);
-    border-radius: 7px;
-    padding: 9px 11px;
-    color: rgba(255, 255, 255, 0.85);
-    font-size: 13px;
-    font-family: inherit;
-    outline: none;
-    transition: border-color 0.15s;
-}
-
-.acct-change-pass-form .auth-field input:focus {
-    border-color: var(--accent-dim);
-}
-
-/* Reuse .settings-btn for the update button */
-.acct-change-pass-form .settings-btn {
-    margin-top: 4px;
-    width: 100%;
-    text-align: center;
-}
