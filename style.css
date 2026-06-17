@@ -3633,6 +3633,99 @@ body.accent-is-light .settings-btn-danger    { color: #333; }
     line-height: 1.5;
 }
 
+/* ── Password field with eye toggle (Google-style) ──────────── */
+.auth-pass-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.auth-pass-wrap input {
+    padding-right: 42px !important; /* room for the eye button */
+}
+
+.auth-show-pass {
+    position: absolute;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    width: auto;
+    display: flex;
+    right: 5%;
+    align-items:center;
+    justify-content:right;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.35);
+    font-size: 15px;
+    padding: 0;
+    transition: color 0.15s;
+    border-radius: 0 8px 8px 0;
+    line-height: 1;
+}
+
+.auth-show-pass:hover {
+    color: rgba(255, 255, 255, 0.75);
+}
+
+/* SVG eye icon styles (used when we swap to SVG) */
+.auth-show-pass svg {
+    width: 18px;
+    height: 18px;
+    pointer-events: none;
+}
+
+/* ── Change password form (Settings → Account) ───────────────── */
+.acct-change-pass-form {
+    background: rgba(255, 255, 255, 0.03);
+    border: 1px solid rgba(255, 255, 255, 0.07);
+    border-radius: 10px;
+    padding: 14px 16px;
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+
+.acct-change-pass-form .auth-field {
+    margin-bottom: 10px;
+}
+
+.acct-change-pass-form .auth-field:last-of-type {
+    margin-bottom: 6px;
+}
+
+/* Update Password button — full-width accent style */
+#acctChangePassBtn {
+    width: 100%;
+    padding: 10px;
+    margin-top: 4px;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    background: var(--accent);
+    color: var(--on-accent, #fff);
+    font-size: 13px;
+    font-weight: 600;
+    font-family: inherit;
+    letter-spacing: 0.04em;
+    transition: opacity 0.15s, transform 0.12s;
+}
+#acctChangePassBtn:hover  { opacity: 0.88; transform: translateY(-1px); }
+#acctChangePassBtn:active { transform: translateY(0); }
+#acctChangePassBtn:disabled { opacity: 0.5; cursor: default; transform: none; }
+
+/* Light-accent: dark text on Update Password button */
+body.accent-is-light #acctChangePassBtn { color: #111; }
+
+/* ── Account info wrapper ────────────────────────────────────── */
+.acct-info {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+}
+
 /* ── Transfer checkbox ───────────────────────────────────────── */
 .auth-transfer-row {
     background: rgba(255, 255, 255, 0.04);

@@ -93,10 +93,10 @@
           <label>Password</label>
           <div class="auth-pass-wrap">
             <input id="authLoginPass" type="password" autocomplete="current-password" placeholder="••••••••"/>
-            <button type="button" class="auth-show-pass" tabindex="-1" onclick="togglePassVis('authLoginPass',this)" aria-label="Show password">👁</button>
+            <button type="button" class="auth-show-pass" id="authLoginShowPass" tabindex="-1" onclick="togglePassVis('authLoginPass',this)" aria-label="Show password">eyes icons</button>
           </div>
         </div>
-        <div class="auth-error" id="authLoginError"></div>
+        <div class="auth-error" id="authLoginError"></div> 
         <button class="auth-primary-btn" id="authLoginBtn">Sign In</button>
       </div>
 
@@ -109,7 +109,7 @@
           <label>Password <span class="auth-hint">8+ characters</span></label>
           <div class="auth-pass-wrap">
             <input id="authSignupPass" type="password" autocomplete="new-password" placeholder="••••••••" minlength="8"/>
-            <button type="button" class="auth-show-pass" tabindex="-1" onclick="togglePassVis('authSignupPass',this)" aria-label="Show password">👁</button>
+            <button type="button" class="auth-show-pass" tabindex="-1" onclick="togglePassVis('authSignupPass',this)" aria-label="Show password">eyes icons</button>
           </div>
         </div>
         <div class="auth-field">
