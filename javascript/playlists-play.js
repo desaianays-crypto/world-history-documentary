@@ -190,10 +190,10 @@ const LS_SETTINGS = "whd_settings";
 
 const THEME_PALETTES = {
     red:    { accent: "#c0161f", accentDim: "rgba(192,22,31,0.55)",  accentGlow: "rgba(192,22,31,0.25)" },
-    blue:   { accent: "#0d18b6", accentDim: "rgba(13,24, 182,0.55)", accentGlow: "rgba(13,24,182,0.25)" },
+    blue:   { accent: "#1f3ac3", accentDim: "rgba(31,58,195,0.55)", accentGlow: "rgba(31,58,195,0.25)" },
     white:  { accent: "#ffffff", accentDim: "rgba(255,255,255,0.45)", accentGlow: "rgba(255,255,255,0.12)" },
     orange: { accent: "#ff7700", accentDim: "rgba(255, 119, 0,0.55)", accentGlow: "rgba(255, 119, 0,0.25)" },
-    purple: { accent: "#4300b7", accentDim: "rgba(67,0,183,0.55)", accentGlow: "rgba(67,0,183,0.25)" },
+    purple: { accent: "#5d00ff", accentDim: "rgba(67,0,183,0.55)", accentGlow: "rgba(67,0,183,0.25)" },
     lightblue: { accent: "#00eeff", accentDim: "rgba(0, 238, 255, 0.55)",  accentGlow: "rgba(0, 238, 255, 0.25)" },
     colorfusion1: { accent: "#be3300", accentDim: "rgba(190, 32, 0, 0.55)", accentGlow: "rgba(190, 19, 0, 0.25)" },
     colorfusion2: { accent: "#ff0099", accentDim: "rgba(227, 0, 83, 0.55)", accentGlow: "rgba(150, 0, 55, 0.25)" }

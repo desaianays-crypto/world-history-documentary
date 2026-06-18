@@ -53,7 +53,6 @@ function updateMusicForScene(s) {
 
     lastMusic = musicName;
 
-    console.log("🎵 Playing:", musicName);
 
     playMusic(musicName);
 }

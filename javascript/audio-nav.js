@@ -7,10 +7,8 @@ function unlockAudio() {
     bgm.src = "Music/world.mp3";
     bgm.play()
         .then(() => {
-            console.log("🔊 Audio unlocked");
         })
         .catch(err => {
-            console.log("Unlock failed:", err);
         });
 }
 document.addEventListener("pointerdown", unlockAudio, { once: true });
@@ -39,7 +37,6 @@ function normalizeName(name) {
 }
 
 function goBack() {
-    console.log(navStack);
     navStack.pop();
 
     const previous = navStack[navStack.length - 1];
@@ -107,13 +104,11 @@ function playMusic(name) {
     // ❗ THEN play (we want the track to be loaded/playing even when muted)
     inactiveBgm.play()
         .then(() => {
-            console.log("✅ Crossfading to:", file);
             crossfadeMusic(activeBgm, inactiveBgm, targetVol, settingsCrossfade);
             [activeBgm, inactiveBgm] = [inactiveBgm, activeBgm];
                         updateNowPlaying(name);
         })
         .catch(err => {
-            console.error("❌ Music failed:", file, err);
         });
 }
 
@@ -162,7 +157,6 @@ function playSFX(soundName, volume = 1.0) {
     currentSFX.volume = effectiveVolume;
 
     currentSFX.play().catch(err => {
-        console.log("SFX blocked:", err);
     });
 }
 
@@ -386,7 +380,6 @@ function goRandomScene() {
 
     const randomScene = pool[Math.floor(Math.random() * pool.length)];
 
-    console.log("🎲 Random scene:", randomScene.name);
 
     showScene(randomScene);
     setUIState("scene");

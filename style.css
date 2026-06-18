@@ -1582,21 +1582,9 @@ body.story-mode #topBar {
     overflow-x:scroll;
     gap: 0px;
     padding-bottom: 0;
-    scrollbar-width:0.01px;
-    scrollbar-color: var(--accent-dim) rgba(255,255,255,0.04);
+    scrollbar-width: none;    
 }
 
-#settingsTabs::-webkit-scrollbar { height: 2px; }
-#settingsTabs::-webkit-scrollbar-track {
-    background: rgba(255,255,255,0.04);
-    border-radius: 99px;
-    margin: 0 2px;
-}
-#settingsTabs::-webkit-scrollbar-thumb {
-    background: var(--accent-dim);
-    border-radius: 99px;
-}
-#settingsTabs::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 #settingsTabs.dragging { cursor: grabbing; }
 
 .settings-tab {
@@ -1637,10 +1625,16 @@ body.story-mode #topBar {
     overflow-y: auto;
     max-height: calc(88vh - 60px);
     scrollbar-width: thin;
-    scrollbar-color: rgba(255,255,255,0.12) transparent;
+    scrollbar-color: rgba(255,255,255,0.08) transparent;
 }
-.settings-page::-webkit-scrollbar { width: 5px; }
-.settings-page::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.12); border-radius: 99px; }
+.settings-page::-webkit-scrollbar { width: 3px; }
+.settings-page::-webkit-scrollbar-track { background: transparent; }
+.settings-page::-webkit-scrollbar-thumb {
+    background: rgba(255,255,255,0.10);
+    border-radius: 99px;
+    transition: background 0.2s;
+}
+.settings-page::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.22); }
 .settings-page.active { display: block; }
 
 .settings-section-title {
@@ -1805,9 +1799,9 @@ body.story-mode #topBar {
 
 /* Standard (non-danger) settings action button — used by Update Password etc. */
 .settings-btn {
-    background: rgba(255, 255, 255, 0.07);
-    border: 1px solid rgba(255, 255, 255, 0.14);
-    color: rgba(255, 255, 255, 0.8);
+    background: var(--accent-glow);
+    border: 1px solid var(--accent-dim);
+    color: var(--accent);
     border-radius: 8px;
     padding: 7px 16px;
     font-family: inherit;
@@ -1815,20 +1809,21 @@ body.story-mode #topBar {
     font-weight: 600;
     letter-spacing: .05em;
     cursor: pointer;
-    transition: background .15s, color .15s, border-color .15s;
+    transition: background .15s, color .15s, border-color .15s, box-shadow .15s;
 }
 .settings-btn:hover {
-    background: rgba(255, 255, 255, 0.12);
-    border-color: rgba(255, 255, 255, 0.25);
+    background: var(--accent-dim);
+    border-color: var(--accent);
     color: #fff;
+    box-shadow: 0 0 0 2px var(--accent-glow);
 }
+body.accent-is-light .settings-btn:hover { color: #111; }
 .settings-btn:disabled { opacity: 0.5; cursor: default; }
-body.accent-is-light .settings-btn:hover { color: #111; border-color: rgba(0,0,0,0.25); }
 
 .settings-btn-danger {
-    background: var(--accent-glow);
-    border: 1px solid var(--accent-dim);
-    color: var(--accent);
+    background: rgba(180, 20, 20, 0.12);
+    border: 1px solid rgba(200, 30, 30, 0.3);
+    color: #e05050;
     border-radius: 8px;
     padding: 7px 14px;
     font-family: inherit;
@@ -1836,9 +1831,13 @@ body.accent-is-light .settings-btn:hover { color: #111; border-color: rgba(0,0,0
     font-weight: 700;
     letter-spacing: .06em;
     cursor: pointer;
-    transition: background .15s, color .15s;
+    transition: background .15s, color .15s, border-color .15s;
 }
-.settings-btn-danger:hover { background: var(--accent-dim); color: #ff8080; }
+.settings-btn-danger:hover {
+    background: rgba(200, 20, 20, 0.22);
+    border-color: rgba(220, 40, 40, 0.5);
+    color: #ff7070;
+}
 
 /* ─── HELP ENTRIES ────────────────────────────────────────────── */
 .help-entry {
@@ -3326,17 +3325,40 @@ body.accent-is-light .admin-color-preset.active {
     box-shadow: 0 0 0 2px rgba(0,0,0,0.4);
 }
 
-/* ── Light accent: auth & account elements ────────────────────────────────
-   Any element that uses var(--accent) as a background gets dark text
-   so white-on-white is never produced. */
-body.accent-is-light .auth-primary-btn,
-body.accent-is-light .acct-avatar,
-body.accent-is-light .acct-signin-btn       { color: #111; }
-body.accent-is-light .auth-field input:focus { box-shadow: 0 0 0 2px rgba(0,0,0,0.15); }
-body.accent-is-light .acct-guest-icon        { color: #333; }
-body.accent-is-light #authBrandGlyph         { color: #333; }
-body.accent-is-light .auth-tab.active        { color: #111; }
-body.accent-is-light .settings-btn-danger    { color: #333; }
+/* ── Light accent: all remaining accent-bg / accent-text elements ────────
+   settings-section-title uses color:var(--accent) on a dark panel bg —
+   with a white accent that renders as white text on near-white bg → black. */
+body.accent-is-light .settings-section-title {
+    color: #111 !important;
+    border-left-color: rgba(0,0,0,0.4) !important;
+    background: rgba(0,0,0,0.04) !important;
+}
+body.accent-is-light .settings-value-badge   { color: #111 !important; }
+body.accent-is-light .settings-tab.active    { color: #fff !important; border-bottom-color: var(--accent) !important; }
+
+/* Auth primary button always has accent bg */
+body.accent-is-light .auth-primary-btn { color: #111; }
+/* Auth tab active pill */
+body.accent-is-light .auth-tab.active  { color: #111; }
+
+/* Avatars with accent bg */
+body.accent-is-light .acct-avatar         { color: #111; }
+body.accent-is-light .admin-user-avatar   { color: #111; }
+body.accent-is-light .acct-user-avatar    { color: #111; }
+
+/* Cards/buttons that fill accent on hover */
+body.accent-is-light .season:hover        { color: #111; }
+body.accent-is-light .back-btn:hover      { color: #111; }
+body.accent-is-light .episode-card:hover  { color: #111; }
+body.accent-is-light #storyFinishedExitBtn { color: #111; }
+body.accent-is-light .admin-sort-btn:hover,
+body.accent-is-light .admin-sort-btn.active { color: #111; }
+body.accent-is-light .admin-tab.active    { color: #111; }
+body.accent-is-light .admin-owner-tab.active { color: #111; }
+body.accent-is-light #playPlaylistBtn     { color: #111 !important; }
+body.accent-is-light .explore-add-btn:hover:not(:disabled) { color: #111; }
+body.accent-is-light .story-pl-item.is-new:hover { color: #111; }
+body.accent-is-light .ac-ok-danger        { color: #111; }
 
 /* ═══════════════════════════════════════════════════════════════
    AUTH — full-screen login/signup modal, account settings tab,
@@ -3539,6 +3561,17 @@ body.accent-is-light .settings-btn-danger    { color: #333; }
     box-shadow: 0 0 0 2px var(--accent-glow);
 }
 
+/* When input is inside .auth-pass-wrap the wrap itself is the styled container */
+.auth-pass-wrap input.auth-field,
+.auth-field .auth-pass-wrap input {
+    background: transparent !important;
+    border: none !important;
+    border-radius: 0 !important;
+    box-shadow: none !important;
+    width: auto !important;
+    padding: 10px 4px 10px 12px !important;
+}
+
 .auth-error {
     min-height: 16px;
     font-size: 12px;
@@ -3555,7 +3588,7 @@ body.accent-is-light .settings-btn-danger    { color: #333; }
     border-radius: 8px;
     cursor: pointer;
     background: var(--accent);
-    color: #fff;
+    color: var(--on-accent, #fff);
     font-size: 14px;
     font-weight: 600;
     font-family: inherit;
@@ -3634,46 +3667,62 @@ body.accent-is-light .settings-btn-danger    { color: #333; }
 }
 
 /* ── Password field with eye toggle (Google-style) ──────────── */
+/* ── Password field + eye toggle ─────────────────────────────── */
+/* The wrap is a flex row. The input grows to fill available space.
+   The button sits as a real flex sibling at the end — no absolute
+   positioning, no top/transform guesswork. */
 .auth-pass-wrap {
-    position: relative;
     display: flex;
-    align-items: center;
+    align-items: stretch;
+    background: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.10);
+    border-radius: 8px;
+    transition: border-color 0.15s, box-shadow 0.15s;
+}
+.auth-pass-wrap:focus-within {
+    border-color: var(--accent-dim);
+    box-shadow: 0 0 0 2px var(--accent-glow);
 }
 
+/* The input inside the wrap: no border/bg of its own — the wrap supplies those */
 .auth-pass-wrap input {
-    padding-right: 42px !important; /* room for the eye button */
+    flex: 1 1 0;
+    min-width: 0;
+    background: transparent !important;
+    border: none !important;
+    box-shadow: none !important;
+    outline: none;
+    padding: 10px 4px 10px 12px;
+    color: #f5e6c8;
+    font-size: 14px;
+    font-family: inherit;
+    width: 0; /* flex takes over */
 }
 
 .auth-show-pass {
-    position: absolute;
-    right: 0;
-    top: 0;
-    bottom: 0;
-    width: auto;
+    flex: 0 0 36px;
     display: flex;
-    right: 5%;
-    align-items:center;
-    justify-content:right;
+    align-items: center;
+    justify-content: center;
     background: transparent;
     border: none;
-    cursor: pointer;
-    color: rgba(255, 255, 255, 0.35);
-    font-size: 15px;
-    padding: 0;
-    transition: color 0.15s;
+    border-left: 1px solid rgba(255, 255, 255, 0.06);
     border-radius: 0 8px 8px 0;
+    cursor: pointer;
+    color: rgba(255, 255, 255, 0.28);
+    padding: 0;
+    transition: color 0.15s, background 0.15s;
     line-height: 1;
 }
-
 .auth-show-pass:hover {
-    color: rgba(255, 255, 255, 0.75);
+    color: rgba(255, 255, 255, 0.7);
+    background: rgba(255, 255, 255, 0.04);
 }
-
-/* SVG eye icon styles (used when we swap to SVG) */
 .auth-show-pass svg {
-    width: 18px;
-    height: 18px;
+    width: 14px;
+    height: 14px;
     pointer-events: none;
+    display: block;
 }
 
 /* ── Change password form (Settings → Account) ───────────────── */
@@ -3694,29 +3743,6 @@ body.accent-is-light .settings-btn-danger    { color: #333; }
 .acct-change-pass-form .auth-field:last-of-type {
     margin-bottom: 6px;
 }
-
-/* Update Password button — full-width accent style */
-#acctChangePassBtn {
-    width: 100%;
-    padding: 10px;
-    margin-top: 4px;
-    border: none;
-    border-radius: 8px;
-    cursor: pointer;
-    background: var(--accent);
-    color: var(--on-accent, #fff);
-    font-size: 13px;
-    font-weight: 600;
-    font-family: inherit;
-    letter-spacing: 0.04em;
-    transition: opacity 0.15s, transform 0.12s;
-}
-#acctChangePassBtn:hover  { opacity: 0.88; transform: translateY(-1px); }
-#acctChangePassBtn:active { transform: translateY(0); }
-#acctChangePassBtn:disabled { opacity: 0.5; cursor: default; transform: none; }
-
-/* Light-accent: dark text on Update Password button */
-body.accent-is-light #acctChangePassBtn { color: #111; }
 
 /* ── Account info wrapper ────────────────────────────────────── */
 .acct-info {
@@ -4026,6 +4052,99 @@ body.accent-is-light #acctChangePassBtn { color: #111; }
     color: #ff7070;
     border-color: rgba(255,80,80,.4);
 }
+
+/* ── Owner panel tabs ──────────────────────────────────────────── */
+.acct-owner-tabs {
+    display: flex;
+    gap: 4px;
+    border-bottom: 1px solid rgba(255,200,0,0.1);
+    padding-bottom: 8px;
+    margin-bottom: 2px;
+}
+.acct-owner-tab {
+    background: transparent;
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 6px;
+    padding: 5px 12px;
+    font-size: 11px;
+    font-weight: 600;
+    font-family: inherit;
+    color: rgba(255,255,255,0.4);
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.03em;
+}
+.acct-owner-tab:hover { color: rgba(255,255,255,0.75); border-color: rgba(255,255,255,0.18); }
+.acct-owner-tab.active {
+    background: rgba(255,200,0,0.08);
+    border-color: rgba(255,200,0,0.25);
+    color: #ffc832;
+}
+.acct-owner-tabpanel { display: none; flex-direction: column; gap: 10px; }
+.acct-owner-tabpanel.active { display: flex; }
+
+/* ── Users list in owner panel ─────────────────────────────────── */
+.acct-users-list {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+    max-height: 260px;
+    overflow-y: auto;
+    scrollbar-width: thin;
+    scrollbar-color: rgba(255,255,255,0.08) transparent;
+}
+.acct-users-list::-webkit-scrollbar { width: 3px; }
+.acct-users-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
+
+.acct-user-row {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 8px 10px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.06);
+    border-radius: 8px;
+    transition: border-color 0.15s;
+}
+.acct-user-row:hover { border-color: rgba(255,255,255,0.12); }
+
+.acct-user-avatar {
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background: var(--accent-glow);
+    border: 1px solid var(--accent-dim);
+    color: var(--accent);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 13px;
+    font-weight: 700;
+    flex-shrink: 0;
+}
+.acct-user-info { flex: 1; min-width: 0; }
+.acct-user-name {
+    font-size: 12px;
+    font-weight: 600;
+    color: rgba(255,255,255,0.8);
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    flex-wrap: wrap;
+}
+.acct-user-you {
+    font-size: 10px;
+    font-weight: 400;
+    color: rgba(255,255,255,0.3);
+    font-style: italic;
+}
+.acct-user-meta {
+    font-size: 10px;
+    color: rgba(255,255,255,0.28);
+    margin-top: 1px;
+}
+.acct-user-actions { flex-shrink: 0; }
+.acct-btn-sm { padding: 4px 9px !important; font-size: 10px !important; flex: none !important; }
 .acct-admin-loading { font-size: 12px; color: rgba(255,255,255,.25); }
 
 @media (max-width: 760px) {
@@ -4049,11 +4168,73 @@ body.accent-is-light #acctChangePassBtn { color: #111; }
     }
 }
 
-/* ═══════════════════════════════════════════════════════════════
-   ADMIN — Users tab (owner-only) & role badges
-   ═══════════════════════════════════════════════════════════════ */
+/* ── Owner sub-tabs ───────────────────────────────────────────── */
+.admin-owner-tabs {
+    display: flex;
+    gap: 5px;
+    margin-bottom: 16px;
+    flex-wrap: wrap;
+}
+.admin-owner-tab {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.08);
+    border-radius: 7px;
+    padding: 6px 14px;
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    color: rgba(255,255,255,0.45);
+    cursor: pointer;
+    transition: all 0.15s;
+    letter-spacing: 0.03em;
+}
+.admin-owner-tab:hover {
+    color: rgba(255,255,255,0.8);
+    border-color: rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.08);
+}
+.admin-owner-tab.active {
+    background: var(--accent-glow);
+    border-color: var(--accent-dim);
+    color: var(--accent);
+    font-weight: 700;
+}
+.admin-owner-tabpanel { display: none; flex-direction: column; gap: 10px; }
+.admin-owner-tabpanel.active { display: flex; }
 
-.admin-tab-owner { border-left: 1px solid rgba(255,255,255,0.08); }
+.admin-owner-promote-row { display: flex; flex-direction: column; gap: 4px; }
+
+.admin-maintenance-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 12px 14px;
+    background: rgba(255,255,255,0.03);
+    border: 1px solid rgba(255,255,255,0.07);
+    border-radius: 8px;
+}
+.admin-maintenance-label {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+}
+
+/* ── Base input style for admin panels ───────────────────────── */
+.admin-input {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    border-radius: 7px;
+    color: #fff;
+    font-family: inherit;
+    font-size: 13px;
+    padding: 7px 11px;
+    outline: none;
+    transition: border-color 0.15s;
+    box-sizing: border-box;
+}
+.admin-input:focus { border-color: var(--accent-dim); }
+.admin-input::placeholder { color: rgba(255,255,255,0.3); }
 
 .admin-users-search-row {
     display: flex;
@@ -4061,7 +4242,7 @@ body.accent-is-light #acctChangePassBtn { color: #111; }
     margin-bottom: 14px;
     align-items: center;
 }
-.admin-users-search-row .admin-input { flex: 1; }
+.admin-users-search-row .admin-input { flex: 1; min-width: 0; }
 
 .admin-users-loading {
     text-align: center;
@@ -4169,9 +4350,110 @@ body.accent-is-light .admin-user-avatar { color: #111; }
     border: 1px solid rgba(255,255,255,0.08);
 }
 
-/* ── Hover colour fix (white/light accent) ───────────────────────
-   When the accent is light, hovering a danger button would produce
-   white text on near-white background. Override to dark text. */
-body.accent-is-light .settings-btn-danger:hover { color: #111; }
-body.accent-is-light .admin-btn-danger:hover     { color: #111; }
-body.accent-is-light .auth-ghost-btn:hover       { color: #111; border-color: rgba(0,0,0,0.3); }
+/* ── Maintenance page ─────────────────────────────────────────── */
+#maintenancePage {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 19999;
+    background: #0a0a0c;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 32px;
+    font-family: "Inter", sans-serif;
+}
+#maintenancePage.active { display: flex; }
+
+.maint-glyph {
+    font-size: 52px;
+    margin-bottom: 20px;
+    opacity: 0.6;
+    animation: maintPulse 3s ease-in-out infinite;
+}
+@keyframes maintPulse {
+    0%, 100% { opacity: 0.4; transform: scale(1); }
+    50%       { opacity: 0.75; transform: scale(1.04); }
+}
+.maint-title {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #f0e8d0;
+    margin-bottom: 10px;
+}
+.maint-sub {
+    font-size: 14px;
+    color: rgba(255,255,255,0.38);
+    line-height: 1.7;
+    max-width: 380px;
+    margin-bottom: 32px;
+}
+.maint-bypass-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.5);
+    border-radius: 8px;
+    padding: 9px 20px;
+    font-size: 12px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: all 0.15s;
+}
+.maint-bypass-btn:hover { color: #fff; border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); }
+
+/* Owner controls for maintenance in owner panel */
+.acct-maintenance-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 10px 0 2px;
+    border-top: 1px solid rgba(255,255,255,0.06);
+    margin-top: 4px;
+}
+.acct-maintenance-label {
+    font-size: 12px;
+    color: rgba(255,255,255,0.5);
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+}
+.acct-maintenance-hint {
+    font-size: 10px;
+    color: rgba(255,255,255,0.25);
+}
+.acct-maintenance-toggle {
+    padding: 6px 14px;
+    border-radius: 7px;
+    border: 1px solid rgba(255,255,255,0.1);
+    font-size: 12px;
+    font-weight: 600;
+    font-family: inherit;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+}
+.acct-maintenance-toggle.off {
+    background: rgba(255,255,255,0.04);
+    color: rgba(255,255,255,0.5);
+}
+.acct-maintenance-toggle.off:hover {
+    background: rgba(255,160,0,0.12);
+    border-color: rgba(255,160,0,0.35);
+    color: #ffa030;
+}
+.acct-maintenance-toggle.on {
+    background: rgba(255,160,0,0.1);
+    border-color: rgba(255,160,0,0.3);
+    color: #ffa030;
+}
+.acct-maintenance-toggle.on:hover {
+    background: rgba(255,80,80,0.12);
+    border-color: rgba(255,80,80,0.3);
+    color: #ff7070;
+}

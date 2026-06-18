@@ -183,7 +183,6 @@ function onOverlayChange(val) {
     const od = document.getElementById("overlay");
     if (od) od.style.background = `radial-gradient(circle, rgba(0,0,0,${(val/100)*0.25}), rgba(0,0,0,${val/100}))`;
 }
-// onSettingsFontChange removed
 function onStorySpeedChange(val) {
     const s = loadSettings(); s.storySpeed = val; saveSettings(s);
     settingsStorySpeed = parseFloat(val);

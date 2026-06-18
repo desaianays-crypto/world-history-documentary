@@ -19,6 +19,9 @@
     <div id="overlay"></div>
     <div id="fadeScreen"></div>
 
+    <!-- Maintenance page — shown to non-admin users when owner enables maintenance mode -->
+    <div id="maintenancePage"></div>
+
     <!-- Story Finished Fullscreen Overlay -->
     <div id="storyFinishedOverlay">
         <div id="storyFinishedInner">
@@ -250,10 +253,10 @@
                         <input type="color" id="accentColorPicker" class="settings-color-input" title="Pick accent colour" oninput="onAccentColorInput(this.value)" onchange="onAccentColorChange(this.value)" />
                         <div class="settings-swatches" id="themeSwatches">
                             <button class="swatch active" data-theme="red"    style="background:#c0161f" title="Crimson Red"></button>
-                            <button class="swatch"        data-theme="blue"   style="background:#0d18b6" title="Indigo Blue"></button>
+                            <button class="swatch"        data-theme="blue"   style="background:#1f3ac3" title="Indigo Blue"></button>
                             <button class="swatch"        data-theme="white"  style="background:#ffffff" title="Pure White"></button>
                             <button class="swatch"        data-theme="orange" style="background:#ff7700" title="Orange"></button>
-                            <button class="swatch"        data-theme="purple" style="background:#4300b7" title="DarkPurple"></button>
+                            <button class="swatch"        data-theme="purple" style="background:#5d00ff" title="DarkPurple"></button>
                             <button class="swatch"        data-theme="lightblue"  style="background:#00eeff" title="Light Blue"></button>
                             <button class="swatch"        data-theme="colorfusion1"  style="background:#be3300" title="Color Fusion Rouge"></button>
                             <button class="swatch"        data-theme="colorfusion2"  style="background:#ff0099" title="Color Fusion Rose"></button>
@@ -315,7 +318,7 @@
                 <div class="settings-row">
                     <div class="settings-label"><span>Reset All Settings</span><span class="settings-hint">Restore defaults (playlists and admin data kept)</span></div>
                     <div class="settings-control">
-                        <button class="settings-btn-danger" onclick="resetAllSettings()">↺ Reset Defaults</button>
+                        <button class="settings-btn" onclick="resetAllSettings()">↺ Reset Defaults</button>
                     </div>
                 </div>
             </div>
@@ -409,6 +412,5 @@
     <script src="javascript/search.js"></script>         <!-- fuzzy search engine -->
     <script src="javascript/empires.js"></script>        <!-- empire GeoJSON map -->
     <script src="javascript/admin.js"></script>          <!-- admin panel -->
-    <a href="https://www.flaticon.com/free-icons/eyes" title="eyes icons">Eyes icons created by Kiranshastry - Flaticon</a>
 </body>
 </html>

@@ -38,6 +38,8 @@
         isOwner:     () => _role === "owner",
         scheduleSyncPush,
         pushNow,
+        pullAndApply:      () => _pullAndApply(),
+        checkMaintenance:  () => _checkMaintenance(),
         openModal:   openAuthModal,
         logout,
         requireLogin(onSuccess) {
@@ -93,7 +95,7 @@
           <label>Password</label>
           <div class="auth-pass-wrap">
             <input id="authLoginPass" type="password" autocomplete="current-password" placeholder="••••••••"/>
-            <button type="button" class="auth-show-pass" id="authLoginShowPass" tabindex="-1" onclick="togglePassVis('authLoginPass',this)" aria-label="Show password">eyes icons</button>
+            <button type="button" class="auth-show-pass" id="authLoginShowPass" tabindex="-1" onclick="togglePassVis('authLoginPass',this)" aria-label="Show password"></button>
           </div>
         </div>
         <div class="auth-error" id="authLoginError"></div> 
@@ -109,14 +111,14 @@
           <label>Password <span class="auth-hint">8+ characters</span></label>
           <div class="auth-pass-wrap">
             <input id="authSignupPass" type="password" autocomplete="new-password" placeholder="••••••••" minlength="8"/>
-            <button type="button" class="auth-show-pass" tabindex="-1" onclick="togglePassVis('authSignupPass',this)" aria-label="Show password">eyes icons</button>
+            <button type="button" class="auth-show-pass" tabindex="-1" onclick="togglePassVis('authSignupPass',this)" aria-label="Show password"></button>
           </div>
         </div>
         <div class="auth-field">
           <label>Confirm Password</label>
           <div class="auth-pass-wrap">
             <input id="authSignupPass2" type="password" autocomplete="new-password" placeholder="••••••••"/>
-            <button type="button" class="auth-show-pass" tabindex="-1" onclick="togglePassVis('authSignupPass2',this)" aria-label="Show password">👁</button>
+            <button type="button" class="auth-show-pass" tabindex="-1" onclick="togglePassVis('authSignupPass2',this)" aria-label="Show password"></button>
           </div>
         </div>
         <div id="authTransferRow" class="auth-transfer-row" style="display:none">
@@ -156,6 +158,8 @@
 
         // Clicking the left panel (backdrop area on mobile) dismisses the modal
         // only when already logged in or guest; otherwise it's required on first visit
+        _initEyeButtons(el);
+
         document.getElementById("authOverlay").addEventListener("click", () => {
             if (_token || _guest) closeAuthModal();
         });
@@ -182,6 +186,23 @@
             f.classList.toggle("active", f.id === "authForm" + tab.charAt(0).toUpperCase() + tab.slice(1)));
         ["authLoginError", "authSignupError"].forEach(id => {
             const e = document.getElementById(id); if (e) e.textContent = "";
+        });
+        // Clear the fields of the tab being switched away from
+        if (tab === "login") {
+            ["authSignupUser","authSignupPass","authSignupPass2"].forEach(id => {
+                const el = document.getElementById(id); if (el) el.value = "";
+            });
+        } else {
+            ["authLoginUser","authLoginPass"].forEach(id => {
+                const el = document.getElementById(id); if (el) el.value = "";
+            });
+        }
+        // Reset all eye buttons to show state
+        document.querySelectorAll("#authModal .auth-show-pass").forEach(btn => {
+            const inputId = btn.getAttribute("onclick")?.match(/'([^']+)'/)?.[1];
+            if (inputId) { const inp = document.getElementById(inputId); if (inp) inp.type = "password"; }
+            btn.innerHTML = _eyeOpenSVG;
+            btn.title = "Show password";
         });
         const tr = document.getElementById("authTransferRow");
         if (tr) tr.style.display = (tab === "signup" && _hasLocalData()) ? "" : "none";
@@ -220,6 +241,24 @@
         const modal = document.getElementById("authModal");
         modal.classList.add("visible");
         _renderAuthModal();
+        // Clear all input fields every time the modal opens
+        ["authLoginUser","authLoginPass","authSignupUser","authSignupPass","authSignupPass2"].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.value = "";
+        });
+        // Reset eye buttons back to "show" state
+        modal.querySelectorAll(".auth-show-pass").forEach(btn => {
+            const inputId = btn.getAttribute("onclick")?.match(/'([^']+)'/)?.[1];
+            if (inputId) {
+                const inp = document.getElementById(inputId);
+                if (inp) inp.type = "password";
+            }
+            btn.innerHTML = _eyeOpenSVG;
+            btn.title = "Show password";
+        });
+        ["authLoginError","authSignupError"].forEach(id => {
+            const e = document.getElementById(id); if (e) e.textContent = "";
+        });
         setTimeout(() => {
             const inp = document.querySelector(".auth-form.active input");
             if (inp) inp.focus();
@@ -408,18 +447,16 @@
   <div class="settings-control"><span class="acct-count-badge">Synced</span></div>
 </div>
 
-${_role === "owner" ? _buildOwnerPanel() : ""}
-
 ${_buildChangePasswordHTML()}
 
 <div class="settings-section-title" style="margin-top:20px;">⚠ Account Actions</div>
 <div class="settings-row">
   <div class="settings-label"><span>Sign out</span><span class="settings-hint">Clears local playlists &amp; bookmarks</span></div>
-  <div class="settings-control"><button class="settings-btn-danger" id="acctLogoutBtn">Sign Out</button></div>
+  <div class="settings-control"><button class="settings-btn-caution" id="acctLogoutBtn">Sign Out</button></div>
 </div>
 <div class="settings-row">
   <div class="settings-label"><span>Delete account</span><span class="settings-hint">Permanently removes your account</span></div>
-  <div class="settings-control"><button class="settings-btn-danger" id="acctDeleteBtn">Delete Account</button></div>
+  <div class="settings-control"><button class="settings-btn-caution settings-btn-caution-strong" id="acctDeleteBtn">Delete Account</button></div>
 </div>`;
 
             document.getElementById("acctLogoutBtn").onclick = () => {
@@ -434,9 +471,8 @@ ${_buildChangePasswordHTML()}
 
             // Wire change password form
             _wireChangePassword();
+            _initEyeButtons(el);
 
-            // Wire owner panel if present
-            if (_role === "owner") _wireOwnerPanel();
 
         } else {
             el.innerHTML = `
@@ -450,102 +486,17 @@ ${_buildChangePasswordHTML()}
         }
     }
 
-    // ── Owner panel ───────────────────────────────────────────────────────────
-    function _buildOwnerPanel() {
-        return `
-<div class="settings-section-title" style="margin-top:20px;">👑 Owner Controls</div>
-<div class="acct-owner-panel">
-  <div class="acct-owner-desc">Promote a user to admin or strip their admin status. Admins can access the content editor panel.</div>
-  <div class="acct-owner-form">
-    <input id="ownerTargetUser" type="text" placeholder="Username…" spellcheck="false" autocomplete="off"/>
-    <div class="acct-owner-btns">
-      <button class="acct-owner-btn acct-promote-btn" id="ownerPromoteBtn">⚡ Make Admin</button>
-      <button class="acct-owner-btn acct-demote-btn"  id="ownerDemoteBtn">✕ Remove Admin</button>
-    </div>
-  </div>
-  <div class="acct-owner-result" id="ownerResult"></div>
-  <div class="acct-admin-list-header">Current Admins</div>
-  <div class="acct-admin-list" id="ownerAdminList"><span class="acct-admin-loading">Loading…</span></div>
-</div>`;
-    }
 
-    function _wireOwnerPanel() {
-        _loadAdminList();
-        const promoteBtn = document.getElementById("ownerPromoteBtn");
-        const demoteBtn  = document.getElementById("ownerDemoteBtn");
-        if (promoteBtn) promoteBtn.onclick = () => _doPromote("admin");
-        if (demoteBtn)  demoteBtn.onclick  = () => _doPromote("user");
-    }
+    // ── SVG eye icons for password toggle (Google-style) ────────────────────
+    const _eyeOpenSVG   = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+    const _eyeClosedSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
 
-    async function _loadAdminList() {
-        const listEl = document.getElementById("ownerAdminList");
-        if (!listEl) return;
-        try {
-            const res  = await fetch(WORKER_URL + "/auth/listadmins", {
-                method: "POST", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ token: _token }),
-            });
-            const data = await res.json().catch(() => ({}));
-            if (!data.ok) { listEl.innerHTML = `<span class="acct-admin-loading">Failed to load.</span>`; return; }
-            if (!data.admins || !data.admins.length) {
-                listEl.innerHTML = `<span class="acct-admin-loading">No admins yet.</span>`;
-            } else {
-                listEl.innerHTML = data.admins.map(a =>
-                    `<div class="acct-admin-row">
-                       <span class="acct-admin-name">⚡ ${_escHtml(a.username)}</span>
-                       <button class="acct-admin-revoke" data-user="${_escHtml(a.username)}">Remove</button>
-                     </div>`
-                ).join("");
-                listEl.querySelectorAll(".acct-admin-revoke").forEach(btn => {
-                    btn.onclick = async () => {
-                        const result = document.getElementById("ownerResult");
-                        const uname = btn.dataset.user;
-                        btn.disabled = true; btn.textContent = "Removing…";
-                        const ok = await _callPromote(uname, "user");
-                        if (ok) {
-                            if (result) result.textContent = `${uname} is no longer an admin.`;
-                            _loadAdminList();
-                        } else {
-                            btn.disabled = false; btn.textContent = "Remove";
-                        }
-                    };
-                });
-            }
-        } catch {
-            listEl.innerHTML = `<span class="acct-admin-loading">Error loading admins.</span>`;
-        }
-    }
-
-    async function _doPromote(newRole) {
-        const inp    = document.getElementById("ownerTargetUser");
-        const result = document.getElementById("ownerResult");
-        const target = inp?.value.trim();
-        if (!target) { if (result) result.textContent = "Enter a username first."; return; }
-        if (result) result.textContent = newRole === "admin" ? "Promoting…" : "Removing admin…";
-        const ok = await _callPromote(target, newRole);
-        if (ok) {
-            if (result) result.textContent = newRole === "admin"
-                ? `✓ ${target} is now an admin.`
-                : `✓ ${target}'s admin status removed.`;
-            if (inp) inp.value = "";
-            _loadAdminList();
-        }
-    }
-
-    async function _callPromote(targetUsername, newRole) {
-        const result = document.getElementById("ownerResult");
-        try {
-            const res  = await fetch(WORKER_URL + "/auth/promote", {
-                method: "POST", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ token: _token, targetUsername, newRole }),
-            });
-            const data = await res.json().catch(() => ({}));
-            if (!data.ok && result) result.textContent = data.error || "Failed.";
-            return !!data.ok;
-        } catch {
-            if (result) result.textContent = "Couldn't reach server.";
-            return false;
-        }
+    function _initEyeButtons(root) {
+        (root || document).querySelectorAll(".auth-show-pass").forEach(btn => {
+            btn.innerHTML = _eyeOpenSVG;
+            btn.title = "Show password";
+            btn.setAttribute("aria-label", "Show password");
+        });
     }
 
     // ── Password visibility toggle (global, called by inline onclick) ────────
@@ -554,8 +505,9 @@ ${_buildChangePasswordHTML()}
         if (!inp) return;
         const isHidden = inp.type === "password";
         inp.type = isHidden ? "text" : "password";
-        btn.textContent = isHidden ? "🙈" : "👁";
-        btn.title = isHidden ? "Hide password" : "Show password";
+        btn.innerHTML = isHidden ? _eyeClosedSVG : _eyeOpenSVG;
+        btn.title     = isHidden ? "Hide password"  : "Show password";
+        btn.setAttribute("aria-label", isHidden ? "Hide password" : "Show password");
     };
 
     // ── Change password UI ────────────────────────────────────────────────
@@ -567,25 +519,25 @@ ${_buildChangePasswordHTML()}
     <label>Current Password</label>
     <div class="auth-pass-wrap">
       <input id="acctCurrPass" type="password" placeholder="••••••••" autocomplete="current-password"/>
-      <button type="button" class="auth-show-pass" tabindex="-1" onclick="togglePassVis('acctCurrPass',this)">👁</button>
+      <button type="button" class="auth-show-pass" tabindex="-1" onclick="togglePassVis('acctCurrPass',this)" aria-label="Show password"></button>
     </div>
   </div>
   <div class="auth-field">
     <label>New Password <span class="auth-hint">8+ characters</span></label>
     <div class="auth-pass-wrap">
       <input id="acctNewPass" type="password" placeholder="••••••••" autocomplete="new-password"/>
-      <button type="button" class="auth-show-pass" tabindex="-1" onclick="togglePassVis('acctNewPass',this)">👁</button>
+      <button type="button" class="auth-show-pass" tabindex="-1" onclick="togglePassVis('acctNewPass',this)" aria-label="Show password"></button>
     </div>
   </div>
   <div class="auth-field">
     <label>Confirm New Password</label>
     <div class="auth-pass-wrap">
       <input id="acctNewPass2" type="password" placeholder="••••••••" autocomplete="new-password"/>
-      <button type="button" class="auth-show-pass" tabindex="-1" onclick="togglePassVis('acctNewPass2',this)">👁</button>
+      <button type="button" class="auth-show-pass" tabindex="-1" onclick="togglePassVis('acctNewPass2',this)" aria-label="Show password"></button>
     </div>
   </div>
   <div class="auth-error" id="acctPassError"></div>
-  <button class="settings-btn" id="acctChangePassBtn">Update Password</button>
+  <button class="auth-primary-btn" id="acctChangePassBtn">Update Password</button>
 </div>`;
     }
 
@@ -644,16 +596,17 @@ ${_buildChangePasswordHTML()}
     <label>Password</label>
     <div class="auth-pass-wrap">
       <input id="acctDeletePass" type="password" placeholder="••••••••" autocomplete="current-password"/>
-      <button type="button" class="auth-show-pass" tabindex="-1" onclick="togglePassVis('acctDeletePass',this)">👁</button>
+      <button type="button" class="auth-show-pass" tabindex="-1" onclick="togglePassVis('acctDeletePass',this)" aria-label="Show password"></button>
     </div>
   </div>
   <div class="auth-error" id="acctDeleteError"></div>
   <div class="acct-delete-btns">
     <button class="auth-ghost-btn" id="acctDeleteCancelBtn">Cancel</button>
-    <button class="settings-btn-danger" id="acctDeleteConfirmBtn">Delete Forever</button>
+    <button class="settings-btn-caution settings-btn-caution-strong" id="acctDeleteConfirmBtn">Delete Forever</button>
   </div>
 </div>`;
         document.body.appendChild(modal);
+        _initEyeButtons(modal);
 
         document.getElementById("acctDeleteCancelBtn").onclick  = () => modal.remove();
         document.getElementById("acctDeletePass").addEventListener("keydown", e => {
@@ -752,6 +705,7 @@ ${_buildChangePasswordHTML()}
                 _joined = resp.joinedAt;
                 localStorage.setItem(LS_JOINED, _joined);
             }
+            // Always apply role from server — never trust stale localStorage value
             if (resp.role) {
                 _role = resp.role;
                 localStorage.setItem(LS_ROLE, _role);
@@ -770,6 +724,12 @@ ${_buildChangePasswordHTML()}
                 syncSettingsUI(loadSettings());
             if (typeof renderPlaylistSidebar === "function") renderPlaylistSidebar();
             if (typeof renderBookmarksList   === "function") renderBookmarksList();
+
+            // Re-check maintenance (admin logging in should bypass)
+            await _checkMaintenance();
+
+            // Always re-render — role may have just been corrected by the server
+            renderSettingsAccountPage();
         } catch { /* silent */ }
     }
 
@@ -825,6 +785,47 @@ ${_buildChangePasswordHTML()}
     }
 
     // ═════════════════════════════════════════════════════════════════════
+    //  MAINTENANCE PAGE
+    // ═════════════════════════════════════════════════════════════════════
+    function _applyMaintenancePage(on, message) {
+        let page = document.getElementById("maintenancePage");
+        if (!page) return;
+        if (!on) {
+            page.classList.remove("active");
+            return;
+        }
+        // Owner/admin bypass — they see the site normally
+        if (_role === "owner" || _role === "admin") {
+            page.classList.remove("active");
+            return;
+        }
+        // Build content
+        const msg = message || "We're doing some maintenance. Check back soon.";
+        page.innerHTML = `
+<div class="maint-glyph">🚧</div>
+<div class="maint-title">Under Maintenance</div>
+<div class="maint-sub">${_escHtml(msg)}</div>
+<button class="maint-bypass-btn" id="maintBypassBtn">I have an account</button>`;
+        page.classList.add("active");
+        document.getElementById("maintBypassBtn").onclick = () => {
+            // Let them log in — if they're admin/owner the page hides after pull
+            page.classList.remove("active");
+            openAuthModal();
+        };
+    }
+
+    async function _checkMaintenance() {
+        // Bypass entirely for owner/admin
+        if (_role === "owner" || _role === "admin") return;
+        if (!WORKER_URL) return;
+        try {
+            const res  = await fetch(WORKER_URL + "/auth/maintenance/status");
+            const data = await res.json().catch(() => ({}));
+            _applyMaintenancePage(!!data.maintenance, data.message || "");
+        } catch { /* network error — don't block access */ }
+    }
+
+    // ═════════════════════════════════════════════════════════════════════
     //  SETTINGS TAB HOOK
     // ═════════════════════════════════════════════════════════════════════
     function _hookSettingsAccountTab() {
@@ -837,18 +838,23 @@ ${_buildChangePasswordHTML()}
     // ═════════════════════════════════════════════════════════════════════
     //  INIT
     // ═════════════════════════════════════════════════════════════════════
-    function init() {
+    async function init() {
         _injectAuthModal();
         _hookSettingsAccountTab();
         renderSettingsAccountPage();
 
         if (_token) {
-            _pullAndApply();
+            // Await pull so role is known before (re-)rendering the account page.
+            // renderSettingsAccountPage is called inside _pullAndApply when role changes.
+            await _pullAndApply();
         } else if (!_guest) {
             setTimeout(() => {
                 if (!window.WHDAuth.isLoggedIn() && !window.WHDAuth.isGuest()) openAuthModal();
             }, 800);
         }
+
+        // Check maintenance mode after role is resolved
+        await _checkMaintenance();
     }
 
     if (document.readyState === "loading") {

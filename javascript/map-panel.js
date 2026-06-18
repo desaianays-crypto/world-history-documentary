@@ -10,7 +10,6 @@ function ensureMusicReady() {
     activeBgm.volume = settingsMusicVolume;
 
     activeBgm.play().catch(err => {
-        console.log("Autoplay blocked:", err);
     });
 }
 
@@ -163,7 +162,6 @@ function renderContinents() {
         btn.innerText = continent.name;
 
         btn.onclick = () => {
-            console.log("Continent clicked:", continent.name);
 
             navStack = [];
             setNav("continent", continent.name, continent);
@@ -263,12 +261,10 @@ function togglePause() {
     if (paused) {
         btn.innerText = "▶ Resume";
         clearTimeout(storyTimeout);
-        console.log("⏸ Story paused");
                 setNowPlayingPaused(true);
     }
     else {
         btn.innerText = "⏸ Pause";
-        console.log("▶ Story resumed");
         setNowPlayingPaused(false);
         _activeLoop();
     }
@@ -301,7 +297,6 @@ function toggleMute() {
 
         if (currentSFX) currentSFX.pause();
         btn.innerText = "🔔 Unmute";
-        console.log("⏸ Music paused");
     }
     else {
         musicPaused = false;
@@ -313,7 +308,6 @@ function toggleMute() {
 
         activeBgm.volume = 0;
         activeBgm.play().catch(err => {
-            console.log("Playback blocked:", err);
         });
         // Fade back in
         const fadeIn = setInterval(() => {
@@ -328,7 +322,6 @@ function toggleMute() {
             currentSFX.play().catch(() => { });
         }
         btn.innerText = "🔕 Mute";
-        console.log("▶ Music resumed");
     }
 }
 

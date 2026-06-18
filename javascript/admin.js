@@ -33,8 +33,8 @@
                 <div class="admin-tab active" data-tab="add">➕ Add / Edit</div>
                 <div class="admin-tab" data-tab="manage">📋 Manage Entries</div>
                 <div class="admin-tab" data-tab="tree">🌳 World Tree</div>
+                <div class="admin-tab admin-tab-owner" data-tab="owner" id="adminOwnerTab" style="display:none">👑 Owner</div>
                 <div class="admin-tab" data-tab="info">ℹ Info</div>
-                <div class="admin-tab admin-tab-owner" data-tab="users" id="adminUsersTab" style="display:none">👥 Users</div>
             </div>
             <div id="adminContent">
 
@@ -357,14 +357,53 @@
 
                 </div>
 
-                <div class="admin-page" data-page="users">
-                    <p class="admin-section-title">👥 User Management <span style="font-size:11px;color:rgba(255,255,255,0.35);font-weight:400;margin-left:8px;">Owner only</span></p>
-                    <div class="admin-users-search-row">
-                        <input id="adminUserSearch" type="text" class="admin-input" placeholder="Search username…" oninput="adminUsersFilter()"/>
-                        <button class="admin-btn admin-btn-secondary" onclick="adminUsersRefresh()">↺ Refresh</button>
+                <div class="admin-page" data-page="owner">
+                    <p class="admin-section-title">👑 Owner Controls <span style="font-size:11px;color:rgba(255,255,255,0.35);font-weight:400;margin-left:8px;">Owner only</span></p>
+
+                    <div class="admin-owner-tabs">
+                        <button class="admin-owner-tab active" data-otab="users">👥 Users</button>
+                        <button class="admin-owner-tab" data-otab="admins">⚡ Admins</button>
+                        <button class="admin-owner-tab" data-otab="site">🚧 Site</button>
                     </div>
-                    <div id="adminUsersList" class="admin-users-list">
-                        <div class="admin-users-loading">Loading users…</div>
+
+                    <!-- USERS TAB -->
+                    <div class="admin-owner-tabpanel active" id="adminOwnerTab-users">
+                        <div class="admin-users-search-row">
+                            <input id="adminUserSearch" type="text" class="admin-input" placeholder="Search username…" oninput="adminUsersFilter()"/>
+                            <button class="admin-btn admin-btn-secondary" onclick="adminUsersRefresh()">↺ Refresh</button>
+                        </div>
+                        <div id="adminUsersList" class="admin-users-list">
+                            <div class="admin-users-loading">Loading users…</div>
+                        </div>
+                    </div>
+
+                    <!-- ADMINS TAB -->
+                    <div class="admin-owner-tabpanel" id="adminOwnerTab-admins">
+                        <p style="font-size:12px;color:rgba(255,255,255,0.4);margin:0 0 12px;">Promote or demote users to admin by username.</p>
+                        <div class="admin-owner-promote-row">
+                            <input id="adminPromoteTarget" type="text" class="admin-input" placeholder="Username to promote / demote…" spellcheck="false" autocomplete="off"/>
+                            <div class="admin-btn-row" style="margin-top:8px;">
+                                <button class="admin-btn admin-btn-primary" onclick="adminOwnerPromote('admin')">⚡ Make Admin</button>
+                                <button class="admin-btn admin-btn-secondary" onclick="adminOwnerPromote('user')">✕ Remove Admin</button>
+                            </div>
+                            <div id="adminPromoteResult" style="font-size:12px;color:rgba(255,255,255,0.45);min-height:16px;margin-top:8px;"></div>
+                        </div>
+                        <p class="admin-section-title" style="margin-top:16px;">Current Admins</p>
+                        <div id="adminAdminList" class="admin-users-list">
+                            <div class="admin-users-loading">Loading…</div>
+                        </div>
+                    </div>
+
+                    <!-- SITE TAB -->
+                    <div class="admin-owner-tabpanel" id="adminOwnerTab-site">
+                        <p style="font-size:12px;color:rgba(255,255,255,0.4);margin:0 0 16px;">Maintenance mode blocks regular users from accessing the site. Admins and the owner always bypass it.</p>
+                        <div class="admin-maintenance-row">
+                            <div class="admin-maintenance-label">
+                                <span style="font-size:13px;font-weight:600;color:#e8e8e8;">🚧 Maintenance Mode</span>
+                                <span style="font-size:11px;color:rgba(255,255,255,0.35);">You and admins can always bypass.</span>
+                            </div>
+                            <button class="acct-maintenance-toggle off" id="adminMaintToggleBtn">Loading…</button>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -706,14 +745,30 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         document.getElementById("adminPanel").classList.add("visible");
         setTimeout(() => document.getElementById("adminOverlay").classList.add("active"), 10);
 
+        // If role might be stale (server fix not yet applied to cached role),
+        // fire a role refresh then apply panel state shortly after
+        const role = window.WHDAuth ? window.WHDAuth.getRole() : null;
+        if (window.WHDAuth && window.WHDAuth.isLoggedIn() && role !== "owner" && role !== "admin") {
+            // Pull fresh role from server, then re-check
+            if (typeof window.WHDAuth.pullAndApply === "function") {
+                window.WHDAuth.pullAndApply().then(() => _applyPanelRole());
+            } else {
+                setTimeout(() => _applyPanelRole(), 700);
+            }
+        } else {
+            _applyPanelRole();
+        }
+    }
+
+    function _applyPanelRole() {
         // Check role from WHDAuth — admin/owner skip the passcode entirely
         const role = window.WHDAuth ? window.WHDAuth.getRole() : null;
         const isOwner = role === "owner";
         const isAdminOrAbove = role === "admin" || role === "owner";
 
-        // Show Users tab only for owner
-        const usersTab = document.getElementById("adminUsersTab");
-        if (usersTab) usersTab.style.display = isOwner ? "" : "none";
+        // Show Owner tab only for owner
+        const ownerTab = document.getElementById("adminOwnerTab");
+        if (ownerTab) ownerTab.style.display = isOwner ? "" : "none";
 
         if (isAdminOrAbove && !unlocked) {
             // Admin/owner: bypass passcode, unlock immediately
@@ -824,11 +879,22 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
             const page = document.querySelector(`.admin-page[data-page="${tab.dataset.tab}"]`);
             if (page) page.classList.add("active");
             activeTab = tab.dataset.tab;
-            if (activeTab === "users") adminUsersRefresh();
+            if (activeTab === "owner") { adminUsersRefresh(); adminAdminListRefresh(); adminMaintLoad(); }
         });
     });
 
-    // ── Users tab (owner only) ─────────────────────────────────────
+    // Wire owner sub-tabs
+    document.querySelectorAll(".admin-owner-tab").forEach(tab => {
+        tab.addEventListener("click", () => {
+            document.querySelectorAll(".admin-owner-tab").forEach(t => t.classList.remove("active"));
+            document.querySelectorAll(".admin-owner-tabpanel").forEach(p => p.classList.remove("active"));
+            tab.classList.add("active");
+            const panel = document.getElementById("adminOwnerTab-" + tab.dataset.otab);
+            if (panel) panel.classList.add("active");
+        });
+    });
+
+    // ── Owner tab (owner only) ─────────────────────────────────────
     let _adminAllUsers = [];
 
     function adminUsersRefresh() {
@@ -905,10 +971,108 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         if (res.ok) {
             toast(`${username} is now ${newRole}.`);
             adminUsersRefresh();
+            adminAdminListRefresh();
         } else {
             toast(res.error || "Failed to change role.", true);
         }
     };
+
+    // ── Admins sub-tab ─────────────────────────────────────────────
+    function adminAdminListRefresh() {
+        const list = document.getElementById("adminAdminList");
+        if (!list) return;
+        list.innerHTML = "<div class='admin-users-loading'>Loading…</div>";
+        const token = window.WHDAuth ? window.WHDAuth.getToken() : null;
+        if (!token) { list.innerHTML = "<div class='admin-users-loading'>Not authenticated.</div>"; return; }
+        fetch(WORKER_URL + "/auth/listadmins", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token }),
+        })
+        .then(r => r.json()).catch(() => ({ ok: false }))
+        .then(data => {
+            if (!data.ok || !data.admins || !data.admins.length) {
+                list.innerHTML = "<div class='admin-users-loading'>No admins yet.</div>";
+                return;
+            }
+            list.innerHTML = data.admins.map(a => `
+<div class="admin-user-row">
+  <div class="admin-user-avatar">${a.username.charAt(0).toUpperCase()}</div>
+  <div class="admin-user-info">
+    <div class="admin-user-name">${escHtml(a.username)}</div>
+  </div>
+  <div class="admin-user-role"><span class="admin-role-badge admin-role-admin">admin</span></div>
+  <div class="admin-user-actions">
+    <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="adminOwnerDemote('${escHtml(a.username)}')">✕ Remove</button>
+  </div>
+</div>`).join("");
+        });
+    }
+
+    window.adminOwnerPromote = async function(newRole) {
+        const inp    = document.getElementById("adminPromoteTarget");
+        const result = document.getElementById("adminPromoteResult");
+        const target = inp?.value.trim();
+        if (!target) { if (result) result.textContent = "Enter a username first."; return; }
+        if (result) result.textContent = newRole === "admin" ? "Promoting…" : "Removing admin…";
+        await window.adminUsersSetRole(target, newRole);
+        if (inp) inp.value = "";
+        if (result) result.textContent = newRole === "admin"
+            ? `✓ ${target} is now an admin.`
+            : `✓ ${target}'s admin status removed.`;
+        adminAdminListRefresh();
+    };
+
+    window.adminOwnerDemote = async function(username) {
+        await window.adminUsersSetRole(username, "user");
+        adminAdminListRefresh();
+    };
+
+    // ── Site/Maintenance sub-tab ────────────────────────────────────
+    function adminMaintLoad() {
+        const btn = document.getElementById("adminMaintToggleBtn");
+        if (!btn) return;
+        btn.textContent = "Loading…";
+        btn.className = "acct-maintenance-toggle off";
+        const token = window.WHDAuth ? window.WHDAuth.getToken() : null;
+        fetch(WORKER_URL + "/auth/maintenance/status")
+        .then(r => r.json()).catch(() => ({}))
+        .then(data => {
+            const on = !!data.maintenance;
+            btn.textContent = on ? "🚧 On — Click to Disable" : "Off — Click to Enable";
+            btn.className   = "acct-maintenance-toggle " + (on ? "on" : "off");
+            btn.dataset.on  = on ? "1" : "";
+            btn.onclick = () => adminMaintToggle();
+        });
+    }
+
+    async function adminMaintToggle() {
+        const btn = document.getElementById("adminMaintToggleBtn");
+        if (!btn) return;
+        const currentlyOn = btn.dataset.on === "1";
+        const newState    = !currentlyOn;
+        btn.disabled      = true;
+        btn.textContent   = "Saving…";
+        const token = window.WHDAuth ? window.WHDAuth.getToken() : null;
+        try {
+            const res  = await fetch(WORKER_URL + "/auth/maintenance", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token, on: newState }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (data.ok) {
+                btn.dataset.on  = newState ? "1" : "";
+                btn.textContent = newState ? "🚧 On — Click to Disable" : "Off — Click to Enable";
+                btn.className   = "acct-maintenance-toggle " + (newState ? "on" : "off");
+                toast(newState ? "🚧 Maintenance mode ON" : "✅ Maintenance mode OFF");
+            } else {
+                btn.textContent = "Error: " + (data.error || "failed");
+            }
+        } catch {
+            btn.textContent = "Network error";
+        }
+        btn.disabled = false;
+    }
 
     function switchToTab(tab) {
         document.querySelector(`.admin-tab[data-tab="${tab}"]`).click();
@@ -1973,8 +2137,13 @@ function adminLiveSfx(val) {
         root.style.setProperty("--accent",      hex);
         root.style.setProperty("--accent-dim",  `rgba(${r},${g},${b},0.55)`);
         root.style.setProperty("--accent-glow", `rgba(${r},${g},${b},0.25)`);
+        if (typeof _applyAccentLightClass === "function") {
+            _applyAccentLightClass(hex);
+        } else {
+            const lin = c => { c /= 255; return c <= 0.04045 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4); };
+            document.body.classList.toggle("accent-is-light", 0.2126*lin(r) + 0.7152*lin(g) + 0.0722*lin(b) > 0.4);
+        }
         const cp = document.getElementById("adminSettingsColorPicker");
-
         if (cp) cp.value = hex;
         const lbl = document.getElementById("adminAccentHexLabel");
         if (lbl) lbl.textContent = hex;
@@ -2108,13 +2277,6 @@ function adminLiveSfx(val) {
         if (!document.getElementById("aContinent").value)
             document.getElementById("aContinent").value = hints[this.value] || "";
     });
-
-    // ── Duplicate enter handler (already set above, just make sure) ─
-    // (passcode enter is wired at top-level listener)
-
-    // ── EDIT / STYLE TAB (removed — settings handled by Settings page) ────
-
-    // Colour preset wiring removed (edit tab removed)
 
     // ── INFO TAB ────────────────────────────────────────────────────
     function refreshInfoTab() {
@@ -2278,10 +2440,7 @@ function adminLiveSfx(val) {
         if (tab && tab.dataset.tab === "settings") {
             setTimeout(syncAdminSettingsPage, 30);
         }
-        // edit tab removed
     });
-
-    // Style auto-apply removed (style tab removed)
 
     // Apply admin-only settings (e.g. border-radius) that have no whd_settings equivalent
     (function applyAdminOnlySettings() {
