@@ -222,11 +222,29 @@ function _escHtmlCS(s) {
 
 function _csSetValue(wrap, val) {
     const valEl = wrap.querySelector('.c-sel-value');
+    let matched = false;
     wrap.querySelectorAll('.c-sel-opt').forEach(o => {
         const hit = o.dataset.val === String(val);
         o.classList.toggle('selected', hit);
-        if (hit && valEl) valEl.textContent = o.dataset.label || o.textContent;
+        if (hit) { matched = true; if (valEl) valEl.textContent = o.dataset.label || o.textContent; }
     });
+    // If nothing matched (e.g. value was cleared programmatically to ""),
+    // fall back to whichever option's val is "" or the first option.
+    if (!matched && valEl) {
+        const blank = wrap.querySelector('.c-sel-opt[data-val=""]');
+        const fallback = blank || wrap.querySelector('.c-sel-opt');
+        wrap.querySelectorAll('.c-sel-opt').forEach(o => o.classList.remove('selected'));
+        if (fallback) {
+            fallback.classList.add('selected');
+            valEl.textContent = fallback.dataset.label || fallback.textContent;
+        }
+    }
+}
+
+function _csSetDisabled(wrap, disabled) {
+    wrap.classList.toggle('disabled', !!disabled);
+    const trigger = wrap.querySelector('.c-sel-trigger');
+    if (trigger) trigger.tabIndex = disabled ? -1 : 0;
 }
 
 function _buildCustomSelect(sel) {
@@ -234,32 +252,51 @@ function _buildCustomSelect(sel) {
     sel._csInitialised = true;
     sel.style.display = 'none';
 
-    const opts = Array.from(sel.options);
+    // Walk top-level <option> AND <option> nested inside <optgroup>,
+    // preserving group headers as non-selectable labels in the menu.
+    const groups = []; // [{label:null|string, opts:[{value,text}]}]
+    let currentGroup = { label: null, opts: [] };
+    groups.push(currentGroup);
+    Array.from(sel.children).forEach(child => {
+        if (child.tagName === 'OPTGROUP') {
+            currentGroup = { label: child.label, opts: Array.from(child.children).map(o => ({ value: o.value, text: o.text })) };
+            groups.push(currentGroup);
+        } else if (child.tagName === 'OPTION') {
+            currentGroup.opts.push({ value: child.value, text: child.text });
+        }
+    });
+
+    const opts = groups.flatMap(g => g.opts);
     const curVal = sel.value;
     const curLabel = opts.find(o => o.value === curVal)?.text || opts[0]?.text || '';
 
     const wrap = document.createElement('div');
     wrap.className = 'c-sel';
     wrap.dataset.for = sel.id;
+    if (sel.disabled) wrap.classList.add('disabled');
+
+    const menuHtml = groups.map(g => {
+        const optsHtml = g.opts.map(o =>
+            `<div class="c-sel-opt${o.value===curVal?' selected':''}" data-val="${_escHtmlCS(o.value)}" data-label="${_escHtmlCS(o.text)}" role="option">${_escHtmlCS(o.text)}</div>`
+        ).join('');
+        return g.label ? `<div class="c-sel-group-label">${_escHtmlCS(g.label)}</div>${optsHtml}` : optsHtml;
+    }).join('');
 
     wrap.innerHTML =
-        `<div class="c-sel-trigger" tabindex="0" role="combobox" aria-haspopup="listbox" aria-expanded="false">` +
+        `<div class="c-sel-trigger" tabindex="${sel.disabled ? -1 : 0}" role="combobox" aria-haspopup="listbox" aria-expanded="false">` +
             `<span class="c-sel-value">${_escHtmlCS(curLabel)}</span>` +
             `<svg class="c-sel-arrow" viewBox="0 0 12 7" fill="none" xmlns="http://www.w3.org/2000/svg">` +
                 `<path d="M1 1l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>` +
             `</svg>` +
         `</div>` +
-        `<div class="c-sel-menu" role="listbox">` +
-            opts.map(o =>
-                `<div class="c-sel-opt${o.value===curVal?' selected':''}" data-val="${_escHtmlCS(o.value)}" data-label="${_escHtmlCS(o.text)}" role="option">${_escHtmlCS(o.text)}</div>`
-            ).join('') +
-        `</div>`;
+        `<div class="c-sel-menu" role="listbox">${menuHtml}</div>`;
 
     sel.parentNode.insertBefore(wrap, sel);
 
     const trigger = wrap.querySelector('.c-sel-trigger');
 
     function openMenu() {
+        if (wrap.classList.contains('disabled')) return;
         document.querySelectorAll('.c-sel.open').forEach(w => { if (w!==wrap) w.classList.remove('open'); });
         wrap.classList.add('open');
         trigger.setAttribute('aria-expanded','true');
@@ -292,10 +329,24 @@ function _buildCustomSelect(sel) {
     }, true);
 
     wrap.setValue = val => _csSetValue(wrap, val);
+
+    // Some callers (admin.js) set sel.value or sel.disabled directly from JS
+    // rather than through user interaction. Watch for that and mirror it into
+    // the visible custom dropdown so it never silently falls out of sync.
+    const observer = new MutationObserver(() => _csSetDisabled(wrap, sel.disabled));
+    observer.observe(sel, { attributes: true, attributeFilter: ['disabled'] });
+
+    let _lastSeenValue = sel.value;
+    setInterval(() => {
+        if (sel.value !== _lastSeenValue) {
+            _lastSeenValue = sel.value;
+            _csSetValue(wrap, sel.value);
+        }
+    }, 200);
 }
 
-function initCustomSelects() {
-    ['crossfadeSelect','mapStyleSelect','storySpeedSelect'].forEach(id => {
+function initCustomSelects(ids) {
+    (ids || ['crossfadeSelect','mapStyleSelect','storySpeedSelect']).forEach(id => {
         const el = document.getElementById(id);
         if (el) _buildCustomSelect(el);
     });

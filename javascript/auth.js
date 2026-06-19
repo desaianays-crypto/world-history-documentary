@@ -488,8 +488,8 @@ ${_buildChangePasswordHTML()}
 
 
     // ── SVG eye icons for password toggle (Google-style) ────────────────────
-    const _eyeOpenSVG   = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
-    const _eyeClosedSVG = `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
+    const _eyeOpenSVG   = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+    const _eyeClosedSVG = `<svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M17.94 17.94A10.07 10.07 0 0 1 12 20c-7 0-11-8-11-8a18.45 18.45 0 0 1 5.06-5.94M9.9 4.24A9.12 9.12 0 0 1 12 4c7 0 11 8 11 8a18.5 18.5 0 0 1-2.16 3.19m-6.72-1.07a3 3 0 1 1-4.24-4.24"/><line x1="1" y1="1" x2="23" y2="23"/></svg>`;
 
     function _initEyeButtons(root) {
         (root || document).querySelectorAll(".auth-show-pass").forEach(btn => {
@@ -799,19 +799,22 @@ ${_buildChangePasswordHTML()}
             page.classList.remove("active");
             return;
         }
-        // Build content
-        const msg = message || "We're doing some maintenance. Check back soon.";
-        page.innerHTML = `
+        // Build content — only rebuild if not already showing (preserves trivia game state)
+        if (!page.classList.contains("active")) {
+            const msg = message || "We're doing some maintenance. Check back soon.";
+            page.innerHTML = `
 <div class="maint-glyph">🚧</div>
 <div class="maint-title">Under Maintenance</div>
 <div class="maint-sub">${_escHtml(msg)}</div>
+<div id="maintTrivia" class="maint-trivia"></div>
 <button class="maint-bypass-btn" id="maintBypassBtn">I have an account</button>`;
-        page.classList.add("active");
-        document.getElementById("maintBypassBtn").onclick = () => {
-            // Let them log in — if they're admin/owner the page hides after pull
-            page.classList.remove("active");
-            openAuthModal();
-        };
+            page.classList.add("active");
+            // Login button only OPENS the modal — it does NOT hide the page.
+            // The page only ever hides via _applyMaintenancePage(false, …) or
+            // when _checkMaintenance() re-runs after a real admin/owner login.
+            document.getElementById("maintBypassBtn").onclick = () => openAuthModal();
+            _startMaintTrivia();
+        }
     }
 
     async function _checkMaintenance() {
@@ -823,6 +826,79 @@ ${_buildChangePasswordHTML()}
             const data = await res.json().catch(() => ({}));
             _applyMaintenancePage(!!data.maintenance, data.message || "");
         } catch { /* network error — don't block access */ }
+    }
+
+    // ═════════════════════════════════════════════════════════════════════
+    //  MAINTENANCE TRIVIA — a tiny on-theme quiz to pass the time.
+    //  Purely cosmetic: it never unlocks the site by itself. The page is
+    //  only ever hidden by a confirmed admin/owner login (_checkMaintenance).
+    // ═════════════════════════════════════════════════════════════════════
+    const _MAINT_TRIVIA = [
+        { q: "Which empire built the road network later reused by Persia's royal couriers?", a: ["The Achaemenid Empire", "The Akkadian Empire", "The Hittite Empire", "The Assyrian Empire"], c: 0 },
+        { q: "The Great Library once stood in which ancient city?", a: ["Alexandria", "Babylon", "Carthage", "Thebes"], c: 0 },
+        { q: "Which dynasty unified China and standardized its writing script?", a: ["Han", "Qin", "Tang", "Ming"], c: 1 },
+        { q: "The Code of Hammurabi originated in which civilization?", a: ["Egyptian", "Babylonian", "Phoenician", "Sumerian"], c: 1 },
+        { q: "Machu Picchu was built by which civilization?", a: ["Aztec", "Maya", "Inca", "Olmec"], c: 2 },
+        { q: "Which empire's currency, the denarius, influenced coinage across Europe?", a: ["Roman", "Byzantine", "Ottoman", "Macedonian"], c: 0 },
+        { q: "The Rosetta Stone helped decode which ancient script?", a: ["Cuneiform", "Linear B", "Egyptian hieroglyphs", "Phoenician"], c: 2 },
+        { q: "Who is traditionally credited with unifying Japan's warring states in the late 1500s?", a: ["Tokugawa Ieyasu", "Oda Nobunaga", "Toyotomi Hideyoshi", "Minamoto Yoritomo"], c: 1 },
+        { q: "The Silk Road primarily connected which two regions?", a: ["Europe and the Americas", "East Asia and the Mediterranean", "Africa and Oceania", "South America and Europe"], c: 1 },
+        { q: "Which river valley is associated with the earliest known cities of Mesopotamia?", a: ["Nile", "Indus", "Tigris–Euphrates", "Yangtze"], c: 2 },
+        { q: "The Hagia Sophia was originally built as a cathedral in which empire?", a: ["Ottoman Empire", "Byzantine Empire", "Roman Empire", "Persian Empire"], c: 1 },
+        { q: "Which African empire grew wealthy controlling trans-Saharan gold and salt trade?", a: ["Mali Empire", "Kingdom of Kush", "Zulu Kingdom", "Aksum"], c: 0 },
+    ];
+
+    let _maintTriviaState = null;
+
+    function _startMaintTrivia() {
+        const host = document.getElementById("maintTrivia");
+        if (!host) return;
+        const shuffled = _MAINT_TRIVIA.slice().sort(() => Math.random() - 0.5).slice(0, 5);
+        _maintTriviaState = { idx: 0, score: 0, set: shuffled };
+        _renderMaintTriviaQuestion();
+    }
+
+    function _renderMaintTriviaQuestion() {
+        const host = document.getElementById("maintTrivia");
+        const st   = _maintTriviaState;
+        if (!host || !st) return;
+
+        if (st.idx >= st.set.length) {
+            host.innerHTML = `
+<div class="maint-trivia-done">
+  <div class="maint-trivia-score">${st.score} / ${st.set.length} correct</div>
+  <div class="maint-trivia-sub">Thanks for waiting it out.</div>
+  <button class="maint-trivia-again" id="maintTriviaAgain">Play again</button>
+</div>`;
+            document.getElementById("maintTriviaAgain").onclick = _startMaintTrivia;
+            return;
+        }
+
+        const item = st.set[st.idx];
+        const order = item.a.map((text, i) => ({ text, i })).sort(() => Math.random() - 0.5);
+
+        host.innerHTML = `
+<div class="maint-trivia-progress">Question ${st.idx + 1} of ${st.set.length} · Score ${st.score}</div>
+<div class="maint-trivia-q">${_escHtml(item.q)}</div>
+<div class="maint-trivia-opts">
+  ${order.map(o => `<button class="maint-trivia-opt" data-correct="${o.i === item.c}">${_escHtml(o.text)}</button>`).join("")}
+</div>`;
+
+        host.querySelectorAll(".maint-trivia-opt").forEach(btn => {
+            btn.onclick = () => {
+                const correct = btn.dataset.correct === "true";
+                host.querySelectorAll(".maint-trivia-opt").forEach(b => {
+                    b.disabled = true;
+                    if (b.dataset.correct === "true") b.classList.add("mt-correct");
+                });
+                if (!correct) btn.classList.add("mt-wrong");
+                if (correct) st.score++;
+                setTimeout(() => {
+                    st.idx++;
+                    _renderMaintTriviaQuestion();
+                }, 850);
+            };
+        });
     }
 
     // ═════════════════════════════════════════════════════════════════════

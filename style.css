@@ -146,7 +146,7 @@ body {
 }
 @keyframes titleGlow {
     0%, 100% {
-        text-shadow: 0 0 20px var(--accent), 0 0 40px var(--accent-dim), 0 0 80px rgba(192,22,31,0.3);
+        text-shadow: 0 0 20px var(--accent), 0 0 40px var(--accent-dim), 0 0 80px var(--accent-glow);
     }
     50% {
         text-shadow: 0 0 30px var(--accent), 0 0 60px var(--accent), 0 0 110px var(--accent-dim);
@@ -1090,6 +1090,10 @@ body.story-mode #cinematicBlur {
     scrollbar-width: thin;
     scrollbar-color: var(--accent) rgba(255,255,255,0.04);
 }
+#playlistList::-webkit-scrollbar { width: 5px; }
+#playlistList::-webkit-scrollbar-track { background: rgba(255,255,255,0.04); border-radius: 99px; }
+#playlistList::-webkit-scrollbar-thumb { background: var(--accent-dim); border-radius: 99px; }
+#playlistList::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 .pl-list-item {
     display: flex;
     align-items: center;
@@ -1268,6 +1272,10 @@ body.story-mode #cinematicBlur {
     scrollbar-width: thin;
     scrollbar-color: var(--accent) rgba(255,255,255,0.04);
 }
+#sceneSearchResults::-webkit-scrollbar { width: 5px; }
+#sceneSearchResults::-webkit-scrollbar-track { background: rgba(255,255,255,0.04); border-radius: 99px; }
+#sceneSearchResults::-webkit-scrollbar-thumb { background: var(--accent-dim); border-radius: 99px; }
+#sceneSearchResults::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
 #playlistScenesLabel {
     font-size: 11px;
@@ -1285,6 +1293,10 @@ body.story-mode #cinematicBlur {
     scrollbar-width: thin;
     scrollbar-color: var(--accent) rgba(255,255,255,0.04);
 }
+#playlistScenes::-webkit-scrollbar { width: 5px; }
+#playlistScenes::-webkit-scrollbar-track { background: rgba(255,255,255,0.04); border-radius: 99px; }
+#playlistScenes::-webkit-scrollbar-thumb { background: var(--accent-dim); border-radius: 99px; }
+#playlistScenes::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
 .pl-scene-row,
 .pl-search-row {
@@ -1451,6 +1463,10 @@ body.story-mode #cinematicBlur {
     scrollbar-width: thin;
     scrollbar-color: var(--accent) transparent;
 }
+#musicPickerList::-webkit-scrollbar { width: 5px; }
+#musicPickerList::-webkit-scrollbar-track { background: transparent; }
+#musicPickerList::-webkit-scrollbar-thumb { background: var(--accent-dim); border-radius: 99px; }
+#musicPickerList::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 .pl-music-item {
     display: flex;
     align-items: flex-start;
@@ -1837,6 +1853,44 @@ body.accent-is-light .settings-btn:hover { color: #111; }
     background: rgba(200, 20, 20, 0.22);
     border-color: rgba(220, 40, 40, 0.5);
     color: #ff7070;
+}
+
+/* Accent-tinted caution button — fits the current theme while still
+   signalling a consequential action. Uses the accent at low opacity so
+   the tint shifts with the chosen colour. */
+.settings-btn-caution {
+    background: var(--accent-glow);
+    border: 1px solid var(--accent-dim);
+    color: var(--accent);
+    border-radius: 8px;
+    padding: 7px 14px;
+    font-family: inherit;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: .06em;
+    cursor: pointer;
+    transition: background .15s, color .15s, border-color .15s, box-shadow .15s;
+}
+.settings-btn-caution:hover {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: #fff;
+    box-shadow: 0 0 0 2px var(--accent-glow);
+}
+body.accent-is-light .settings-btn-caution:hover { color: #111; }
+
+/* Escalated variant for destructive actions (delete account).
+   Adds a warning prefix and a dashed border that solidifies on hover. */
+.settings-btn-caution.settings-btn-caution-strong::before {
+    content: "⚠ ";
+    font-size: 10px;
+    opacity: 0.75;
+}
+.settings-btn-caution.settings-btn-caution-strong {
+    border-style: dashed;
+}
+.settings-btn-caution.settings-btn-caution-strong:hover {
+    border-style: solid;
 }
 
 /* ─── HELP ENTRIES ────────────────────────────────────────────── */
@@ -2786,6 +2840,20 @@ body.accent-is-light .settings-btn:hover { color: #111; }
 .c-sel-opt.selected::before {
     content: '✓';
 }
+.c-sel-group-label {
+    padding: 8px 11px 4px;
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.32);
+    pointer-events: none;
+}
+.c-sel.disabled {
+    opacity: 0.5;
+    pointer-events: none;
+}
+.c-sel.disabled .c-sel-trigger { cursor: default; }
 
 /* ═══════════════════════════════════════════════════════════════
    ADMIN PANEL (press "O" to open — content editor & live theme tools)
@@ -3325,36 +3393,38 @@ body.accent-is-light .admin-color-preset.active {
     box-shadow: 0 0 0 2px rgba(0,0,0,0.4);
 }
 
-/* ── Light accent: all remaining accent-bg / accent-text elements ────────
-   settings-section-title uses color:var(--accent) on a dark panel bg —
-   with a white accent that renders as white text on near-white bg → black. */
-body.accent-is-light .settings-section-title {
-    color: #111 !important;
-    border-left-color: rgba(0,0,0,0.4) !important;
-    background: rgba(0,0,0,0.04) !important;
-}
-body.accent-is-light .settings-value-badge   { color: #111 !important; }
-body.accent-is-light .settings-tab.active    { color: #fff !important; border-bottom-color: var(--accent) !important; }
+/* ── Light accent: ONLY elements with solid accent-coloured backgrounds ─────
+   Rule: add color:#111 here ONLY when background:var(--accent) is fully
+   opaque. Elements using var(--accent) as text/border on a dark panel must
+   NOT be overridden — they're readable on near-black and must show the
+   actual chosen colour (cyan, white, etc.). */
 
-/* Auth primary button always has accent bg */
+/* Slider thumb ring becomes invisible when accent=white (white ring on white
+   thumb). Swap to a dark shadow instead. */
+body.accent-is-light .settings-slider::-webkit-slider-thumb {
+    box-shadow: 0 0 0 2px rgba(0,0,0,0.55), 0 2px 6px rgba(0,0,0,0.5);
+}
+body.accent-is-light .settings-slider::-moz-range-thumb {
+    border-color: rgba(0,0,0,0.5);
+}
+
+/* Auth primary button — solid background:var(--accent) */
 body.accent-is-light .auth-primary-btn { color: #111; }
-/* Auth tab active pill */
+/* Auth tab active pill — solid background:var(--accent) */
 body.accent-is-light .auth-tab.active  { color: #111; }
 
-/* Avatars with accent bg */
+/* Avatars — solid accent-coloured background circle */
 body.accent-is-light .acct-avatar         { color: #111; }
 body.accent-is-light .admin-user-avatar   { color: #111; }
 body.accent-is-light .acct-user-avatar    { color: #111; }
 
-/* Cards/buttons that fill accent on hover */
+/* Cards/buttons that fill with solid accent on hover */
 body.accent-is-light .season:hover        { color: #111; }
 body.accent-is-light .back-btn:hover      { color: #111; }
 body.accent-is-light .episode-card:hover  { color: #111; }
 body.accent-is-light #storyFinishedExitBtn { color: #111; }
-body.accent-is-light .admin-sort-btn:hover,
-body.accent-is-light .admin-sort-btn.active { color: #111; }
-body.accent-is-light .admin-tab.active    { color: #111; }
-body.accent-is-light .admin-owner-tab.active { color: #111; }
+body.accent-is-light .admin-sort-btn:hover { color: #111; }
+
 body.accent-is-light #playPlaylistBtn     { color: #111 !important; }
 body.accent-is-light .explore-add-btn:hover:not(:disabled) { color: #111; }
 body.accent-is-light .story-pl-item.is-new:hover { color: #111; }
@@ -3401,7 +3471,7 @@ body.accent-is-light .ac-ok-danger        { color: #111; }
 #authPanelLeft {
     flex: 1;
     min-width: 0;
-    background: linear-gradient(160deg, rgba(192,22,31,0.15) 0%, rgba(0,0,0,0.5) 60%),
+    background: linear-gradient(160deg, var(--accent-glow) 0%, rgba(0,0,0,0.5) 60%),
                 rgba(8, 8, 10, 0.96);
     border-right: 1px solid rgba(255, 255, 255, 0.07);
     display: flex;
@@ -3474,7 +3544,13 @@ body.accent-is-light .ac-ok-danger        { color: #111; }
     justify-content: center;
     overflow-y: auto;
     overflow-x: hidden;
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-dim) transparent;
 }
+#authPanelRight::-webkit-scrollbar { width: 5px; }
+#authPanelRight::-webkit-scrollbar-track { background: transparent; }
+#authPanelRight::-webkit-scrollbar-thumb { background: var(--accent-dim); border-radius: 99px; }
+#authPanelRight::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
 #authPanelInner {
     width: 100%;
@@ -3569,7 +3645,7 @@ body.accent-is-light .ac-ok-danger        { color: #111; }
     border-radius: 0 !important;
     box-shadow: none !important;
     width: auto !important;
-    padding: 10px 4px 10px 12px !important;
+    padding: 10px 36px 10px 12px !important;
 }
 
 .auth-error {
@@ -3672,8 +3748,9 @@ body.accent-is-light .ac-ok-danger        { color: #111; }
    The button sits as a real flex sibling at the end — no absolute
    positioning, no top/transform guesswork. */
 .auth-pass-wrap {
+    position: relative;
     display: flex;
-    align-items: stretch;
+    align-items: center;
     background: rgba(255, 255, 255, 0.05);
     border: 1px solid rgba(255, 255, 255, 0.10);
     border-radius: 8px;
@@ -3692,7 +3769,7 @@ body.accent-is-light .ac-ok-danger        { color: #111; }
     border: none !important;
     box-shadow: none !important;
     outline: none;
-    padding: 10px 4px 10px 12px;
+    padding: 10px 36px 10px 12px;
     color: #f5e6c8;
     font-size: 14px;
     font-family: inherit;
@@ -3700,29 +3777,32 @@ body.accent-is-light .ac-ok-danger        { color: #111; }
 }
 
 .auth-show-pass {
-    flex: 0 0 36px;
+    position: absolute;
+    right: 0;
+    top: 50%;
+    transform: translateY(-50%);
     display: flex;
     align-items: center;
     justify-content: center;
+    width: 36px;
+    height: 36px;
     background: transparent;
     border: none;
-    border-left: 1px solid rgba(255, 255, 255, 0.06);
-    border-radius: 0 8px 8px 0;
+    outline: none;
     cursor: pointer;
-    color: rgba(255, 255, 255, 0.28);
+    color: rgba(255, 255, 255, 0.3);
     padding: 0;
-    transition: color 0.15s, background 0.15s;
+    transition: color 0.15s;
     line-height: 1;
 }
-.auth-show-pass:hover {
-    color: rgba(255, 255, 255, 0.7);
-    background: rgba(255, 255, 255, 0.04);
-}
+.auth-show-pass:hover { color: rgba(255, 255, 255, 0.75); }
+.auth-show-pass:focus { outline: none; }
 .auth-show-pass svg {
-    width: 14px;
-    height: 14px;
+    width: 16px;
+    height: 16px;
     pointer-events: none;
     display: block;
+    flex-shrink: 0;
 }
 
 /* ── Change password form (Settings → Account) ───────────────── */
@@ -3885,7 +3965,7 @@ body.accent-is-light .ac-ok-danger        { color: #111; }
     position: relative;
     z-index: 1;
     background: #0f0f11;
-    border: 1px solid rgba(255, 80, 80, 0.2);
+    border: 1px solid var(--accent-dim);
     border-radius: 12px;
     padding: 26px 24px 20px;
     width: calc(100% - 40px);
@@ -3948,204 +4028,6 @@ body.accent-is-light .ac-ok-danger        { color: #111; }
 /* ── Mobile ──────────────────────────────────────────────────── */
 
 /* ── Owner control panel ─────────────────────────────────────────────────── */
-.acct-owner-panel {
-    background: rgba(255, 200, 0, 0.04);
-    border: 1px solid rgba(255, 200, 0, 0.12);
-    border-radius: 10px;
-    padding: 14px 16px;
-    display: flex;
-    flex-direction: column;
-    gap: 10px;
-}
-.acct-owner-desc {
-    font-size: 12px;
-    color: rgba(255,255,255,.4);
-    line-height: 1.5;
-}
-.acct-owner-form {
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-}
-.acct-owner-form input {
-    width: 100%;
-    box-sizing: border-box;
-    background: rgba(255,255,255,.05);
-    border: 1px solid rgba(255,255,255,.1);
-    border-radius: 7px;
-    padding: 9px 12px;
-    color: #f5e6c8;
-    font-size: 13px;
-    font-family: inherit;
-    outline: none;
-    transition: border-color .15s;
-}
-.acct-owner-form input:focus { border-color: rgba(255,200,0,.4); }
-.acct-owner-btns {
-    display: flex;
-    gap: 7px;
-}
-.acct-owner-btn {
-    flex: 1;
-    padding: 8px 6px;
-    border-radius: 7px;
-    border: 1px solid rgba(255,255,255,.1);
-    cursor: pointer;
-    font-size: 12px;
-    font-weight: 600;
-    font-family: inherit;
-    background: rgba(255,255,255,.04);
-    color: rgba(255,255,255,.6);
-    transition: all .15s;
-    white-space: nowrap;
-}
-.acct-promote-btn:hover {
-    background: rgba(var(--accent-rgb,192,22,31),.15);
-    border-color: rgba(var(--accent-rgb,192,22,31),.4);
-    color: var(--accent);
-}
-.acct-demote-btn:hover {
-    background: rgba(255,80,80,.1);
-    border-color: rgba(255,80,80,.3);
-    color: #ff7070;
-}
-.acct-owner-result {
-    font-size: 12px;
-    color: rgba(255,255,255,.45);
-    min-height: 16px;
-}
-.acct-admin-list-header {
-    font-size: 10px;
-    font-weight: 700;
-    text-transform: uppercase;
-    letter-spacing: .08em;
-    color: rgba(255,200,0,.5);
-    margin-top: 2px;
-}
-.acct-admin-list {
-    display: flex;
-    flex-direction: column;
-    gap: 4px;
-}
-.acct-admin-row {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 6px 0;
-    border-bottom: 1px solid rgba(255,255,255,.05);
-}
-.acct-admin-row:last-child { border-bottom: none; }
-.acct-admin-name { font-size: 13px; color: rgba(255,255,255,.65); }
-.acct-admin-revoke {
-    font-size: 11px;
-    color: rgba(255,100,100,.6);
-    background: transparent;
-    border: 1px solid rgba(255,80,80,.2);
-    border-radius: 5px;
-    padding: 3px 8px;
-    cursor: pointer;
-    font-family: inherit;
-    transition: all .15s;
-}
-.acct-admin-revoke:hover {
-    background: rgba(255,60,60,.1);
-    color: #ff7070;
-    border-color: rgba(255,80,80,.4);
-}
-
-/* ── Owner panel tabs ──────────────────────────────────────────── */
-.acct-owner-tabs {
-    display: flex;
-    gap: 4px;
-    border-bottom: 1px solid rgba(255,200,0,0.1);
-    padding-bottom: 8px;
-    margin-bottom: 2px;
-}
-.acct-owner-tab {
-    background: transparent;
-    border: 1px solid rgba(255,255,255,0.08);
-    border-radius: 6px;
-    padding: 5px 12px;
-    font-size: 11px;
-    font-weight: 600;
-    font-family: inherit;
-    color: rgba(255,255,255,0.4);
-    cursor: pointer;
-    transition: all 0.15s;
-    letter-spacing: 0.03em;
-}
-.acct-owner-tab:hover { color: rgba(255,255,255,0.75); border-color: rgba(255,255,255,0.18); }
-.acct-owner-tab.active {
-    background: rgba(255,200,0,0.08);
-    border-color: rgba(255,200,0,0.25);
-    color: #ffc832;
-}
-.acct-owner-tabpanel { display: none; flex-direction: column; gap: 10px; }
-.acct-owner-tabpanel.active { display: flex; }
-
-/* ── Users list in owner panel ─────────────────────────────────── */
-.acct-users-list {
-    display: flex;
-    flex-direction: column;
-    gap: 5px;
-    max-height: 260px;
-    overflow-y: auto;
-    scrollbar-width: thin;
-    scrollbar-color: rgba(255,255,255,0.08) transparent;
-}
-.acct-users-list::-webkit-scrollbar { width: 3px; }
-.acct-users-list::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 99px; }
-
-.acct-user-row {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-    padding: 8px 10px;
-    background: rgba(255,255,255,0.03);
-    border: 1px solid rgba(255,255,255,0.06);
-    border-radius: 8px;
-    transition: border-color 0.15s;
-}
-.acct-user-row:hover { border-color: rgba(255,255,255,0.12); }
-
-.acct-user-avatar {
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background: var(--accent-glow);
-    border: 1px solid var(--accent-dim);
-    color: var(--accent);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    font-size: 13px;
-    font-weight: 700;
-    flex-shrink: 0;
-}
-.acct-user-info { flex: 1; min-width: 0; }
-.acct-user-name {
-    font-size: 12px;
-    font-weight: 600;
-    color: rgba(255,255,255,0.8);
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    flex-wrap: wrap;
-}
-.acct-user-you {
-    font-size: 10px;
-    font-weight: 400;
-    color: rgba(255,255,255,0.3);
-    font-style: italic;
-}
-.acct-user-meta {
-    font-size: 10px;
-    color: rgba(255,255,255,0.28);
-    margin-top: 1px;
-}
-.acct-user-actions { flex-shrink: 0; }
-.acct-btn-sm { padding: 4px 9px !important; font-size: 10px !important; flex: none !important; }
-.acct-admin-loading { font-size: 12px; color: rgba(255,255,255,.25); }
 
 @media (max-width: 760px) {
     #authPanel { flex-direction: column; }
@@ -4265,9 +4147,20 @@ body.accent-is-light .ac-ok-danger        { color: #111; }
     background: rgba(255,255,255,0.03);
     border: 1px solid rgba(255,255,255,0.07);
     border-radius: 8px;
-    transition: border-color 0.15s;
+    transition: border-color 0.15s, background 0.15s;
 }
 .admin-user-row:hover { border-color: rgba(255,255,255,0.15); }
+
+/* Admin / owner rows get a subtle tinted background so elevated accounts
+   are visible at a glance, not just via the small text badge. */
+.admin-user-row.is-elevated-admin {
+    background: var(--accent-glow);
+    border-color: var(--accent-dim);
+}
+.admin-user-row.is-elevated-owner {
+    background: rgba(255, 200, 50, 0.07);
+    border-color: rgba(255, 200, 50, 0.22);
+}
 
 .admin-user-avatar {
     width: 34px;
@@ -4281,8 +4174,20 @@ body.accent-is-light .ac-ok-danger        { color: #111; }
     font-size: 15px;
     font-weight: 700;
     flex-shrink: 0;
+    box-shadow: 0 0 0 2px transparent;
+    transition: box-shadow 0.15s;
 }
 body.accent-is-light .admin-user-avatar { color: #111; }
+
+/* Ring around the avatar for elevated roles — visible even with badges hidden */
+.admin-user-row.is-elevated-admin .admin-user-avatar {
+    box-shadow: 0 0 0 2px var(--accent), 0 0 0 4px var(--accent-glow);
+}
+.admin-user-row.is-elevated-owner .admin-user-avatar {
+    background: #ffc832;
+    color: #1a1500;
+    box-shadow: 0 0 0 2px #ffc832, 0 0 0 4px rgba(255, 200, 50, 0.25);
+}
 
 .admin-user-info { flex: 1; min-width: 0; }
 
@@ -4363,6 +4268,7 @@ body.accent-is-light .admin-user-avatar { color: #111; }
     text-align: center;
     padding: 32px;
     font-family: "Inter", sans-serif;
+    overflow-y: auto;
 }
 #maintenancePage.active { display: flex; }
 
@@ -4405,6 +4311,85 @@ body.accent-is-light .admin-user-avatar { color: #111; }
     transition: all 0.15s;
 }
 .maint-bypass-btn:hover { color: #fff; border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); }
+
+/* ── Maintenance trivia minigame ─────────────────────────────── */
+.maint-trivia {
+    width: 100%;
+    max-width: 420px;
+    margin: 4px 0 28px;
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+.maint-trivia-progress {
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.32);
+}
+.maint-trivia-q {
+    font-size: 15px;
+    font-weight: 600;
+    color: #f0e8d0;
+    line-height: 1.5;
+}
+.maint-trivia-opts {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+.maint-trivia-opt {
+    background: var(--accent-glow);
+    border: 1px solid var(--accent-dim);
+    color: rgba(255,255,255,0.85);
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-family: inherit;
+    text-align: left;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s, transform 0.1s;
+}
+.maint-trivia-opt:hover:not(:disabled) {
+    background: var(--accent-dim);
+    border-color: var(--accent);
+    color: #fff;
+}
+.maint-trivia-opt:disabled { cursor: default; }
+.maint-trivia-opt.mt-correct {
+    background: rgba(90, 200, 110, 0.18);
+    border-color: rgba(90, 200, 110, 0.5);
+    color: #b9f0c4;
+}
+.maint-trivia-opt.mt-wrong {
+    background: rgba(220, 70, 70, 0.16);
+    border-color: rgba(220, 70, 70, 0.45);
+    color: #ffb3b3;
+}
+body.accent-is-light .maint-trivia-opt:hover:not(:disabled) { color: #111; }
+
+.maint-trivia-done { display: flex; flex-direction: column; align-items: center; gap: 6px; }
+.maint-trivia-score {
+    font-size: 20px;
+    font-weight: 700;
+    color: var(--accent);
+}
+.maint-trivia-sub { font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 6px; }
+.maint-trivia-again {
+    background: var(--accent-glow);
+    border: 1px solid var(--accent-dim);
+    color: var(--accent);
+    border-radius: 8px;
+    padding: 7px 16px;
+    font-size: 12px;
+    font-family: inherit;
+    font-weight: 700;
+    letter-spacing: 0.05em;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.maint-trivia-again:hover { background: var(--accent-dim); border-color: var(--accent); color: #fff; }
+body.accent-is-light .maint-trivia-again:hover { color: #111; }
 
 /* Owner controls for maintenance in owner panel */
 .acct-maintenance-row {

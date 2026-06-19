@@ -184,8 +184,13 @@ async function handleUsers(request, env) {
                 if (!raw) return null;
                 const u = JSON.parse(raw);
                 if (!u.username) return null; // skip malformed records
-                // Re-evaluate role so owner is always shown correctly
-                const role = assignRole(u.username);
+                // Owner is always derived from the hardcoded username (safety net
+                // in case a KV record was ever edited/corrupted). Everyone else
+                // keeps whatever role is actually stored — assignRole() only
+                // distinguishes owner vs. user and has no concept of "admin",
+                // so calling it here for every user was silently erasing every
+                // admin promotion back to "user" on each list refresh.
+                const role = (u.username || "").toLowerCase() === OWNER_NAME ? "owner" : (u.role || "user");
                 return { username: u.username, role, joinedAt: u.joinedAt };
             })
     );

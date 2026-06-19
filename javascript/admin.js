@@ -362,7 +362,7 @@
 
                     <div class="admin-owner-tabs">
                         <button class="admin-owner-tab active" data-otab="users">👥 Users</button>
-                        <button class="admin-owner-tab" data-otab="admins">⚡ Admins</button>
+                        <button class="admin-owner-tab" data-otab="announce">📢 Announce</button>
                         <button class="admin-owner-tab" data-otab="site">🚧 Site</button>
                     </div>
 
@@ -377,21 +377,29 @@
                         </div>
                     </div>
 
-                    <!-- ADMINS TAB -->
-                    <div class="admin-owner-tabpanel" id="adminOwnerTab-admins">
-                        <p style="font-size:12px;color:rgba(255,255,255,0.4);margin:0 0 12px;">Promote or demote users to admin by username.</p>
-                        <div class="admin-owner-promote-row">
-                            <input id="adminPromoteTarget" type="text" class="admin-input" placeholder="Username to promote / demote…" spellcheck="false" autocomplete="off"/>
-                            <div class="admin-btn-row" style="margin-top:8px;">
-                                <button class="admin-btn admin-btn-primary" onclick="adminOwnerPromote('admin')">⚡ Make Admin</button>
-                                <button class="admin-btn admin-btn-secondary" onclick="adminOwnerPromote('user')">✕ Remove Admin</button>
-                            </div>
-                            <div id="adminPromoteResult" style="font-size:12px;color:rgba(255,255,255,0.45);min-height:16px;margin-top:8px;"></div>
+                    <!-- ANNOUNCE TAB -->
+                    <div class="admin-owner-tabpanel" id="adminOwnerTab-announce">
+                        <p style="font-size:12px;color:rgba(255,255,255,0.4);margin:0 0 14px;">Send a global announcement banner to all users. It appears at the top of the app until dismissed or cleared.</p>
+                        <div class="admin-field">
+                            <label>Message</label>
+                            <textarea id="adminAnnounceText" rows="3" class="admin-input" placeholder="Announcement text… (max 300 chars)" style="resize:vertical;min-height:72px;" maxlength="300" oninput="document.getElementById('adminAnnounceCharCount').textContent=this.value.length+'/300'"></textarea>
+                            <div style="font-size:11px;color:rgba(255,255,255,0.3);text-align:right;margin-top:3px;" id="adminAnnounceCharCount">0/300</div>
                         </div>
-                        <p class="admin-section-title" style="margin-top:16px;">Current Admins</p>
-                        <div id="adminAdminList" class="admin-users-list">
-                            <div class="admin-users-loading">Loading…</div>
+                        <div class="admin-field" style="margin-top:8px;">
+                            <label>Type</label>
+                            <select id="adminAnnounceType" class="admin-input" style="width:auto;">
+                                <option value="info">ℹ Info</option>
+                                <option value="warning">⚠ Warning</option>
+                                <option value="success">✅ Success</option>
+                            </select>
                         </div>
+                        <div class="admin-btn-row" style="margin-top:12px;">
+                            <button class="admin-btn admin-btn-primary" onclick="adminSendAnnouncement()">📢 Publish</button>
+                            <button class="admin-btn admin-btn-danger" onclick="adminClearAnnouncement()">✕ Clear Banner</button>
+                        </div>
+                        <div id="adminAnnounceResult" style="font-size:12px;color:rgba(255,255,255,0.45);min-height:16px;margin-top:10px;"></div>
+                        <p class="admin-section-title" style="margin-top:18px;">Current Banner</p>
+                        <div id="adminAnnouncePreview" style="font-size:12px;color:rgba(255,255,255,0.35);padding:8px 0;">No active announcement.</div>
                     </div>
 
                     <!-- SITE TAB -->
@@ -879,7 +887,7 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
             const page = document.querySelector(`.admin-page[data-page="${tab.dataset.tab}"]`);
             if (page) page.classList.add("active");
             activeTab = tab.dataset.tab;
-            if (activeTab === "owner") { adminUsersRefresh(); adminAdminListRefresh(); adminMaintLoad(); }
+            if (activeTab === "owner") { adminUsersRefresh(); adminMaintLoad(); adminAnnounceLoad(); }
         });
     });
 
@@ -945,7 +953,7 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                 }
             }
             return `
-<div class="admin-user-row">
+<div class="admin-user-row${isOwnerRow ? " is-elevated-owner" : (u.role === "admin" ? " is-elevated-admin" : "")}">
   <div class="admin-user-avatar">${u.username.charAt(0).toUpperCase()}</div>
   <div class="admin-user-info">
     <div class="admin-user-name">${escHtml(u.username)}${isMe ? " <span class='admin-user-you'>(you)</span>" : ""}</div>
@@ -971,61 +979,67 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         if (res.ok) {
             toast(`${username} is now ${newRole}.`);
             adminUsersRefresh();
-            adminAdminListRefresh();
         } else {
             toast(res.error || "Failed to change role.", true);
         }
     };
 
-    // ── Admins sub-tab ─────────────────────────────────────────────
-    function adminAdminListRefresh() {
-        const list = document.getElementById("adminAdminList");
-        if (!list) return;
-        list.innerHTML = "<div class='admin-users-loading'>Loading…</div>";
-        const token = window.WHDAuth ? window.WHDAuth.getToken() : null;
-        if (!token) { list.innerHTML = "<div class='admin-users-loading'>Not authenticated.</div>"; return; }
-        fetch(WORKER_URL + "/auth/listadmins", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token }),
-        })
-        .then(r => r.json()).catch(() => ({ ok: false }))
-        .then(data => {
-            if (!data.ok || !data.admins || !data.admins.length) {
-                list.innerHTML = "<div class='admin-users-loading'>No admins yet.</div>";
-                return;
+    // ── Announce sub-tab ────────────────────────────────────────────
+    async function adminAnnounceLoad() {
+        const preview = document.getElementById("adminAnnouncePreview");
+        if (!preview) return;
+        try {
+            const r = await fetch(WORKER_URL + "/auth/announcement/status");
+            const d = await r.json();
+            if (d.active && d.message) {
+                preview.innerHTML = `<span style="color:#e8c56d;">[${(d.type||"info").toUpperCase()}]</span> ${escHtml(d.message)}`;
+            } else {
+                preview.textContent = "No active announcement.";
             }
-            list.innerHTML = data.admins.map(a => `
-<div class="admin-user-row">
-  <div class="admin-user-avatar">${a.username.charAt(0).toUpperCase()}</div>
-  <div class="admin-user-info">
-    <div class="admin-user-name">${escHtml(a.username)}</div>
-  </div>
-  <div class="admin-user-role"><span class="admin-role-badge admin-role-admin">admin</span></div>
-  <div class="admin-user-actions">
-    <button class="admin-btn admin-btn-secondary admin-btn-sm" onclick="adminOwnerDemote('${escHtml(a.username)}')">✕ Remove</button>
-  </div>
-</div>`).join("");
-        });
+        } catch { preview.textContent = "Could not load."; }
     }
 
-    window.adminOwnerPromote = async function(newRole) {
-        const inp    = document.getElementById("adminPromoteTarget");
-        const result = document.getElementById("adminPromoteResult");
-        const target = inp?.value.trim();
-        if (!target) { if (result) result.textContent = "Enter a username first."; return; }
-        if (result) result.textContent = newRole === "admin" ? "Promoting…" : "Removing admin…";
-        await window.adminUsersSetRole(target, newRole);
-        if (inp) inp.value = "";
-        if (result) result.textContent = newRole === "admin"
-            ? `✓ ${target} is now an admin.`
-            : `✓ ${target}'s admin status removed.`;
-        adminAdminListRefresh();
+    window.adminSendAnnouncement = async function() {
+        const msg  = (document.getElementById("adminAnnounceText")?.value || "").trim();
+        const type = document.getElementById("adminAnnounceType")?.value || "info";
+        const res  = document.getElementById("adminAnnounceResult");
+        if (!msg) { if (res) res.textContent = "Enter a message first."; return; }
+        if (res) res.textContent = "Publishing…";
+        const token = window.WHDAuth ? window.WHDAuth.getToken() : null;
+        const r = await fetch(WORKER_URL + "/auth/announcement", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token, message: msg, type, active: true }),
+        }).then(r => r.json()).catch(() => ({ ok: false }));
+        if (r.ok) {
+            if (res) res.textContent = "✓ Announcement published.";
+            adminAnnounceLoad();
+        } else {
+            if (res) res.textContent = r.error || "Failed.";
+        }
+    };
+
+    window.adminClearAnnouncement = async function() {
+        const res = document.getElementById("adminAnnounceResult");
+        if (res) res.textContent = "Clearing…";
+        const token = window.WHDAuth ? window.WHDAuth.getToken() : null;
+        const r = await fetch(WORKER_URL + "/auth/announcement", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token, message: "", type: "info", active: false }),
+        }).then(r => r.json()).catch(() => ({ ok: false }));
+        if (r.ok) {
+            if (res) res.textContent = "✓ Banner cleared.";
+            const ta = document.getElementById("adminAnnounceText");
+            if (ta) { ta.value = ""; document.getElementById("adminAnnounceCharCount").textContent = "0/300"; }
+            adminAnnounceLoad();
+        } else {
+            if (res) res.textContent = r.error || "Failed.";
+        }
     };
 
     window.adminOwnerDemote = async function(username) {
         await window.adminUsersSetRole(username, "user");
-        adminAdminListRefresh();
     };
 
     // ── Site/Maintenance sub-tab ────────────────────────────────────
@@ -1157,8 +1171,8 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         editingDbKey = dbKey;
         // Switch to add tab, then to manual subtab
         switchToTab("add");
-        document.querySelectorAll(".admin-add-subtab").forEach(b => b.classList.remove("active"));
-        document.querySelectorAll(".admin-add-subpage").forEach(p => p.classList.remove("active"));
+        document.querySelectorAll(".admin-add-subtab[data-subtab]").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".admin-add-subpage[data-subpage]").forEach(p => p.classList.remove("active"));
         document.querySelector('.admin-add-subtab[data-subtab="manual"]').classList.add("active");
         document.querySelector('.admin-add-subpage[data-subpage="manual"]').classList.add("active");
         // Populate fields
@@ -1495,8 +1509,8 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         toast("Loaded \"" + scene.name + "\" into form → review & save");
 
         // Switch to manual subtab
-        document.querySelectorAll(".admin-add-subtab").forEach(b => b.classList.remove("active"));
-        document.querySelectorAll(".admin-add-subpage").forEach(p => p.classList.remove("active"));
+        document.querySelectorAll(".admin-add-subtab[data-subtab]").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".admin-add-subpage[data-subpage]").forEach(p => p.classList.remove("active"));
         document.querySelector(".admin-add-subtab[data-subtab=\"manual\"]").classList.add("active");
         document.querySelector(".admin-add-subpage[data-subpage=\"manual\"]").classList.add("active");
     }
@@ -1744,8 +1758,8 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         delete copy._dbKey;
 
         switchToTab("add");
-        document.querySelectorAll(".admin-add-subtab").forEach(b => b.classList.remove("active"));
-        document.querySelectorAll(".admin-add-subpage").forEach(p => p.classList.remove("active"));
+        document.querySelectorAll(".admin-add-subtab[data-subtab]").forEach(b => b.classList.remove("active"));
+        document.querySelectorAll(".admin-add-subpage[data-subpage]").forEach(p => p.classList.remove("active"));
         document.querySelector(".admin-add-subtab[data-subtab=\'manual\']").classList.add("active");
         document.querySelector(".admin-add-subpage[data-subpage=\'manual\']").classList.add("active");
 
@@ -2455,5 +2469,12 @@ function adminLiveSfx(val) {
             }
         } catch(e) {}
     })();
+
+    // Replace every native <select> in the admin panel with the same custom
+    // dropdown component used elsewhere in the app (see playlists-play.js),
+    // so nothing here falls back to the browser's default <select> UI.
+    if (typeof initCustomSelects === "function") {
+        initCustomSelects(["aDb", "importDb", "importContinent", "importCountry", "importSeason", "adminAnnounceType"]);
+    }
 
 })();
