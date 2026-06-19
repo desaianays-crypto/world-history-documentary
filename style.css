@@ -3780,7 +3780,6 @@ body.accent-is-light .ac-ok-danger        { color: #111; }
     display: flex;
     align-items: center;
     justify-content: center;
-    right:3%;
     flex: 0 0 30px !important;
     width: 30px !important;
     min-width: 30px !important;
@@ -3804,8 +3803,8 @@ body.accent-is-light .ac-ok-danger        { color: #111; }
 .auth-show-pass:hover { color: rgba(255, 255, 255, 0.75); }
 .auth-show-pass:focus { outline: none; }
 .auth-show-pass svg {
-    width: 30px;
-    height: 15px;
+    width: 16px;
+    height: 16px;
     pointer-events: none;
     display: block;
     flex-shrink: 0;
