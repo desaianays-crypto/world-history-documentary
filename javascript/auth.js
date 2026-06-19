@@ -727,6 +727,7 @@ ${_buildChangePasswordHTML()}
 
             // Re-check maintenance (admin logging in should bypass)
             await _checkMaintenance();
+            await _checkAnnouncement();
 
             // Always re-render — role may have just been corrected by the server
             renderSettingsAccountPage();
@@ -784,6 +785,37 @@ ${_buildChangePasswordHTML()}
         t._timer = setTimeout(() => t.classList.remove("auth-sync-toast-visible"), 3200);
     }
 
+    function _applyAnnouncementBanner(active, type, message) {
+        const banner = document.getElementById("announcementBanner");
+        if (!banner) return;
+
+        if (!active) {
+            banner.classList.remove("active");
+            banner.innerHTML = "";
+            document.body.classList.remove("announcement-active");
+            return;
+        }
+
+        const safeType = ["info", "warning", "success"].includes(type) ? type : "info";
+        const label = safeType === "info" ? "Info" : safeType === "warning" ? "Warning" : "Success";
+        banner.innerHTML = `
+<div class="announcement-banner-inner">
+  <div class="announcement-banner-chip">${_escHtml(label)}</div>
+  <div class="announcement-banner-message">${_escHtml(message || "Announcement")}</div>
+</div>`;
+        banner.classList.add("active");
+        document.body.classList.add("announcement-active");
+    }
+
+    async function _checkAnnouncement() {
+        if (!WORKER_URL) return;
+        try {
+            const res = await fetch(WORKER_URL + "/auth/announcement/status");
+            const data = await res.json().catch(() => ({}));
+            _applyAnnouncementBanner(!!data.active, data.type || "info", data.message || "");
+        } catch { /* network error — don't block access */ }
+    }
+
     // ═════════════════════════════════════════════════════════════════════
     //  MAINTENANCE PAGE
     // ═════════════════════════════════════════════════════════════════════
@@ -806,13 +838,8 @@ ${_buildChangePasswordHTML()}
 <div class="maint-glyph">🚧</div>
 <div class="maint-title">Under Maintenance</div>
 <div class="maint-sub">${_escHtml(msg)}</div>
-<div id="maintTrivia" class="maint-trivia"></div>
-<button class="maint-bypass-btn" id="maintBypassBtn">I have an account</button>`;
+<div id="maintTrivia" class="maint-trivia"></div>`;
             page.classList.add("active");
-            // Login button only OPENS the modal — it does NOT hide the page.
-            // The page only ever hides via _applyMaintenancePage(false, …) or
-            // when _checkMaintenance() re-runs after a real admin/owner login.
-            document.getElementById("maintBypassBtn").onclick = () => openAuthModal();
             _startMaintTrivia();
         }
     }
@@ -931,6 +958,7 @@ ${_buildChangePasswordHTML()}
 
         // Check maintenance mode after role is resolved
         await _checkMaintenance();
+        await _checkAnnouncement();
     }
 
     if (document.readyState === "loading") {

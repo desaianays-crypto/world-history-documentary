@@ -45,6 +45,59 @@ body {
     color: white;
 }
 
+/* ── Global announcement banner ────────────────────────────────────────── */
+#announcementBanner {
+    display: none;
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    z-index: 120;
+    padding: 10px 16px;
+    background: linear-gradient(90deg, rgba(192, 22, 31, 0.96), rgba(120, 18, 22, 0.94));
+    border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 12px 30px rgba(0, 0, 0, 0.35);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+}
+#announcementBanner.active {
+    display: flex;
+}
+.announcement-banner-inner {
+    width: min(1180px, 100%);
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 12px;
+}
+.announcement-banner-chip {
+    flex-shrink: 0;
+    padding: 4px 10px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.18);
+    background: rgba(255,255,255,0.1);
+    color: #fff;
+    font-size: 11px;
+    font-weight: 800;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+}
+.announcement-banner-message {
+    flex: 1;
+    min-width: 0;
+    color: rgba(255,255,255,0.95);
+    font-size: 13px;
+    line-height: 1.4;
+    font-weight: 600;
+}
+body.announcement-active header {
+    top: 62px;
+}
+body.announcement-active #topBar {
+    top: 48px;
+}
+
 /* ═══════════════════════════════════════════════════════════════
    MAP & STORY-MODE OVERLAY LAYERS
    ═══════════════════════════════════════════════════════════════ */
@@ -2964,8 +3017,8 @@ body.accent-is-light .settings-btn-caution:hover { color: #111; }
 .admin-btn-secondary:hover{background:rgba(255,255,255,0.12);color:#fff;}
 .admin-btn-warn{background:var(--accent-glow);color:#ffc06a;border:1px solid var(--accent-dim);}
 .admin-btn-warn:hover{background: var(--accent);color:#ffc06a;}
-.admin-btn-danger{background:var(--accent-glow);color:var(--accent-dim);border:1px solid var(--accent-glow);}
-.admin-btn-danger:hover{background:var(--accent);color:var(--accent);}
+.admin-btn-danger{background:var(--accent-glow);color:var(--accent);border:1px solid var(--accent-glow);}
+.admin-btn-danger:hover{background:var(--accent);color: #fff;}
 
 .admin-btn-row{display:flex;gap:9px;align-items:center;flex-wrap:wrap;margin-top:5px;}
 #adminFormMode {

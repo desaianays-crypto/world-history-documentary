@@ -14,6 +14,7 @@
 //   user   — default for everyone else.
 
 const KV_KEY     = "admin_data";
+const ANNOUNCEMENT_KEY = "announcement";
 const OWNER_NAME = "anay"; // always lowercase — compared against username.toLowerCase()
 
 const CORS_HEADERS = {
@@ -285,6 +286,39 @@ async function handleMaintenance(request, env) {
     return json({ ok: true, maintenance: !!on });
 }
 
+// ── Announcement banner ──────────────────────────────────────────────────
+
+async function handleAnnouncementStatus(request, env) {
+    const raw = await env.ADMIN_KV.get(ANNOUNCEMENT_KEY);
+    if (!raw) return json({ active: false, message: "", type: "info", updatedAt: null });
+    const data = JSON.parse(raw);
+    return json({
+        active: !!data.active,
+        message: data.message || "",
+        type: data.type || "info",
+        updatedAt: data.updatedAt || null,
+    });
+}
+
+async function handleAnnouncement(request, env) {
+    const { token, message, type, active } = await request.json().catch(() => ({}));
+    const caller = await getUserFromToken(token, env);
+    if (!caller) return json({ ok: false, error: "Not authenticated." }, 401);
+    if (!isOwner(caller)) return json({ ok: false, error: "Owner access required." }, 403);
+
+    const safeType = ["info", "warning", "success"].includes(type) ? type : "info";
+    const next = {
+        active: !!active && !!String(message || "").trim(),
+        message: String(message || "").trim().slice(0, 300),
+        type: safeType,
+        updatedAt: Date.now(),
+    };
+    if (!next.active) next.message = "";
+
+    await env.ADMIN_KV.put(ANNOUNCEMENT_KEY, JSON.stringify(next));
+    return json({ ok: true, ...next });
+}
+
 // ── Main fetch handler ────────────────────────────────────────────────────
 
 export default {
@@ -327,6 +361,8 @@ export default {
         if (url.pathname === "/auth/users")           return handleUsers(request, env);
         if (url.pathname === "/auth/listadmins")      return handleListAdmins(request, env);
         if (url.pathname === "/auth/changepassword")  return handleChangePassword(request, env);
+        if (url.pathname === "/auth/announcement")    return handleAnnouncement(request, env);
+        if (url.pathname === "/auth/announcement/status") return handleAnnouncementStatus(request, env);
         if (url.pathname === "/auth/maintenance")     return handleMaintenance(request, env);
         if (url.pathname === "/auth/maintenance/status") return handleMaintenanceStatus(request, env);
 
