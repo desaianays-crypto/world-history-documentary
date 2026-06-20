@@ -76,6 +76,10 @@ document.querySelectorAll(".settings-tab").forEach(tab => {
         if (tab.dataset.stab === "account" && typeof renderSettingsAccountPage === "function") {
             setTimeout(renderSettingsAccountPage, 0);
         }
+        // Load update log when updates tab is opened
+        if (tab.dataset.stab === "updates" && typeof loadUpdateLog === "function") {
+            setTimeout(() => loadUpdateLog(), 0);
+        }
     });
 });
 

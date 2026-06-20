@@ -215,6 +215,7 @@
                     <button class="settings-tab active" data-stab="general">⚙ General</button>
                     <button class="settings-tab" data-stab="sources">📚 Sources</button>
                     <button class="settings-tab" data-stab="help">❓ Help</button>
+                    <button class="settings-tab" data-stab="updates">📋 Updates</button>
                     <button class="settings-tab" data-stab="account">👤 Account</button>
                 </div>
                 <button id="settingsCloseBtn" onclick="closeSettings()">✕</button>
@@ -321,6 +322,15 @@
                     <div class="settings-control">
                         <button class="settings-btn" onclick="resetAllSettings()">↺ Reset Defaults</button>
                     </div>
+                </div>
+            </div>
+            <!-- UPDATES TAB -->
+            <div class="settings-page" data-spage="updates">
+                <div id="settingsULLoading" class="ul-loading">Loading updates…</div>
+                <div id="settingsULEmpty" class="ul-empty" style="display:none;">No updates posted yet.</div>
+                <div class="ul-layout">
+                    <div id="settingsULTabStrip" class="ul-tabstrip" style="display:none;"></div>
+                    <div id="settingsULContent" class="ul-content" style="display:none;"></div>
                 </div>
             </div>
             <!-- ACCOUNT TAB -->

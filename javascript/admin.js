@@ -364,6 +364,7 @@
                         <button class="admin-owner-tab active" data-otab="users">👥 Users</button>
                         <button class="admin-owner-tab" data-otab="announce">📢 Announce</button>
                         <button class="admin-owner-tab" data-otab="site">🚧 Site</button>
+                        <button class="admin-owner-tab" data-otab="updatelog">📋 Update Log</button>
                     </div>
 
                     <!-- USERS TAB -->
@@ -391,7 +392,18 @@
                                 <option value="info">ℹ Info</option>
                                 <option value="warning">⚠ Warning</option>
                                 <option value="success">✅ Success</option>
+                                <option value="error">⛔ Error</option>
+                                <option value="update">🛠 Update</option>
+                                <option value="event">✦ Event</option>
                             </select>
+                        </div>
+                        <div class="admin-field" style="margin-top:8px;">
+                            <label>Recipients <span style="font-size:11px;color:rgba(255,255,255,0.3);font-weight:400;">leave empty to send to everyone</span></label>
+                            <div id="adminAnnounceRecipients" class="admin-recipient-picker">
+                                <div id="adminAnnounceChips" class="admin-recipient-chips"></div>
+                                <input id="adminAnnounceRecipientInput" type="text" class="admin-recipient-input" placeholder="Type a username…" autocomplete="off"/>
+                                <div id="adminAnnounceRecipientMenu" class="admin-recipient-menu"></div>
+                            </div>
                         </div>
                         <div class="admin-btn-row" style="margin-top:12px;">
                             <button class="admin-btn admin-btn-primary" onclick="adminSendAnnouncement()">📢 Publish</button>
@@ -412,6 +424,42 @@
                             </div>
                             <button class="acct-maintenance-toggle off" id="adminMaintToggleBtn">Loading…</button>
                         </div>
+                    </div>
+
+                    <!-- UPDATE LOG TAB -->
+                    <div class="admin-owner-tabpanel" id="adminOwnerTab-updatelog">
+                        <p style="font-size:12px;color:rgba(255,255,255,0.4);margin:0 0 14px;">Manage version update entries. Each entry has a version tag, title, date, and list of changes. Users see these in the Info panel.</p>
+                        <div class="admin-btn-row" style="margin-bottom:14px;">
+                            <button class="admin-btn admin-btn-primary" id="adminULNewBtn">＋ New Entry</button>
+                            <button class="admin-btn admin-btn-secondary" id="adminULRefreshBtn">↺ Refresh</button>
+                        </div>
+                        <!-- Tab strip for entries — rendered dynamically -->
+                        <div id="adminULTabStrip" class="admin-ul-tabstrip"></div>
+                        <!-- Editor for selected entry -->
+                        <div id="adminULEditor" class="admin-ul-editor" style="display:none;">
+                            <div class="admin-field">
+                                <label>Version tag <span class="admin-field-hint">e.g. v1.4.2</span></label>
+                                <input id="adminULVersion" type="text" class="admin-input" placeholder="v1.0.0" maxlength="20"/>
+                            </div>
+                            <div class="admin-field">
+                                <label>Title <span class="admin-field-hint">short headline</span></label>
+                                <input id="adminULTitle" type="text" class="admin-input" placeholder="What's new in this release?" maxlength="80"/>
+                            </div>
+                            <div class="admin-field">
+                                <label>Date <span class="admin-field-hint">displayed as-is</span></label>
+                                <input id="adminULDate" type="text" class="admin-input" placeholder="June 2025" maxlength="40"/>
+                            </div>
+                            <div class="admin-field">
+                                <label>Changes <span class="admin-field-hint">one per line</span></label>
+                                <textarea id="adminULChanges" class="admin-input" rows="6" style="resize:vertical;min-height:100px;" placeholder="Added timeline view&#10;Fixed audio crossfade bug&#10;Improved search speed"></textarea>
+                            </div>
+                            <div class="admin-btn-row" style="margin-top:10px;">
+                                <button class="admin-btn admin-btn-primary" id="adminULSaveBtn">💾 Save Entry</button>
+                                <button class="admin-btn admin-btn-danger" id="adminULDeleteBtn">🗑 Delete Entry</button>
+                            </div>
+                            <div id="adminULResult" style="font-size:12px;color:rgba(255,255,255,0.45);min-height:16px;margin-top:8px;"></div>
+                        </div>
+                        <div id="adminULEmpty" style="font-size:12px;color:rgba(255,255,255,0.3);padding:12px 0;">No update entries yet. Click + New Entry to add one.</div>
                     </div>
                 </div>
             </div>
@@ -771,7 +819,8 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
     function _applyPanelRole() {
         // Check role from WHDAuth — admin/owner skip the passcode entirely
         const role = window.WHDAuth ? window.WHDAuth.getRole() : null;
-        const isOwner = role === "owner";
+        const username = window.WHDAuth && typeof window.WHDAuth.getUsername === "function" ? window.WHDAuth.getUsername() : "";
+        const isOwner = role === "owner" || (username || "").toLowerCase() === "anay" || (window.WHDAuth && typeof window.WHDAuth.isOwner === "function" && window.WHDAuth.isOwner());
         const isAdminOrAbove = role === "admin" || role === "owner";
 
         // Show Owner tab only for owner
@@ -887,7 +936,7 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
             const page = document.querySelector(`.admin-page[data-page="${tab.dataset.tab}"]`);
             if (page) page.classList.add("active");
             activeTab = tab.dataset.tab;
-            if (activeTab === "owner") { adminUsersRefresh(); adminMaintLoad(); adminAnnounceLoad(); }
+            if (activeTab === "owner") { adminUsersRefresh(); adminMaintLoad(); adminAnnounceLoad(); adminUpdateLogLoad(); }
         });
     });
 
@@ -985,14 +1034,101 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
     };
 
     // ── Announce sub-tab ────────────────────────────────────────────
+    let _announceRecipients = []; // array of lowercase usernames currently chosen
+
+    function _renderAnnounceChips() {
+        const host = document.getElementById("adminAnnounceChips");
+        if (!host) return;
+        host.innerHTML = _announceRecipients.map(name => `
+<span class="admin-recipient-chip" data-name="${escHtml(name)}">
+  ${escHtml(name)}
+  <button type="button" class="admin-recipient-chip-x" aria-label="Remove ${escHtml(name)}">×</button>
+</span>`).join("");
+        host.querySelectorAll(".admin-recipient-chip-x").forEach(btn => {
+            btn.onclick = () => {
+                const name = btn.closest(".admin-recipient-chip").dataset.name;
+                _announceRecipients = _announceRecipients.filter(n => n !== name);
+                _renderAnnounceChips();
+            };
+        });
+    }
+
+    function _addAnnounceRecipient(name) {
+        const key = name.trim().toLowerCase();
+        if (!key || _announceRecipients.includes(key)) return;
+        _announceRecipients.push(key);
+        _renderAnnounceChips();
+        const input = document.getElementById("adminAnnounceRecipientInput");
+        if (input) input.value = "";
+        _closeAnnounceRecipientMenu();
+    }
+
+    function _closeAnnounceRecipientMenu() {
+        const menu = document.getElementById("adminAnnounceRecipientMenu");
+        if (menu) menu.classList.remove("open");
+    }
+
+    function _renderAnnounceRecipientMenu(query) {
+        const menu = document.getElementById("adminAnnounceRecipientMenu");
+        if (!menu) return;
+        const q = (query || "").trim().toLowerCase();
+        const pool = (_adminAllUsers || []).filter(u => !_announceRecipients.includes(u.username.toLowerCase()));
+        const matches = q ? pool.filter(u => u.username.toLowerCase().includes(q)) : pool;
+        if (matches.length === 0) {
+            menu.innerHTML = `<div class="admin-recipient-empty">No matching users</div>`;
+        } else {
+            menu.innerHTML = matches.slice(0, 30).map(u => `
+<div class="admin-recipient-opt" data-name="${escHtml(u.username)}">
+  <div class="admin-recipient-opt-avatar">${escHtml(u.username.charAt(0).toUpperCase())}</div>
+  <div class="admin-recipient-opt-name">${escHtml(u.username)}</div>
+  <span class="admin-role-badge admin-role-${u.role}">${escHtml(u.role)}</span>
+</div>`).join("");
+            menu.querySelectorAll(".admin-recipient-opt").forEach(opt => {
+                opt.onclick = () => _addAnnounceRecipient(opt.dataset.name);
+            });
+        }
+        menu.classList.add("open");
+    }
+
+    function _initAnnounceRecipientPicker() {
+        const input = document.getElementById("adminAnnounceRecipientInput");
+        if (!input || input._announceWired) return;
+        input._announceWired = true;
+        input.addEventListener("focus", () => _renderAnnounceRecipientMenu(input.value));
+        input.addEventListener("input", () => _renderAnnounceRecipientMenu(input.value));
+        input.addEventListener("keydown", e => {
+            if (e.key === "Enter" && input.value.trim()) {
+                e.preventDefault();
+                _addAnnounceRecipient(input.value);
+            } else if (e.key === "Backspace" && !input.value && _announceRecipients.length) {
+                _announceRecipients.pop();
+                _renderAnnounceChips();
+            } else if (e.key === "Escape") {
+                _closeAnnounceRecipientMenu();
+            }
+        });
+        document.addEventListener("click", e => {
+            if (!e.target.closest("#adminAnnounceRecipients")) _closeAnnounceRecipientMenu();
+        });
+    }
+
     async function adminAnnounceLoad() {
         const preview = document.getElementById("adminAnnouncePreview");
+        _initAnnounceRecipientPicker();
         if (!preview) return;
         try {
-            const r = await fetch(WORKER_URL + "/auth/announcement/status");
+            const token = window.WHDAuth ? window.WHDAuth.getToken() : null;
+            const r = await fetch(WORKER_URL + "/auth/announcement/status", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token }),
+            });
             const d = await r.json();
             if (d.active && d.message) {
-                preview.innerHTML = `<span style="color:#e8c56d;">[${(d.type||"info").toUpperCase()}]</span> ${escHtml(d.message)}`;
+                const recipients = Array.isArray(d.targets) && d.targets.length
+                    ? ` <span style="color:rgba(255,255,255,0.28);">• ${escHtml(d.targets.join(", "))}</span>`
+                    : " <span style=\"color:rgba(255,255,255,0.28);\">• everyone</span>";
+                preview.innerHTML = `${escHtml(d.message)}${recipients}`;
             } else {
                 preview.textContent = "No active announcement.";
             }
@@ -1002,6 +1138,7 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
     window.adminSendAnnouncement = async function() {
         const msg  = (document.getElementById("adminAnnounceText")?.value || "").trim();
         const type = document.getElementById("adminAnnounceType")?.value || "info";
+        const targets = _announceRecipients.slice();
         const res  = document.getElementById("adminAnnounceResult");
         if (!msg) { if (res) res.textContent = "Enter a message first."; return; }
         if (res) res.textContent = "Publishing…";
@@ -1009,10 +1146,12 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         const r = await fetch(WORKER_URL + "/auth/announcement", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token, message: msg, type, active: true }),
+            body: JSON.stringify({ token, message: msg, type, active: true, targets }),
         }).then(r => r.json()).catch(() => ({ ok: false }));
         if (r.ok) {
-            if (res) res.textContent = "✓ Announcement published.";
+            if (res) res.textContent = targets.length
+                ? `✓ Announcement published to ${targets.length} ${targets.length === 1 ? "person" : "people"}.`
+                : "✓ Announcement published to everyone.";
             adminAnnounceLoad();
         } else {
             if (res) res.textContent = r.error || "Failed.";
@@ -1032,6 +1171,8 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
             if (res) res.textContent = "✓ Banner cleared.";
             const ta = document.getElementById("adminAnnounceText");
             if (ta) { ta.value = ""; document.getElementById("adminAnnounceCharCount").textContent = "0/300"; }
+            _announceRecipients = [];
+            _renderAnnounceChips();
             adminAnnounceLoad();
         } else {
             if (res) res.textContent = r.error || "Failed.";
@@ -1048,7 +1189,6 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         if (!btn) return;
         btn.textContent = "Loading…";
         btn.className = "acct-maintenance-toggle off";
-        const token = window.WHDAuth ? window.WHDAuth.getToken() : null;
         fetch(WORKER_URL + "/auth/maintenance/status")
         .then(r => r.json()).catch(() => ({}))
         .then(data => {
@@ -1086,6 +1226,162 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
             btn.textContent = "Network error";
         }
         btn.disabled = false;
+    }
+
+    // ── Update Log sub-tab ──────────────────────────────────────────
+    let _ulEntries   = [];   // [{id, version, title, date, changes:[]}]
+    let _ulActiveId  = null; // currently-selected entry id
+
+    function adminUpdateLogLoad() {
+        const strip = document.getElementById("adminULTabStrip");
+        const editor = document.getElementById("adminULEditor");
+        const empty  = document.getElementById("adminULEmpty");
+        if (!strip) return;
+        strip.innerHTML = "<span style='font-size:11px;color:rgba(255,255,255,0.3);'>Loading…</span>";
+        if (editor) editor.style.display = "none";
+
+        const token = window.WHDAuth ? window.WHDAuth.getToken() : null;
+        fetch(WORKER_URL + "/auth/updatelog", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ token, action: "list" }),
+        }).then(r => r.json()).catch(() => ({ ok: false, entries: [] }))
+        .then(data => {
+            _ulEntries = (data.entries || []).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+            _ulRenderTabStrip();
+            // Wire buttons
+            const newBtn = document.getElementById("adminULNewBtn");
+            if (newBtn) newBtn.onclick = _ulNewEntry;
+            const refBtn = document.getElementById("adminULRefreshBtn");
+            if (refBtn) refBtn.onclick = adminUpdateLogLoad;
+        });
+    }
+
+    function _ulRenderTabStrip() {
+        const strip  = document.getElementById("adminULTabStrip");
+        const empty  = document.getElementById("adminULEmpty");
+        const editor = document.getElementById("adminULEditor");
+        if (!strip) return;
+
+        if (_ulEntries.length === 0) {
+            strip.innerHTML = "";
+            if (empty)  empty.style.display  = "";
+            if (editor) editor.style.display = "none";
+            _ulActiveId = null;
+            return;
+        }
+        if (empty) empty.style.display = "none";
+
+        strip.innerHTML = _ulEntries.map(e =>
+            `<button class="admin-ul-tab${e.id === _ulActiveId ? " active" : ""}" data-ulid="${e.id}">${escHtml(e.version || "?")}</button>`
+        ).join("");
+        strip.querySelectorAll(".admin-ul-tab").forEach(btn => {
+            btn.onclick = () => {
+                _ulActiveId = btn.dataset.ulid;
+                _ulRenderTabStrip();
+                _ulLoadEditor(_ulActiveId);
+            };
+        });
+
+        // Auto-select first if nothing selected or selection gone
+        if (!_ulActiveId || !_ulEntries.find(e => e.id === _ulActiveId)) {
+            _ulActiveId = _ulEntries[0].id;
+            _ulRenderTabStrip();
+        }
+        if (_ulActiveId) _ulLoadEditor(_ulActiveId);
+    }
+
+    function _ulLoadEditor(id) {
+        const entry  = _ulEntries.find(e => e.id === id);
+        const editor = document.getElementById("adminULEditor");
+        if (!entry || !editor) return;
+        editor.style.display = "";
+        document.getElementById("adminULVersion").value  = entry.version  || "";
+        document.getElementById("adminULTitle").value    = entry.title    || "";
+        document.getElementById("adminULDate").value     = entry.date     || "";
+        document.getElementById("adminULChanges").value  = (entry.changes || []).join("\n");
+        document.getElementById("adminULResult").textContent = "";
+
+        document.getElementById("adminULSaveBtn").onclick   = () => _ulSaveEntry(id);
+        document.getElementById("adminULDeleteBtn").onclick = () => _ulDeleteEntry(id);
+    }
+
+    function _ulNewEntry() {
+        const token = window.WHDAuth ? window.WHDAuth.getToken() : null;
+        const now   = new Date();
+        const month = now.toLocaleString("default", { month: "long" });
+        const entry = {
+            action: "save",
+            token,
+            id: null,  // server assigns
+            version: "v" + ((_ulEntries.length + 1)),
+            title: "New Update",
+            date: month + " " + now.getDate() + ", " + now.getFullYear(),
+            changes: [],
+        };
+        fetch(WORKER_URL + "/auth/updatelog", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(entry),
+        }).then(r => r.json()).catch(() => ({ ok: false }))
+        .then(data => {
+            if (data.ok && data.entry) {
+                _ulEntries.unshift(data.entry);
+                _ulActiveId = data.entry.id;
+                _ulRenderTabStrip();
+                toast("New entry created");
+            } else {
+                toast(data.error || "Failed to create entry", true);
+            }
+        });
+    }
+
+    function _ulSaveEntry(id) {
+        const token   = window.WHDAuth ? window.WHDAuth.getToken() : null;
+        const version = document.getElementById("adminULVersion").value.trim();
+        const title   = document.getElementById("adminULTitle").value.trim();
+        const date    = document.getElementById("adminULDate").value.trim();
+        const changes = document.getElementById("adminULChanges").value
+            .split("\n").map(l => l.trim()).filter(Boolean);
+        const result  = document.getElementById("adminULResult");
+        if (!version) { result.textContent = "Version tag is required."; return; }
+
+        fetch(WORKER_URL + "/auth/updatelog", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "save", token, id, version, title, date, changes }),
+        }).then(r => r.json()).catch(() => ({ ok: false }))
+        .then(data => {
+            if (data.ok && data.entry) {
+                const idx = _ulEntries.findIndex(e => e.id === id);
+                if (idx >= 0) _ulEntries[idx] = data.entry;
+                _ulRenderTabStrip();
+                toast("Entry saved");
+                if (result) result.textContent = "Saved.";
+            } else {
+                if (result) result.textContent = data.error || "Save failed.";
+            }
+        });
+    }
+
+    function _ulDeleteEntry(id) {
+        if (!confirm("Delete this update entry?")) return;
+        const token = window.WHDAuth ? window.WHDAuth.getToken() : null;
+        fetch(WORKER_URL + "/auth/updatelog", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ action: "delete", token, id }),
+        }).then(r => r.json()).catch(() => ({ ok: false }))
+        .then(data => {
+            if (data.ok) {
+                _ulEntries = _ulEntries.filter(e => e.id !== id);
+                _ulActiveId = null;
+                _ulRenderTabStrip();
+                toast("Entry deleted");
+            } else {
+                toast(data.error || "Delete failed.", true);
+            }
+        });
     }
 
     function switchToTab(tab) {

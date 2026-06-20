@@ -14,7 +14,8 @@
     const LS_USERNAME   = "whd_auth_username";
     const LS_JOINED     = "whd_auth_joined";
     const LS_ROLE       = "whd_auth_role";
-    const LS_GUEST      = "whd_auth_guest";
+    const LS_GUEST                  = "whd_auth_guest";
+    const LS_ANNOUNCEMENT_DISMISSED = "whd_announcement_dismissed";
     const SYNC_DEBOUNCE = 1500;
 
     // ── State ─────────────────────────────────────────────────────────────
@@ -36,6 +37,7 @@
         getRole:     () => _role,
         isAdminOrAbove: () => _role === "admin" || _role === "owner",
         isOwner:     () => _role === "owner",
+        workerUrl:   WORKER_URL,
         scheduleSyncPush,
         pushNow,
         pullAndApply:      () => _pullAndApply(),
@@ -100,6 +102,28 @@
         </div>
         <div class="auth-error" id="authLoginError"></div> 
         <button class="auth-primary-btn" id="authLoginBtn">Sign In</button>
+        <button type="button" class="auth-link-btn" id="authForgotLink">Forgot password?</button>
+      </div>
+
+      <div class="auth-form" id="authFormReset">
+        <div class="auth-field">
+          <label>Username</label>
+          <input id="authResetUser" type="text" autocomplete="username" placeholder="your username" spellcheck="false"/>
+        </div>
+        <div class="auth-field">
+          <label>Recovery email <span class="auth-hint">the one you signed up with</span></label>
+          <input id="authResetEmail" type="email" autocomplete="email" placeholder="you@example.com"/>
+        </div>
+        <div class="auth-field">
+          <label>New Password <span class="auth-hint">8+ characters</span></label>
+          <div class="auth-pass-wrap">
+            <input id="authResetNewPass" type="password" autocomplete="new-password" placeholder="••••••••" minlength="8"/>
+            <button type="button" class="auth-show-pass" tabindex="-1" onclick="togglePassVis('authResetNewPass',this)" aria-label="Show password"></button>
+          </div>
+        </div>
+        <div class="auth-error" id="authResetError"></div>
+        <button class="auth-primary-btn" id="authResetBtn">Reset Password</button>
+        <button type="button" class="auth-link-btn" id="authResetBackLink">Back to Sign In</button>
       </div>
 
       <div class="auth-form" id="authFormSignup">
@@ -120,6 +144,10 @@
             <input id="authSignupPass2" type="password" autocomplete="new-password" placeholder="••••••••"/>
             <button type="button" class="auth-show-pass" tabindex="-1" onclick="togglePassVis('authSignupPass2',this)" aria-label="Show password"></button>
           </div>
+        </div>
+        <div class="auth-field">
+          <label>Email <span class="auth-hint">optional — only used to recover your account</span></label>
+          <input id="authSignupEmail" type="email" autocomplete="email" placeholder="you@example.com"/>
         </div>
         <div id="authTransferRow" class="auth-transfer-row" style="display:none">
           <label class="auth-checkbox-label">
@@ -171,13 +199,61 @@
         document.getElementById("authSignupBtn").addEventListener("click", doSignup);
         document.getElementById("authGuestBtn").addEventListener("click",  chooseGuest);
         document.getElementById("authLogoutBtn").addEventListener("click", () => { logout(); closeAuthModal(); });
+        document.getElementById("authForgotLink").addEventListener("click", _showResetForm);
+        document.getElementById("authResetBackLink").addEventListener("click", () => _switchModalTab("login"));
+        document.getElementById("authResetBtn").addEventListener("click", doResetPassword);
 
         ["authLoginUser", "authLoginPass"].forEach(id =>
             document.getElementById(id).addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); }));
         ["authSignupUser", "authSignupPass", "authSignupPass2"].forEach(id =>
             document.getElementById(id).addEventListener("keydown", e => { if (e.key === "Enter") doSignup(); }));
+        ["authResetUser", "authResetEmail", "authResetNewPass"].forEach(id =>
+            document.getElementById(id).addEventListener("keydown", e => { if (e.key === "Enter") doResetPassword(); }));
 
         _renderAuthModal();
+    }
+
+    function _showResetForm() {
+        document.querySelectorAll(".auth-tab").forEach(t => t.classList.remove("active"));
+        document.querySelectorAll(".auth-form").forEach(f => f.classList.toggle("active", f.id === "authFormReset"));
+        const err = document.getElementById("authResetError"); if (err) err.textContent = "";
+    }
+
+    async function doResetPassword() {
+        const user  = document.getElementById("authResetUser").value.trim();
+        const email = document.getElementById("authResetEmail").value.trim();
+        const pass  = document.getElementById("authResetNewPass").value;
+        const err   = document.getElementById("authResetError");
+        err.textContent = "";
+
+        if (!user || !email || !pass) { err.textContent = "Please fill in all fields."; return; }
+        if (pass.length < 8) { err.textContent = "Password must be at least 8 characters."; return; }
+
+        const btn = document.getElementById("authResetBtn");
+        btn.textContent = "Resetting…"; btn.disabled = true;
+
+        try {
+            const res  = await fetch(WORKER_URL + "/auth/resetpassword", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username: user, email, newPassword: pass }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (data.ok && data.token) {
+                _setSession(user, data.token, data.joinedAt || null, data.role || "user");
+                document.getElementById("authResetNewPass").value = "";
+                _showSyncToast("Password reset. You're signed in.");
+                _renderAuthModal();
+                renderSettingsAccountPage();
+                window.dispatchEvent(new Event("whd:auth:loggedin"));
+                closeAuthModal();
+            } else {
+                err.textContent = data.error || "Couldn't reset that password.";
+            }
+        } catch {
+            err.textContent = "Network error. Try again.";
+        } finally {
+            btn.textContent = "Reset Password"; btn.disabled = false;
+        }
     }
 
     function _switchModalTab(tab) {
@@ -312,6 +388,7 @@
         const user  = document.getElementById("authSignupUser").value.trim();
         const pass  = document.getElementById("authSignupPass").value;
         const pass2 = document.getElementById("authSignupPass2").value;
+        const email = document.getElementById("authSignupEmail")?.value.trim() || "";
         const err   = document.getElementById("authSignupError");
         err.textContent = "";
 
@@ -319,6 +396,7 @@
         if (!/^[a-zA-Z0-9_]{3,24}$/.test(user)) { err.textContent = "Username: 3–24 chars, letters/numbers/_ only."; return; }
         if (pass.length < 8)  { err.textContent = "Password must be at least 8 characters."; return; }
         if (pass !== pass2)   { err.textContent = "Passwords don't match."; return; }
+        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = "That email address doesn't look valid."; return; }
 
         const doTransfer = document.getElementById("authTransferCheck")?.checked && _hasLocalData();
 
@@ -328,13 +406,14 @@
         try {
             const res  = await fetch(WORKER_URL + "/auth/signup", {
                 method: "POST", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username: user, password: pass }),
+                body: JSON.stringify({ username: user, password: pass, email: email || undefined }),
             });
             const data = await res.json().catch(() => ({}));
             if (data.ok && data.token) {
                 _setSession(user, data.token, data.joinedAt || null, data.role || "user");
                 document.getElementById("authSignupPass").value  = "";
                 document.getElementById("authSignupPass2").value = "";
+                if (document.getElementById("authSignupEmail")) document.getElementById("authSignupEmail").value = "";
 
                 if (doTransfer) {
                     await pushNow();
@@ -785,33 +864,90 @@ ${_buildChangePasswordHTML()}
         t._timer = setTimeout(() => t.classList.remove("auth-sync-toast-visible"), 3200);
     }
 
+    function _dismissAnnouncementBanner(updatedAt) {
+        if (updatedAt) localStorage.setItem(LS_ANNOUNCEMENT_DISMISSED, String(updatedAt));
+        const isUnderMaintenance = document.getElementById("maintenancePage")?.classList.contains("active");
+        const target = isUnderMaintenance
+            ? document.getElementById("maintAnnouncementSlot")
+            : document.getElementById("announcementBanner");
+        if (!target) return;
+        target.classList.remove("active");
+        target.innerHTML = "";
+        if (!isUnderMaintenance) document.body.classList.remove("announcement-active");
+    }
+
     function _applyAnnouncementBanner(active, type, message) {
-        const banner = document.getElementById("announcementBanner");
-        if (!banner) return;
+        const isUnderMaintenance = document.getElementById("maintenancePage")?.classList.contains("active");
+        // While the maintenance overlay is showing, the normal top banner is
+        // buried beneath it (the overlay sits above everything by design).
+        // Render into a slot inside the maintenance page instead so the
+        // announcement is still visible to people sitting on that screen.
+        const target = isUnderMaintenance
+            ? document.getElementById("maintAnnouncementSlot")
+            : document.getElementById("announcementBanner");
+        if (!target) return;
+
+        const typeClassList = [
+            "announcement-type-info",
+            "announcement-type-warning",
+            "announcement-type-success",
+            "announcement-type-error",
+            "announcement-type-update",
+            "announcement-type-event",
+        ];
+        target.classList.remove(...typeClassList);
 
         if (!active) {
-            banner.classList.remove("active");
-            banner.innerHTML = "";
-            document.body.classList.remove("announcement-active");
+            target.classList.remove("active");
+            target.innerHTML = "";
+            if (!isUnderMaintenance) document.body.classList.remove("announcement-active");
             return;
         }
 
-        const safeType = ["info", "warning", "success"].includes(type) ? type : "info";
-        const label = safeType === "info" ? "Info" : safeType === "warning" ? "Warning" : "Success";
-        banner.innerHTML = `
+        const typeClassMap = {
+            info: "announcement-type-info",
+            warning: "announcement-type-warning",
+            success: "announcement-type-success",
+            error: "announcement-type-error",
+            update: "announcement-type-update",
+            event: "announcement-type-event",
+        };
+        const typeIconMap = { info: "ℹ", warning: "⚠", success: "✅", error: "⛔", update: "🛠", event: "✦" };
+        const bannerType = ["info", "warning", "success", "error", "update", "event"].includes(type) ? type : "info";
+        target.classList.add(typeClassMap[bannerType]);
+        target.innerHTML = `
 <div class="announcement-banner-inner">
-  <div class="announcement-banner-chip">${_escHtml(label)}</div>
-  <div class="announcement-banner-message">${_escHtml(message || "Announcement")}</div>
+  <div class="announcement-banner-header">
+    <span class="announcement-banner-icon">${typeIconMap[bannerType]}</span>
+    <div class="announcement-banner-message">${_escHtml(message || "Announcement")}</div>
+    <button type="button" class="announcement-banner-close" aria-label="Hide announcement">✕</button>
+  </div>
 </div>`;
-        banner.classList.add("active");
-        document.body.classList.add("announcement-active");
+        target.classList.add("active");
+        if (!isUnderMaintenance) document.body.classList.add("announcement-active");
+        const closeBtn = target.querySelector(".announcement-banner-close");
+        if (closeBtn) closeBtn.onclick = () => _dismissAnnouncementBanner(window.__announcementUpdatedAt || 0);
     }
 
     async function _checkAnnouncement() {
         if (!WORKER_URL) return;
+        if (_role === "owner") return;
         try {
-            const res = await fetch(WORKER_URL + "/auth/announcement/status");
+            const token = window.WHDAuth ? window.WHDAuth.getToken() : null;
+            const res = await fetch(WORKER_URL + "/auth/announcement/status", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token }),
+            });
             const data = await res.json().catch(() => ({}));
+            window.__announcementUpdatedAt = data.updatedAt || 0;
+            if (data.active && data.updatedAt && String(data.updatedAt) === localStorage.getItem(LS_ANNOUNCEMENT_DISMISSED)) {
+                _dismissAnnouncementBanner(data.updatedAt);
+                return;
+            }
+            if (!data.active) {
+                localStorage.removeItem(LS_ANNOUNCEMENT_DISMISSED);
+            }
             _applyAnnouncementBanner(!!data.active, data.type || "info", data.message || "");
         } catch { /* network error — don't block access */ }
     }
@@ -831,16 +967,51 @@ ${_buildChangePasswordHTML()}
             page.classList.remove("active");
             return;
         }
-        // Build content — only rebuild if not already showing (preserves trivia game state)
+        // Build content — only rebuild if not already showing (preserves game state)
         if (!page.classList.contains("active")) {
             const msg = message || "We're doing some maintenance. Check back soon.";
             page.innerHTML = `
+<div id="maintAnnouncementSlot" class="announcement-banner"></div>
 <div class="maint-glyph">🚧</div>
 <div class="maint-title">Under Maintenance</div>
 <div class="maint-sub">${_escHtml(msg)}</div>
-<div id="maintTrivia" class="maint-trivia"></div>`;
+<div class="maint-tabs">
+  <button class="maint-tab active" data-mtab="trivia">🎮 Trivia</button>
+  <button class="maint-tab" data-mtab="updates">📋 Update Log</button>
+</div>
+<div class="maint-tabpanel active" id="maintPanelTrivia">
+  <div id="maintGameHost" class="maint-game-host"></div>
+</div>
+<div class="maint-tabpanel" id="maintPanelUpdates">
+  <div class="maint-ul-section">
+    <div id="maintULLoading" class="ul-loading">Loading updates…</div>
+    <div id="maintULEmpty" class="ul-empty" style="display:none;">No updates yet.</div>
+    <div class="ul-layout">
+      <div id="maintULTabStrip" class="ul-tabstrip" style="display:none;"></div>
+      <div id="maintULContent" class="ul-content" style="display:none;"></div>
+    </div>
+  </div>
+</div>`;
             page.classList.add("active");
-            _startMaintTrivia();
+            _triviaStart(document.getElementById("maintGameHost"));
+            _checkAnnouncement();
+
+            // Wire the two maintenance-page tabs
+            let maintUpdatesLoaded = false;
+            page.querySelectorAll(".maint-tab").forEach(btn => {
+                btn.onclick = () => {
+                    page.querySelectorAll(".maint-tab").forEach(b => b.classList.remove("active"));
+                    page.querySelectorAll(".maint-tabpanel").forEach(p => p.classList.remove("active"));
+                    btn.classList.add("active");
+                    const target = btn.dataset.mtab === "updates" ? "maintPanelUpdates" : "maintPanelTrivia";
+                    const panel = document.getElementById(target);
+                    if (panel) panel.classList.add("active");
+                    if (btn.dataset.mtab === "updates" && !maintUpdatesLoaded) {
+                        maintUpdatesLoaded = true;
+                        if (typeof loadUpdateLog === "function") loadUpdateLog();
+                    }
+                };
+            });
         }
     }
 
@@ -856,10 +1027,13 @@ ${_buildChangePasswordHTML()}
     }
 
     // ═════════════════════════════════════════════════════════════════════
-    //  MAINTENANCE TRIVIA — a tiny on-theme quiz to pass the time.
-    //  Purely cosmetic: it never unlocks the site by itself. The page is
-    //  only ever hidden by a confirmed admin/owner login (_checkMaintenance).
+    //  MAINTENANCE MINIGAMES — a few tiny on-theme activities to pass the
+    //  time while waiting. Purely cosmetic: none of them unlock the site.
+    //  The page is only ever hidden by a confirmed admin/owner login
+    //  (_checkMaintenance) or maintenance being turned off.
     // ═════════════════════════════════════════════════════════════════════
+
+    // ── Trivia ──────────────────────────────────────────────────────────
     const _MAINT_TRIVIA = [
         { q: "Which empire built the road network later reused by Persia's royal couriers?", a: ["The Achaemenid Empire", "The Akkadian Empire", "The Hittite Empire", "The Assyrian Empire"], c: 0 },
         { q: "The Great Library once stood in which ancient city?", a: ["Alexandria", "Babylon", "Carthage", "Thebes"], c: 0 },
@@ -873,23 +1047,62 @@ ${_buildChangePasswordHTML()}
         { q: "Which river valley is associated with the earliest known cities of Mesopotamia?", a: ["Nile", "Indus", "Tigris–Euphrates", "Yangtze"], c: 2 },
         { q: "The Hagia Sophia was originally built as a cathedral in which empire?", a: ["Ottoman Empire", "Byzantine Empire", "Roman Empire", "Persian Empire"], c: 1 },
         { q: "Which African empire grew wealthy controlling trans-Saharan gold and salt trade?", a: ["Mali Empire", "Kingdom of Kush", "Zulu Kingdom", "Aksum"], c: 0 },
+        { q: "Which ancient wonder stood at the harbour entrance to Rhodes?", a: ["The Pharos Lighthouse", "The Colossus", "The Mausoleum", "The Statue of Zeus"], c: 1 },
+        { q: "What writing system did the ancient Sumerians develop around 3200 BCE?", a: ["Hieroglyphics", "Linear A", "Cuneiform", "Runes"], c: 2 },
+        { q: "The Battle of Marathon (490 BCE) was fought between Greece and which empire?", a: ["Macedonian", "Carthaginian", "Persian", "Assyrian"], c: 2 },
+        { q: "Who commanded the Mongol forces during the sack of Baghdad in 1258?", a: ["Genghis Khan", "Kublai Khan", "Hulagu Khan", "Ögedei Khan"], c: 2 },
+        { q: "The Maurya Empire was founded in ancient India by whom?", a: ["Ashoka", "Chandragupta Maurya", "Bindusara", "Samudragupta"], c: 1 },
+        { q: "Which civilisation built the Nazca Lines in the South American desert?", a: ["Inca", "Moche", "Nazca", "Tiwanaku"], c: 2 },
+        { q: "Where did the Black Death most likely originate before spreading west?", a: ["Egypt", "Arabia", "Central Asia", "India"], c: 2 },
+        { q: "The Phoenicians are credited with developing one of the earliest what?", a: ["Calendars", "Alphabets", "Coinage systems", "Aqueducts"], c: 1 },
+        { q: "The fall of Constantinople in 1453 ended which empire?", a: ["Roman Empire", "Byzantine Empire", "Ottoman Empire", "Seljuk Empire"], c: 1 },
+        { q: "Tenochtitlan, the Aztec capital, was built on an island in which lake?", a: ["Lake Chapala", "Lake Texcoco", "Lake Titicaca", "Lake Atitlán"], c: 1 },
+        { q: "Which Greek philosopher was the teacher of Alexander the Great?", a: ["Plato", "Socrates", "Aristotle", "Pythagoras"], c: 2 },
+        { q: "The Hanseatic League was primarily a trading alliance of cities in which region?", a: ["Mediterranean coast", "Northern Europe", "Iberian Peninsula", "Black Sea coast"], c: 1 },
+        { q: "Which empire was ruled from the city of Ctesiphon?", a: ["Sassanid Empire", "Parthian Empire", "Babylonian Empire", "Both A and B"], c: 3 },
+        { q: "The Edict of Milan (313 CE) granted religious tolerance to which group?", a: ["Jews", "Pagans", "Christians", "Zoroastrians"], c: 2 },
+        { q: "Which Chinese invention, later spreading west, transformed medieval warfare?", a: ["The crossbow", "Steel armour", "Gunpowder", "The trebuchet"], c: 2 },
+        { q: "The city of Carthage was located in modern-day which country?", a: ["Egypt", "Libya", "Tunisia", "Algeria"], c: 2 },
+        { q: "The Achaemenid Persian Empire was founded by whom?", a: ["Darius I", "Xerxes I", "Cyrus the Great", "Cambyses"], c: 2 },
+        { q: "Which culture built the great stone heads known as Olmec colossal heads?", a: ["Maya", "Aztec", "Olmec", "Zapotec"], c: 2 },
+        { q: "Where did the Magna Carta get signed in 1215?", a: ["Westminster", "Winchester", "Runnymede", "Canterbury"], c: 2 },
+        { q: "The ancient trade route called the Amber Road primarily transported amber from where?", a: ["Russia", "Baltic coast", "Scandinavia", "North Africa"], c: 1 },
+        { q: "Who led the Haitian Revolution, resulting in the first Black republic?", a: ["Jean-Jacques Dessalines", "Toussaint Louverture", "Henri Christophe", "Alexandre Pétion"], c: 1 },
+        { q: "What was the primary purpose of Hadrian's Wall?", a: ["Tax collection", "Border control and defence", "Irrigation", "Ceremonial procession"], c: 1 },
+        { q: "The ancient city of Petra was carved into cliffs by which people?", a: ["Romans", "Nabataeans", "Egyptians", "Persians"], c: 1 },
+        { q: "The Gutenberg Bible was one of the first major books printed with which technology?", a: ["Woodblock printing", "Movable type", "Engraving", "Lithography"], c: 1 },
+        { q: "The Reconquista was the centuries-long effort to reclaim the Iberian Peninsula from whom?", a: ["The Visigoths", "The Moors", "The Franks", "The Normans"], c: 1 },
+        { q: "The legendary city of El Dorado was sought by Spanish conquistadors mainly in which region?", a: ["Mexico", "The Caribbean", "South America", "Central America"], c: 2 },
+        { q: "Which pharaoh built the Great Pyramid of Giza?", a: ["Ramesses II", "Tutankhamun", "Khufu", "Thutmose III"], c: 2 },
+        { q: "The Treaty of Westphalia (1648) ended which major European conflict?", a: ["The Hundred Years' War", "The Thirty Years' War", "The Wars of the Roses", "The Great Northern War"], c: 1 },
+        { q: "Which empire was centered on the city of Tenochtitlan before the Spanish conquest?", a: ["Maya", "Aztec", "Inca", "Toltec"], c: 1 },
+        { q: "The Domesday Book, an early census and land survey, was commissioned by which English king?", a: ["Edward the Confessor", "William the Conqueror", "Henry II", "Richard the Lionheart"], c: 1 },
+        { q: "Which ancient civilization built the city of Petra as a major trade hub?", a: ["Phoenicians", "Nabataeans", "Lydians", "Hittites"], c: 1 },
+        { q: "The Punic Wars were fought between Rome and which rival power?", a: ["Carthage", "Greece", "Egypt", "Persia"], c: 0 },
+        { q: "Who was the first Roman emperor?", a: ["Julius Caesar", "Augustus", "Nero", "Trajan"], c: 1 },
+        { q: "The Kingdom of Aksum, an early trading empire, was located in present-day where?", a: ["Egypt and Sudan", "Ethiopia and Eritrea", "Nigeria and Ghana", "Morocco and Algeria"], c: 1 },
+        { q: "Which European explorer led the first expedition to circumnavigate the globe?", a: ["Christopher Columbus", "Vasco da Gama", "Ferdinand Magellan", "James Cook"], c: 2 },
+        { q: "The Great Schism of 1054 split Christianity into which two branches?", a: ["Catholic and Protestant", "Catholic and Orthodox", "Orthodox and Coptic", "Protestant and Anglican"], c: 1 },
+        { q: "Angkor Wat, the largest religious monument in the world, was built by which empire?", a: ["Khmer Empire", "Srivijaya Empire", "Champa Kingdom", "Majapahit Empire"], c: 0 },
+        { q: "Which conflict is often cited as the first global war, fought across multiple continents in the 1750s–60s?", a: ["War of Spanish Succession", "Seven Years' War", "War of the Austrian Succession", "Nine Years' War"], c: 1 },
+        { q: "The Rosetta Stone is inscribed in how many scripts?", a: ["One", "Two", "Three", "Four"], c: 2 },
+        { q: "Which empire's expansion was halted by its defeat at the Battle of Tours in 732 CE?", a: ["Umayyad Caliphate", "Abbasid Caliphate", "Ottoman Empire", "Fatimid Caliphate"], c: 0 },
+        { q: "The ancient Olympic Games were held in honor of which Greek god?", a: ["Apollo", "Zeus", "Poseidon", "Ares"], c: 1 },
+        { q: "Which document, signed in 1648, established the modern concept of state sovereignty?", a: ["Magna Carta", "Treaty of Tordesillas", "Peace of Westphalia", "Edict of Nantes"], c: 2 },
+        { q: "The Inca road system, the Qhapaq Ñan, spanned the length of which mountain range?", a: ["The Alps", "The Andes", "The Rockies", "The Himalayas"], c: 1 },
+        { q: "Who was the longest-reigning pharaoh of ancient Egypt?", a: ["Ramesses II", "Pepi II", "Thutmose III", "Amenhotep III"], c: 1 },
+        { q: "The Berlin Conference of 1884–85 organized European colonization of which continent?", a: ["Asia", "Africa", "South America", "Australia"], c: 1 },
+        { q: "Which trade network connected West African empires to North Africa across the Sahara?", a: ["Silk Road", "Trans-Saharan trade routes", "Amber Road", "Spice Route"], c: 1 },
+        { q: "The city-state of Sparta was famed in ancient Greece chiefly for its what?", a: ["Philosophy schools", "Naval power", "Military discipline", "Trade wealth"], c: 2 },
     ];
 
-    let _maintTriviaState = null;
-
-    function _startMaintTrivia() {
-        const host = document.getElementById("maintTrivia");
-        if (!host) return;
-        const shuffled = _MAINT_TRIVIA.slice().sort(() => Math.random() - 0.5).slice(0, 5);
-        _maintTriviaState = { idx: 0, score: 0, set: shuffled };
-        _renderMaintTriviaQuestion();
+    function _triviaStart(host) {
+        const shuffled = _MAINT_TRIVIA.slice().sort(() => Math.random() - 0.5).slice(0, 8);
+        const st = { idx: 0, score: 0, set: shuffled };
+        _triviaRenderQuestion(host, st);
     }
 
-    function _renderMaintTriviaQuestion() {
-        const host = document.getElementById("maintTrivia");
-        const st   = _maintTriviaState;
-        if (!host || !st) return;
-
+    function _triviaRenderQuestion(host, st) {
         if (st.idx >= st.set.length) {
             host.innerHTML = `
 <div class="maint-trivia-done">
@@ -897,7 +1110,7 @@ ${_buildChangePasswordHTML()}
   <div class="maint-trivia-sub">Thanks for waiting it out.</div>
   <button class="maint-trivia-again" id="maintTriviaAgain">Play again</button>
 </div>`;
-            document.getElementById("maintTriviaAgain").onclick = _startMaintTrivia;
+            document.getElementById("maintTriviaAgain").onclick = () => _triviaStart(host);
             return;
         }
 
@@ -922,11 +1135,12 @@ ${_buildChangePasswordHTML()}
                 if (correct) st.score++;
                 setTimeout(() => {
                     st.idx++;
-                    _renderMaintTriviaQuestion();
+                    _triviaRenderQuestion(host, st);
                 }, 850);
             };
         });
     }
+
 
     // ═════════════════════════════════════════════════════════════════════
     //  SETTINGS TAB HOOK

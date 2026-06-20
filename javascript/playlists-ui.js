@@ -38,15 +38,16 @@ function switchPanelTab(tabName) {
     document.querySelectorAll(".panel-tab-content").forEach(el => {
         el.classList.remove("active");
     });
-    const target = document.getElementById(
-        tabName === "playlists" ? "panelTabPlaylists" :
-        tabName === "bookmarks" ? "panelTabBookmarks" :
-        "panelTabExplore"
-    );
+    const idMap = {
+        playlists: "panelTabPlaylists",
+        bookmarks: "panelTabBookmarks",
+        explore:   "panelTabExplore",
+    };
+    const target = document.getElementById(idMap[tabName] || "panelTabPlaylists");
     if (target) target.classList.add("active");
 
-    if (tabName === "bookmarks") renderBookmarksList();
-    if (tabName === "explore")   filterExploreSearch();
+    if (tabName === "bookmarks")  renderBookmarksList();
+    if (tabName === "explore")    filterExploreSearch();
 }
 
 function renderPlaylistSidebar() {
@@ -466,4 +467,110 @@ function filterSceneSearch() {
         row.appendChild(addBtn);
         container.appendChild(row);
     });
+}
+// ── Update Log (user-facing) ──────────────────────────────────────────────
+let _ulUserEntries = null;   // null = not yet loaded
+let _ulUserActiveId = null;
+
+// Both surfaces that can show the update log, identified by their element-ID prefix.
+const _UL_SURFACES = ["settingsUL", "maintUL"];
+
+function loadUpdateLog() {
+    // Only fetch once per session unless explicitly refreshed
+    if (_ulUserEntries !== null) { _ulRenderUser(); return; }
+    _ulShowLoading(true);
+    const WORKER_URL = (window.WHDAuth && window.WHDAuth.workerUrl) ? window.WHDAuth.workerUrl
+        : (window._WORKER_URL || "");
+    if (!WORKER_URL) { _ulShowEmpty(); return; }
+    const token = window.WHDAuth ? window.WHDAuth.getToken() : null;
+    fetch(WORKER_URL + "/auth/updatelog", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token, action: "list" }),
+    }).then(r => r.json()).catch(() => ({ ok: false, entries: [] }))
+    .then(data => {
+        _ulUserEntries = (data.entries || []).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
+        _ulRenderUser();
+    });
+}
+
+function _ulShowLoading(on) {
+    _UL_SURFACES.forEach(prefix => {
+        const loading = document.getElementById(prefix + "Loading");
+        const empty   = document.getElementById(prefix + "Empty");
+        const strip   = document.getElementById(prefix + "TabStrip");
+        const content = document.getElementById(prefix + "Content");
+        if (loading) loading.style.display = on ? "" : "none";
+        if (empty)   empty.style.display   = "none";
+        if (strip)   strip.style.display   = "none";
+        if (content) content.style.display = "none";
+    });
+}
+
+function _ulShowEmpty() {
+    _UL_SURFACES.forEach(prefix => {
+        const loading = document.getElementById(prefix + "Loading");
+        const empty   = document.getElementById(prefix + "Empty");
+        const strip   = document.getElementById(prefix + "TabStrip");
+        const content = document.getElementById(prefix + "Content");
+        if (loading) loading.style.display = "none";
+        if (empty)   empty.style.display   = "";
+        if (strip)   strip.style.display   = "none";
+        if (content) content.style.display = "none";
+    });
+}
+
+function _ulRenderUser() {
+    const entries = _ulUserEntries || [];
+    if (entries.length === 0) { _ulShowEmpty(); return; }
+
+    // Auto-select first entry if none selected or gone
+    if (!_ulUserActiveId || !entries.find(e => e.id === _ulUserActiveId)) {
+        _ulUserActiveId = entries[0].id;
+    }
+    const entry = entries.find(e => e.id === _ulUserActiveId);
+
+    _UL_SURFACES.forEach(prefix => {
+        const loading = document.getElementById(prefix + "Loading");
+        const empty   = document.getElementById(prefix + "Empty");
+        const strip   = document.getElementById(prefix + "TabStrip");
+        const content = document.getElementById(prefix + "Content");
+        if (!strip || !content) return; // this surface isn't mounted right now
+
+        if (loading) loading.style.display = "none";
+        if (empty)   empty.style.display   = "none";
+        strip.style.display   = "";
+        content.style.display = "";
+
+        // Render tab strip
+        strip.innerHTML = entries.map(e =>
+            `<button class="ul-tab${e.id === _ulUserActiveId ? " active" : ""}" data-ulid="${e.id}">${_ulEsc(e.version || "?")}</button>`
+        ).join("");
+        strip.querySelectorAll(".ul-tab").forEach(btn => {
+            btn.onclick = () => {
+                _ulUserActiveId = btn.dataset.ulid;
+                _ulRenderUser();
+            };
+            if (btn.dataset.ulid === _ulUserActiveId) {
+                btn.scrollIntoView({ block: "nearest" });
+            }
+        });
+
+        if (!entry) return;
+        const changes = Array.isArray(entry.changes) ? entry.changes : [];
+        content.innerHTML = `
+<div class="ul-entry-header">
+  <div class="ul-entry-version">${_ulEsc(entry.version || "")}</div>
+  <div class="ul-entry-meta">
+    <span class="ul-entry-title">${_ulEsc(entry.title || "")}</span>
+    ${entry.date ? `<span class="ul-entry-date">${_ulEsc(entry.date)}</span>` : ""}
+  </div>
+</div>
+${changes.length ? `<ul class="ul-entry-changes">${changes.map(c => `<li>${_ulEsc(c)}</li>`).join("")}</ul>` : ""}`;
+    });
+}
+
+function _ulEsc(s) {
+    return (s == null ? "" : String(s))
+        .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;");
 }

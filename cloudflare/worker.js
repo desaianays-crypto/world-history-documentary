@@ -83,11 +83,17 @@ async function getUserFromToken(token, env) {
 
 // ── Auth handlers ─────────────────────────────────────────────────────────
 
+function isValidEmail(email) {
+    return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
+}
+
 async function handleSignup(request, env) {
-    const { username, password } = await request.json().catch(() => ({}));
+    const { username, password, email } = await request.json().catch(() => ({}));
     if (!username || !password) return json({ ok: false, error: "Missing fields." }, 400);
     if (!/^[a-zA-Z0-9_]{3,24}$/.test(username)) return json({ ok: false, error: "Invalid username (3–24 chars, letters/numbers/_)." }, 400);
     if (password.length < 8) return json({ ok: false, error: "Password must be at least 8 characters." }, 400);
+    const trimmedEmail = String(email || "").trim();
+    if (trimmedEmail && !isValidEmail(trimmedEmail)) return json({ ok: false, error: "That email address doesn't look valid." }, 400);
 
     // Case-insensitive uniqueness: store by lowercase key
     const key = username.toLowerCase();
@@ -98,6 +104,7 @@ async function handleSignup(request, env) {
         username,           // preserve original casing for display
         key,                // lowercase lookup key
         hash: await hashPassword(password),
+        email: trimmedEmail || null,   // optional, used only for account recovery
         joinedAt: Date.now(),
         role,
         data: {}
@@ -106,6 +113,32 @@ async function handleSignup(request, env) {
     const token = makeToken();
     await env.WHD_TOKENS.put(token, key, { expirationTtl: 60 * 60 * 24 * 90 });
     return json({ ok: true, token, joinedAt: user.joinedAt, role });
+}
+
+async function handleResetPassword(request, env) {
+    const { username, email, newPassword } = await request.json().catch(() => ({}));
+    if (!username || !email || !newPassword) return json({ ok: false, error: "Missing fields." }, 400);
+    if (newPassword.length < 8) return json({ ok: false, error: "Password must be at least 8 characters." }, 400);
+
+    const key = username.toLowerCase();
+    const raw = await env.WHD_USERS.get(key);
+    if (!raw) return json({ ok: false, error: "No account found for that username." });
+
+    const user = JSON.parse(raw);
+    if (!user.email) return json({ ok: false, error: "This account has no recovery email on file. Ask an owner/admin for help." });
+    if (user.email.toLowerCase() !== String(email).trim().toLowerCase()) {
+        return json({ ok: false, error: "That email doesn't match our records." });
+    }
+
+    user.hash = await hashPassword(newPassword);
+    await env.WHD_USERS.put(key, JSON.stringify(user));
+
+    // Invalidate existing sessions isn't tracked per-user, so we just issue a
+    // fresh token for this reset; old tokens remain valid until they expire
+    // naturally (90 days) since WHD_TOKENS has no per-user reverse index.
+    const token = makeToken();
+    await env.WHD_TOKENS.put(token, key, { expirationTtl: 60 * 60 * 24 * 90 });
+    return json({ ok: true, token, joinedAt: user.joinedAt, role: user.role });
 }
 
 async function handleLogin(request, env) {
@@ -192,7 +225,7 @@ async function handleUsers(request, env) {
                 // so calling it here for every user was silently erasing every
                 // admin promotion back to "user" on each list refresh.
                 const role = (u.username || "").toLowerCase() === OWNER_NAME ? "owner" : (u.role || "user");
-                return { username: u.username, role, joinedAt: u.joinedAt };
+                return { username: u.username, role, joinedAt: u.joinedAt, hasEmail: !!u.email };
             })
     );
     return json({
@@ -286,32 +319,111 @@ async function handleMaintenance(request, env) {
     return json({ ok: true, maintenance: !!on });
 }
 
+// ── Update Log ───────────────────────────────────────────────────────────────
+// POST /auth/updatelog  body: { token, action: "list"|"save"|"delete", ...fields }
+// Entries stored as a JSON array in KV under "__updatelog__"
+
+async function handleUpdateLog(request, env) {
+    const body = await request.json().catch(() => ({}));
+    const { token, action } = body;
+    const caller = await getUserFromToken(token, env);
+    if (!caller) return json({ ok: false, error: "Not authenticated." }, 401);
+
+    const raw     = await env.WHD_USERS.get("__updatelog__");
+    let   entries = raw ? JSON.parse(raw) : [];
+
+    if (action === "list") {
+        return json({ ok: true, entries });
+    }
+
+    // Save and delete require owner
+    if (!isOwner(caller)) return json({ ok: false, error: "Owner access required." }, 403);
+
+    if (action === "save") {
+        const { id, version, title, date, changes } = body;
+        if (!version) return json({ ok: false, error: "Version is required." }, 400);
+        const changes_clean = (Array.isArray(changes) ? changes : [])
+            .map(c => String(c).slice(0, 200)).filter(Boolean).slice(0, 30);
+        if (id) {
+            // Update existing
+            const idx = entries.findIndex(e => e.id === id);
+            if (idx < 0) return json({ ok: false, error: "Entry not found." }, 404);
+            entries[idx] = { ...entries[idx], version: String(version).slice(0,20), title: String(title||"").slice(0,80), date: String(date||"").slice(0,40), changes: changes_clean, updatedAt: Date.now() };
+            await env.WHD_USERS.put("__updatelog__", JSON.stringify(entries));
+            return json({ ok: true, entry: entries[idx] });
+        } else {
+            // New entry
+            const entry = { id: Date.now().toString(36) + Math.random().toString(36).slice(2,6), version: String(version).slice(0,20), title: String(title||"").slice(0,80), date: String(date||"").slice(0,40), changes: changes_clean, createdAt: Date.now(), updatedAt: Date.now() };
+            entries.unshift(entry);
+            await env.WHD_USERS.put("__updatelog__", JSON.stringify(entries));
+            return json({ ok: true, entry });
+        }
+    }
+
+    if (action === "delete") {
+        const { id } = body;
+        const before = entries.length;
+        entries = entries.filter(e => e.id !== id);
+        if (entries.length === before) return json({ ok: false, error: "Entry not found." }, 404);
+        await env.WHD_USERS.put("__updatelog__", JSON.stringify(entries));
+        return json({ ok: true });
+    }
+
+    return json({ ok: false, error: "Unknown action." }, 400);
+}
+
 // ── Announcement banner ──────────────────────────────────────────────────
 
 async function handleAnnouncementStatus(request, env) {
     const raw = await env.ADMIN_KV.get(ANNOUNCEMENT_KEY);
-    if (!raw) return json({ active: false, message: "", type: "info", updatedAt: null });
+    if (!raw) return json({ active: false, message: "", type: "info", updatedAt: null, targets: [] });
     const data = JSON.parse(raw);
+    const body = request.method === "POST" ? await request.json().catch(() => ({})) : {};
+    const caller = await getUserFromToken(body.token, env);
+    const targets = Array.isArray(data.targets) ? data.targets : [];
+    const currentUsername = caller?.username ? caller.username.toLowerCase() : "";
+    const visible = !data.active || targets.length === 0 || !!caller && (
+        isOwner(caller) || isAdminOrAbove(caller) || targets.includes(currentUsername)
+    );
+
+    if (!visible) {
+        return json({
+            active: false,
+            message: "",
+            type: data.type || "info",
+            updatedAt: data.updatedAt || null,
+            targets,
+        });
+    }
+
     return json({
         active: !!data.active,
         message: data.message || "",
         type: data.type || "info",
         updatedAt: data.updatedAt || null,
+        targets,
     });
 }
 
 async function handleAnnouncement(request, env) {
-    const { token, message, type, active } = await request.json().catch(() => ({}));
+    const { token, message, type, active, targets } = await request.json().catch(() => ({}));
     const caller = await getUserFromToken(token, env);
     if (!caller) return json({ ok: false, error: "Not authenticated." }, 401);
     if (!isOwner(caller)) return json({ ok: false, error: "Owner access required." }, 403);
 
-    const safeType = ["info", "warning", "success"].includes(type) ? type : "info";
+    const safeType = ["info", "warning", "success", "error", "update", "event"].includes(type) ? type : "info";
+    const targetList = Array.isArray(targets)
+        ? targets
+        : String(targets || "")
+            .split(",")
+            .map(name => name.trim().toLowerCase())
+            .filter(Boolean);
     const next = {
         active: !!active && !!String(message || "").trim(),
         message: String(message || "").trim().slice(0, 300),
         type: safeType,
         updatedAt: Date.now(),
+        targets: Array.from(new Set(targetList)).slice(0, 25),
     };
     if (!next.active) next.message = "";
 
@@ -354,6 +466,7 @@ export default {
         // Auth
         if (url.pathname === "/auth/signup")         return handleSignup(request, env);
         if (url.pathname === "/auth/login")           return handleLogin(request, env);
+        if (url.pathname === "/auth/resetpassword")    return handleResetPassword(request, env);
         if (url.pathname === "/auth/save")            return handleSave(request, env);
         if (url.pathname === "/auth/load")            return handleLoad(request, env);
         if (url.pathname === "/auth/delete")          return handleDelete(request, env);
@@ -365,6 +478,7 @@ export default {
         if (url.pathname === "/auth/announcement/status") return handleAnnouncementStatus(request, env);
         if (url.pathname === "/auth/maintenance")     return handleMaintenance(request, env);
         if (url.pathname === "/auth/maintenance/status") return handleMaintenanceStatus(request, env);
+        if (url.pathname === "/auth/updatelog")       return handleUpdateLog(request, env);
 
         // One-time fix: force-assign owner role to the OWNER_NAME account.
         // Call once from the browser: GET /auth/fixowner
