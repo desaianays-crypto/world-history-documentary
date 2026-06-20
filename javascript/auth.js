@@ -63,7 +63,12 @@
     // ═════════════════════════════════════════════════════════════════════
     //  AUTH MODAL  —  full-screen two-panel layout
     // ═════════════════════════════════════════════════════════════════════
+    const SECURITY_QUESTIONS = [""
+    ];
+
     function _buildAuthModalHTML() {
+        const questionOptions = SECURITY_QUESTIONS
+            .map(q => `<option value="${_escHtml(q)}">${_escHtml(q)}</option>`).join("");
         return `
 <div id="authOverlay"></div>
 <div id="authPanel">
@@ -78,6 +83,25 @@
       <div class="auth-feature"><span class="auth-feature-icon">★</span><span>Bookmarked scenes</span></div>
       <div class="auth-feature"><span class="auth-feature-icon">☁</span><span>Cloud sync across devices</span></div>
       <div class="auth-feature"><span class="auth-feature-icon">⚙</span><span>Saved settings &amp; themes</span></div>
+    </div>
+    <div id="authBenefitCarousel" class="auth-benefit-carousel">
+      <div class="auth-benefit-slide active" data-slide="0">
+        <div class="auth-benefit-icon">📱</div>
+        <div class="auth-benefit-text">Pick up exactly where you left off, on any device.</div>
+      </div>
+      <div class="auth-benefit-slide" data-slide="1">
+        <div class="auth-benefit-icon">🔒</div>
+        <div class="auth-benefit-text">Your playlists and bookmarks are never lost, even if you clear your browser.</div>
+      </div>
+      <div class="auth-benefit-slide" data-slide="2">
+        <div class="auth-benefit-icon">⚡</div>
+        <div class="auth-benefit-text">Changes sync automatically — no manual exporting or saving.</div>
+      </div>
+      <div class="auth-benefit-dots" id="authBenefitDots">
+        <span class="auth-benefit-dot active" data-dot="0"></span>
+        <span class="auth-benefit-dot" data-dot="1"></span>
+        <span class="auth-benefit-dot" data-dot="2"></span>
+      </div>
     </div>
   </div>
   <div id="authPanelRight">
@@ -105,14 +129,48 @@
         <button type="button" class="auth-link-btn" id="authForgotLink">Forgot password?</button>
       </div>
 
+      <!-- Reset: Step 1 — username lookup -->
       <div class="auth-form" id="authFormReset">
+        <div class="auth-reset-intro">
+          <div class="auth-reset-icon">🔑</div>
+          <div class="auth-reset-title">Forgot Password?</div>
+          <div class="auth-reset-sub">Enter your username to see your security question.</div>
+        </div>
         <div class="auth-field">
           <label>Username</label>
           <input id="authResetUser" type="text" autocomplete="username" placeholder="your username" spellcheck="false"/>
         </div>
+        <div class="auth-error" id="authResetError"></div>
+        <button class="auth-primary-btn" id="authResetBtn">Continue</button>
+        <button type="button" class="auth-text-link" id="authResetBackLink">← Back to Sign In</button>
+      </div>
+
+      <!-- Reset: Step 2a — answer the stored security question -->
+      <div class="auth-form" id="authFormResetCode">
+        <div class="auth-reset-intro">
+          <div class="auth-reset-icon">🛡</div>
+          <div class="auth-reset-title" id="authResetCodeTitle">Answer Your Security Question</div>
+          <div class="auth-reset-sub" id="authResetCodeSub">Answer the question below to continue.</div>
+        </div>
+        <div id="authResetOtpBox" class="auth-otp-box">
+          <div class="auth-otp-label">Your security question</div>
+          <div class="auth-otp-code" id="authResetOtpValue">——————</div>
+        </div>
         <div class="auth-field">
-          <label>Recovery email <span class="auth-hint">the one you signed up with</span></label>
-          <input id="authResetEmail" type="email" autocomplete="email" placeholder="you@example.com"/>
+          <label>Answer</label>
+          <input id="authResetCode" type="text" autocomplete="off" placeholder="Your answer" spellcheck="false"/>
+        </div>
+        <div class="auth-error" id="authResetCodeError"></div>
+        <button class="auth-primary-btn" id="authResetVerifyBtn">Verify Answer</button>
+        <button type="button" class="auth-text-link" id="authResetRestartLink">← Start Over</button>
+      </div>
+
+      <!-- Reset: Step 2b — set new password (after code verified) -->
+      <div class="auth-form" id="authFormResetNewPass">
+        <div class="auth-reset-intro">
+          <div class="auth-reset-icon">✅</div>
+          <div class="auth-reset-title">Set New Password</div>
+          <div class="auth-reset-sub" id="authResetNewPassSub">Choose a new password for your account.</div>
         </div>
         <div class="auth-field">
           <label>New Password <span class="auth-hint">8+ characters</span></label>
@@ -121,9 +179,16 @@
             <button type="button" class="auth-show-pass" tabindex="-1" onclick="togglePassVis('authResetNewPass',this)" aria-label="Show password"></button>
           </div>
         </div>
-        <div class="auth-error" id="authResetError"></div>
-        <button class="auth-primary-btn" id="authResetBtn">Reset Password</button>
-        <button type="button" class="auth-link-btn" id="authResetBackLink">Back to Sign In</button>
+        <div class="auth-field">
+          <label>Confirm New Password</label>
+          <div class="auth-pass-wrap">
+            <input id="authResetNewPass2" type="password" autocomplete="new-password" placeholder="••••••••"/>
+            <button type="button" class="auth-show-pass" tabindex="-1" onclick="togglePassVis('authResetNewPass2',this)" aria-label="Show password"></button>
+          </div>
+        </div>
+        <div class="auth-error" id="authResetPassError"></div>
+        <button class="auth-primary-btn" id="authResetConfirmBtn">Set New Password</button>
+        <button type="button" class="auth-text-link" id="authResetRestartLink2">← Start Over</button>
       </div>
 
       <div class="auth-form" id="authFormSignup">
@@ -146,8 +211,13 @@
           </div>
         </div>
         <div class="auth-field">
-          <label>Email <span class="auth-hint">optional — only used to recover your account</span></label>
-          <input id="authSignupEmail" type="email" autocomplete="email" placeholder="you@example.com"/>
+          <label>Security Question <span class="auth-hint">used to recover your account</span></label>
+          <input id="authSignupQuestionSelect" class="auth-select" type="text" placeholder="Choose a question…" maxlength="150"/>
+          <input id="authSignupQuestionCustom" type="text" placeholder="Type your own question" style="display:none;margin-top:8px" maxlength="150"/>
+        </div>
+        <div class="auth-field">
+          <label>Your Answer</label>
+          <input id="authSignupAnswer" type="text" autocomplete="off" placeholder="Answer (not case sensitive)" spellcheck="false"/>
         </div>
         <div id="authTransferRow" class="auth-transfer-row" style="display:none">
           <label class="auth-checkbox-label">
@@ -201,65 +271,226 @@
         document.getElementById("authLogoutBtn").addEventListener("click", () => { logout(); closeAuthModal(); });
         document.getElementById("authForgotLink").addEventListener("click", _showResetForm);
         document.getElementById("authResetBackLink").addEventListener("click", () => _switchModalTab("login"));
-        document.getElementById("authResetBtn").addEventListener("click", doResetPassword);
+        document.getElementById("authResetBtn").addEventListener("click", doResetRequest);
+        document.getElementById("authResetVerifyBtn").addEventListener("click", doVerifyCode);
+        document.getElementById("authResetConfirmBtn").addEventListener("click", doResetConfirm);
+        document.getElementById("authResetRestartLink").addEventListener("click", _showResetForm);
+        document.getElementById("authResetRestartLink2").addEventListener("click", _showResetForm);
+
+        const qSelect = document.getElementById("authSignupQuestionSelect");
+        const qCustom = document.getElementById("authSignupQuestionCustom");
+    
+        if (qSelect) {
+            qSelect.addEventListener("change", () => {
+                qCustom.style.display = qSelect.value === "__custom__" ? "block" : "none";
+                if (qSelect.value === "__custom__") qCustom.focus();
+            });
+        }
 
         ["authLoginUser", "authLoginPass"].forEach(id =>
             document.getElementById(id).addEventListener("keydown", e => { if (e.key === "Enter") doLogin(); }));
         ["authSignupUser", "authSignupPass", "authSignupPass2"].forEach(id =>
             document.getElementById(id).addEventListener("keydown", e => { if (e.key === "Enter") doSignup(); }));
-        ["authResetUser", "authResetEmail", "authResetNewPass"].forEach(id =>
-            document.getElementById(id).addEventListener("keydown", e => { if (e.key === "Enter") doResetPassword(); }));
+        document.getElementById("authResetUser").addEventListener("keydown", e => { if (e.key === "Enter") doResetRequest(); });
+        document.getElementById("authResetCode").addEventListener("keydown", e => { if (e.key === "Enter") doVerifyCode(); });
+        ["authResetNewPass", "authResetNewPass2"].forEach(id =>
+            document.getElementById(id).addEventListener("keydown", e => { if (e.key === "Enter") doResetConfirm(); }));
 
         _renderAuthModal();
+        _startBenefitCarousel();
+    }
+
+    // ── Rotating "benefits of signing in" carousel (left panel) ─────────────
+    let _benefitTimer = null;
+    function _startBenefitCarousel() {
+        const slides = document.querySelectorAll("#authBenefitCarousel .auth-benefit-slide");
+        const dots   = document.querySelectorAll("#authBenefitCarousel .auth-benefit-dot");
+        if (!slides.length) return;
+        let i = 0;
+        clearInterval(_benefitTimer);
+        _benefitTimer = setInterval(() => {
+            const next = (i + 1) % slides.length;
+            slides[i].classList.remove("active");
+            slides[i].classList.add("leaving");
+            slides[next].classList.add("active");
+            dots[i] && dots[i].classList.remove("active");
+            dots[next] && dots[next].classList.add("active");
+            setTimeout(() => slides[i].classList.remove("leaving"), 500);
+            i = next;
+        }, 4200);
+    }
+
+    // Track state across reset steps
+    let _resetUsername = "";
+    let _resetTicket = "";
+
+    function _animateFormSwitch(showFormId) {
+        const current = document.querySelector(".auth-form.active");
+        const next = document.getElementById(showFormId);
+        if (!next || current === next) {
+            if (next) next.classList.add("active");
+            return;
+        }
+        if (current) {
+            current.classList.remove("active");
+            current.classList.add("auth-form-leaving");
+            setTimeout(() => current.classList.remove("auth-form-leaving"), 320);
+        }
+        next.classList.add("active", "auth-form-entering");
+        // restart animation on repeated switches
+        void next.offsetWidth;
+        setTimeout(() => next.classList.remove("auth-form-entering"), 320);
+    }
+
+    function _showResetStep(formId) {
+        document.querySelectorAll(".auth-tab").forEach(t => t.classList.remove("active"));
+        _animateFormSwitch(formId);
     }
 
     function _showResetForm() {
-        document.querySelectorAll(".auth-tab").forEach(t => t.classList.remove("active"));
-        document.querySelectorAll(".auth-form").forEach(f => f.classList.toggle("active", f.id === "authFormReset"));
-        const err = document.getElementById("authResetError"); if (err) err.textContent = "";
+        _showResetStep("authFormReset");
+        _resetUsername = "";
+        _resetTicket = "";
+        const uEl = document.getElementById("authResetUser"); if (uEl) uEl.value = "";
+        ["authResetCode","authResetNewPass","authResetNewPass2"].forEach(id => {
+            const el = document.getElementById(id); if (el) el.value = "";
+        });
+        ["authResetError","authResetCodeError","authResetPassError"].forEach(id => {
+            const el = document.getElementById(id); if (el) el.textContent = "";
+        });
+        // Prefill username from login field if available
+        const loginUser = document.getElementById("authLoginUser");
+        if (loginUser && loginUser.value.trim()) {
+            const uInput = document.getElementById("authResetUser");
+            if (uInput) uInput.value = loginUser.value.trim();
+        }
     }
 
-    async function doResetPassword() {
-        const user  = document.getElementById("authResetUser").value.trim();
-        const email = document.getElementById("authResetEmail").value.trim();
-        const pass  = document.getElementById("authResetNewPass").value;
-        const err   = document.getElementById("authResetError");
+    // Step 1: look up the account's security question
+    async function doResetRequest() {
+        const user = document.getElementById("authResetUser").value.trim();
+        const err  = document.getElementById("authResetError");
         err.textContent = "";
-
-        if (!user || !email || !pass) { err.textContent = "Please fill in all fields."; return; }
-        if (pass.length < 8) { err.textContent = "Password must be at least 8 characters."; return; }
+        if (!user) { err.textContent = "Please enter your username."; return; }
 
         const btn = document.getElementById("authResetBtn");
-        btn.textContent = "Resetting…"; btn.disabled = true;
+        btn.textContent = "Looking up…"; btn.disabled = true;
 
         try {
-            const res  = await fetch(WORKER_URL + "/auth/resetpassword", {
+            const res  = await fetch(WORKER_URL + "/auth/resetrequest", {
                 method: "POST", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username: user, email, newPassword: pass }),
+                body: JSON.stringify({ username: user }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (data.ok) {
+                _resetUsername = data.displayName || user;
+                _showResetStep("authFormResetCode");
+
+                const subEl  = document.getElementById("authResetCodeSub");
+                const otpVal = document.getElementById("authResetOtpValue");
+                const codeEl = document.getElementById("authResetCode");
+
+                if (subEl) subEl.textContent = "Answer this question to continue as " + _escHtml(_resetUsername) + ".";
+                if (otpVal && data.question) { otpVal.textContent = data.question; }
+                if (codeEl) { codeEl.value = ""; codeEl.focus(); }
+
+                const err2 = document.getElementById("authResetCodeError"); if (err2) err2.textContent = "";
+            } else {
+                err.textContent = data.error || "Something went wrong.";
+            }
+        } catch {
+            err.textContent = "Network error. Try again.";
+        } finally {
+            btn.textContent = "Continue"; btn.disabled = false;
+        }
+    }
+
+    // Step 2a: verify the security answer against the server, get a reset ticket
+    async function doVerifyCode() {
+        const answer = document.getElementById("authResetCode").value.trim();
+        const err  = document.getElementById("authResetCodeError");
+        err.textContent = "";
+        if (!answer) { err.textContent = "Please enter your answer."; return; }
+        if (!_resetUsername) { err.textContent = "Session lost — please start over."; return; }
+
+        const btn = document.getElementById("authResetVerifyBtn");
+        btn.textContent = "Verifying…"; btn.disabled = true;
+
+        try {
+            const res = await fetch(WORKER_URL + "/auth/resetverify", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username: _resetUsername, answer }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (data.ok && data.ticket) {
+                _resetTicket = data.ticket;
+                _showResetStep("authFormResetNewPass");
+
+                const subEl = document.getElementById("authResetNewPassSub");
+                if (subEl) subEl.textContent = "Resetting password for " + _escHtml(_resetUsername) + ".";
+                const passEl = document.getElementById("authResetNewPass");
+                if (passEl) passEl.focus();
+                const err2 = document.getElementById("authResetPassError"); if (err2) err2.textContent = "";
+            } else {
+                err.textContent = data.error || "That answer doesn't match. Try again.";
+            }
+        } catch {
+            err.textContent = "Network error. Try again.";
+        } finally {
+            btn.textContent = "Verify Answer"; btn.disabled = false;
+        }
+    }
+
+    // Step 2b: set the new password using the verified reset ticket
+    async function doResetConfirm() {
+        const pass  = document.getElementById("authResetNewPass").value;
+        const pass2 = document.getElementById("authResetNewPass2").value;
+        const err   = document.getElementById("authResetPassError");
+        err.textContent = "";
+
+        if (!pass || !pass2)  { err.textContent = "Please fill in both password fields."; return; }
+        if (pass.length < 8)  { err.textContent = "Password must be at least 8 characters."; return; }
+        if (pass !== pass2)   { err.textContent = "Passwords don't match."; return; }
+        if (!_resetUsername || !_resetTicket) { err.textContent = "Session lost — please start over."; return; }
+
+        const btn = document.getElementById("authResetConfirmBtn");
+        btn.textContent = "Setting password…"; btn.disabled = true;
+
+        try {
+            const res  = await fetch(WORKER_URL + "/auth/resetconfirm", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ username: _resetUsername, ticket: _resetTicket, newPassword: pass }),
             });
             const data = await res.json().catch(() => ({}));
             if (data.ok && data.token) {
-                _setSession(user, data.token, data.joinedAt || null, data.role || "user");
-                document.getElementById("authResetNewPass").value = "";
-                _showSyncToast("Password reset. You're signed in.");
+                _setSession(_resetUsername, data.token, data.joinedAt || null, data.role || "user");
+                ["authResetCode","authResetNewPass","authResetNewPass2"].forEach(id => {
+                    const el = document.getElementById(id); if (el) el.value = "";
+                });
+                _resetUsername = "";
+                _resetTicket = "";
+                _showSyncToast("Password updated. You're signed in.");
                 _renderAuthModal();
                 renderSettingsAccountPage();
                 window.dispatchEvent(new Event("whd:auth:loggedin"));
                 closeAuthModal();
             } else {
-                err.textContent = data.error || "Couldn't reset that password.";
+                // Ticket expired or invalid — go back to question step
+                err.textContent = data.error || "Couldn't reset password. Try again.";
+                if (data.error && data.error.toLowerCase().includes("expired")) {
+                    setTimeout(() => { _showResetStep("authFormResetCode"); }, 1200);
+                }
             }
         } catch {
             err.textContent = "Network error. Try again.";
         } finally {
-            btn.textContent = "Reset Password"; btn.disabled = false;
+            btn.textContent = "Set New Password"; btn.disabled = false;
         }
     }
 
     function _switchModalTab(tab) {
         document.querySelectorAll(".auth-tab").forEach(t => t.classList.toggle("active", t.dataset.tab === tab));
-        document.querySelectorAll(".auth-form").forEach(f =>
-            f.classList.toggle("active", f.id === "authForm" + tab.charAt(0).toUpperCase() + tab.slice(1)));
+        _animateFormSwitch("authForm" + tab.charAt(0).toUpperCase() + tab.slice(1));
         ["authLoginError", "authSignupError"].forEach(id => {
             const e = document.getElementById(id); if (e) e.textContent = "";
         });
@@ -388,7 +619,12 @@
         const user  = document.getElementById("authSignupUser").value.trim();
         const pass  = document.getElementById("authSignupPass").value;
         const pass2 = document.getElementById("authSignupPass2").value;
-        const email = document.getElementById("authSignupEmail")?.value.trim() || "";
+        const qSelect = document.getElementById("authSignupQuestionSelect");
+        const qCustom = document.getElementById("authSignupQuestionCustom");
+        const question = qSelect && qSelect.value === "__custom__"
+            ? (qCustom?.value || "").trim()
+            : (qSelect?.value || "").trim();
+        const answer = document.getElementById("authSignupAnswer")?.value.trim() || "";
         const err   = document.getElementById("authSignupError");
         err.textContent = "";
 
@@ -396,7 +632,8 @@
         if (!/^[a-zA-Z0-9_]{3,24}$/.test(user)) { err.textContent = "Username: 3–24 chars, letters/numbers/_ only."; return; }
         if (pass.length < 8)  { err.textContent = "Password must be at least 8 characters."; return; }
         if (pass !== pass2)   { err.textContent = "Passwords don't match."; return; }
-        if (email && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { err.textContent = "That email address doesn't look valid."; return; }
+        if (!question) { err.textContent = "Please choose or write a security question."; return; }
+        if (!answer)   { err.textContent = "Please provide an answer to your security question."; return; }
 
         const doTransfer = document.getElementById("authTransferCheck")?.checked && _hasLocalData();
 
@@ -406,14 +643,16 @@
         try {
             const res  = await fetch(WORKER_URL + "/auth/signup", {
                 method: "POST", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ username: user, password: pass, email: email || undefined }),
+                body: JSON.stringify({ username: user, password: pass, securityQuestion: question, securityAnswer: answer }),
             });
             const data = await res.json().catch(() => ({}));
             if (data.ok && data.token) {
                 _setSession(user, data.token, data.joinedAt || null, data.role || "user");
                 document.getElementById("authSignupPass").value  = "";
                 document.getElementById("authSignupPass2").value = "";
-                if (document.getElementById("authSignupEmail")) document.getElementById("authSignupEmail").value = "";
+                document.getElementById("authSignupAnswer").value = "";
+                if (qSelect) qSelect.value = "";
+                if (qCustom) { qCustom.value = ""; qCustom.style.display = "none"; }
 
                 if (doTransfer) {
                     await pushNow();
@@ -450,6 +689,8 @@
         _role       = "user";
         _lastSyncAt = null;
         _guest      = false;
+        saveSettings(Object.assign({}, DEFAULT_SETTINGS));
+        applySettings(DEFAULT_SETTINGS);
 
         // Clear all personal data from this browser on sign-out
         localStorage.removeItem(LS_TOKEN);
@@ -528,6 +769,8 @@
 
 ${_buildChangePasswordHTML()}
 
+${_buildEmailSectionHTML()}
+
 <div class="settings-section-title" style="margin-top:20px;">⚠ Account Actions</div>
 <div class="settings-row">
   <div class="settings-label"><span>Sign out</span><span class="settings-hint">Clears local playlists &amp; bookmarks</span></div>
@@ -550,6 +793,7 @@ ${_buildChangePasswordHTML()}
 
             // Wire change password form
             _wireChangePassword();
+            _wireEmailSection();
             _initEyeButtons(el);
 
 
@@ -565,6 +809,118 @@ ${_buildChangePasswordHTML()}
         }
     }
 
+
+    // ── Security question section ────────────────────────────────────────────
+    function _buildEmailSectionHTML() {
+        const has = !!_securityQuestionOnFile;
+        return `
+<div class="settings-section-title" style="margin-top:20px;">🛡 Security Question</div>
+<div class="settings-row" id="acctEmailRow">
+  <div class="settings-label">
+    <span>Recovery question</span>
+    <span class="settings-hint">${has ? "Used if you forget your password" : "Set one to recover your account"}</span>
+  </div>
+  <div class="settings-control" style="gap:6px">
+    ${has
+      ? `<span class="acct-count-badge acct-email-badge">✓ Set</span>
+         <button class="settings-btn" id="acctEmailEditBtn">Change</button>`
+      : `<span class="acct-count-badge acct-email-badge acct-email-missing">Not set</span>
+         <button class="settings-btn" id="acctEmailEditBtn">Add</button>`
+    }
+  </div>
+</div>
+<div id="acctEmailForm" style="display:none;padding:12px 0 4px">
+  <div class="auth-field" style="margin-bottom:8px">
+    <label>Security question</label>
+    <input id="acctQuestionSelect" class="auth-select" style="width:100%;box-sizing:border-box" placeholder="Type a subjective question"></input>
+    <input id="acctQuestionCustom" type="text" placeholder="Type your own question" maxlength="150"
+      style="display:none;margin-top:8px;width:100%;box-sizing:border-box"/>
+  </div>
+  <div class="auth-field" style="margin-bottom:8px">
+    <label>New answer</label>
+    <input id="acctEmailInput" type="text" autocomplete="off" placeholder="Your answer"
+      style="width:100%;box-sizing:border-box"/>
+  </div>
+  <div class="auth-error" id="acctEmailError" style="margin-bottom:6px"></div>
+  <div style="display:flex;gap:8px">
+    <button class="auth-primary-btn" id="acctEmailSaveBtn" style="flex:1;padding:9px">Save</button>
+    <button class="settings-btn" id="acctEmailCancelBtn">Cancel</button>
+  </div>
+</div>`;
+    }
+
+    // Track whether the current account has a security question on file
+    let _securityQuestionOnFile = false;
+
+    function _wireEmailSection() {
+        const editBtn   = document.getElementById("acctEmailEditBtn");
+        const form      = document.getElementById("acctEmailForm");
+        const saveBtn   = document.getElementById("acctEmailSaveBtn");
+        const cancelBtn = document.getElementById("acctEmailCancelBtn");
+        const input     = document.getElementById("acctEmailInput");
+        const errEl     = document.getElementById("acctEmailError");
+        const qSelect   = document.getElementById("acctQuestionSelect");
+        const qCustom   = document.getElementById("acctQuestionCustom");
+        if (!editBtn || !form) return;
+
+        editBtn.onclick = () => {
+            form.style.display = form.style.display === "none" ? "block" : "none";
+            if (form.style.display === "block" && input) { input.value = ""; if (qSelect) qSelect.value = ""; if (qCustom) { qCustom.value = ""; qCustom.style.display = "none"; } }
+            if (errEl) errEl.textContent = "";
+        };
+        if (qSelect) qSelect.addEventListener("change", () => {
+            if (qCustom) {
+                qCustom.style.display = qSelect.value === "__custom__" ? "block" : "none";
+                if (qSelect.value === "__custom__") qCustom.focus();
+            }
+        });
+        if (cancelBtn) cancelBtn.onclick = () => {
+            form.style.display = "none";
+            if (errEl) errEl.textContent = "";
+        };
+        if (saveBtn) saveBtn.onclick = () => _saveEmail();
+        if (input) input.addEventListener("keydown", e => { if (e.key === "Enter") _saveEmail(); });
+    }
+
+    async function _saveEmail() {
+        const input    = document.getElementById("acctEmailInput");
+        const errEl    = document.getElementById("acctEmailError");
+        const saveBtn  = document.getElementById("acctEmailSaveBtn");
+        const qSelect  = document.getElementById("acctQuestionSelect");
+        const qCustom  = document.getElementById("acctQuestionCustom");
+        if (errEl) errEl.textContent = "";
+
+        const question = qSelect && qSelect.value === "__custom__"
+            ? (qCustom?.value || "").trim()
+            : (qSelect?.value || "").trim();
+        const answer = input ? input.value.trim() : "";
+
+        if (!question) { errEl.textContent = "Please choose or write a security question."; return; }
+        if (!answer)   { errEl.textContent = "Please provide an answer."; return; }
+
+        saveBtn.textContent = "Saving…"; saveBtn.disabled = true;
+        try {
+            const res  = await fetch(WORKER_URL + "/auth/updatesecurityquestion", {
+                method: "POST", headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token: _token, securityQuestion: question, securityAnswer: answer }),
+            });
+            const data = await res.json().catch(() => ({}));
+            if (data.ok) {
+                _securityQuestionOnFile = true;
+                input.value = "";
+                const form = document.getElementById("acctEmailForm");
+                if (form) form.style.display = "none";
+                _showSyncToast("Security question saved.");
+                renderSettingsAccountPage();
+            } else {
+                errEl.textContent = data.error || "Could not save security question.";
+            }
+        } catch {
+            errEl.textContent = "Network error. Try again.";
+        } finally {
+            saveBtn.textContent = "Save"; saveBtn.disabled = false;
+        }
+    }
 
     // ── SVG eye icons for password toggle (Google-style) ────────────────────
     const _eyeOpenSVG   = `<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
@@ -789,6 +1145,8 @@ ${_buildChangePasswordHTML()}
                 _role = resp.role;
                 localStorage.setItem(LS_ROLE, _role);
             }
+            // Update email-on-file flag
+            if (resp.hasSecurityQuestion !== undefined) _securityQuestionOnFile = resp.hasSecurityQuestion;
 
             const d = resp.data;
             if (d.settings)  _origSetItem("whd_settings",     JSON.stringify(d.settings));

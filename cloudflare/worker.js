@@ -87,13 +87,20 @@ function isValidEmail(email) {
     return /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(String(email || "").trim());
 }
 
+// Normalize a security answer for comparison: lowercase + trim + collapse whitespace.
+function normalizeAnswer(a) {
+    return String(a || "").trim().toLowerCase().replace(/\s+/g, " ");
+}
+
 async function handleSignup(request, env) {
-    const { username, password, email } = await request.json().catch(() => ({}));
+    const { username, password, securityQuestion, securityAnswer } = await request.json().catch(() => ({}));
     if (!username || !password) return json({ ok: false, error: "Missing fields." }, 400);
     if (!/^[a-zA-Z0-9_]{3,24}$/.test(username)) return json({ ok: false, error: "Invalid username (3–24 chars, letters/numbers/_)." }, 400);
     if (password.length < 8) return json({ ok: false, error: "Password must be at least 8 characters." }, 400);
-    const trimmedEmail = String(email || "").trim();
-    if (trimmedEmail && !isValidEmail(trimmedEmail)) return json({ ok: false, error: "That email address doesn't look valid." }, 400);
+    const question = String(securityQuestion || "").trim();
+    const answer   = String(securityAnswer || "").trim();
+    if (!question || !answer) return json({ ok: false, error: "A security question and answer are required." }, 400);
+    if (question.length > 150) return json({ ok: false, error: "Security question is too long." }, 400);
 
     // Case-insensitive uniqueness: store by lowercase key
     const key = username.toLowerCase();
@@ -104,7 +111,8 @@ async function handleSignup(request, env) {
         username,           // preserve original casing for display
         key,                // lowercase lookup key
         hash: await hashPassword(password),
-        email: trimmedEmail || null,   // optional, used only for account recovery
+        securityQuestion: question,                       // shown back to the user during recovery
+        securityAnswerHash: await hashPassword(normalizeAnswer(answer)), // never stored in plaintext
         joinedAt: Date.now(),
         role,
         data: {}
@@ -115,32 +123,89 @@ async function handleSignup(request, env) {
     return json({ ok: true, token, joinedAt: user.joinedAt, role });
 }
 
-async function handleResetPassword(request, env) {
-    const { username, email, newPassword } = await request.json().catch(() => ({}));
-    if (!username || !email || !newPassword) return json({ ok: false, error: "Missing fields." }, 400);
-    if (newPassword.length < 8) return json({ ok: false, error: "Password must be at least 8 characters." }, 400);
+// ── Step 1: look up the account's security question ─────────────────────
+async function handleResetRequest(request, env) {
+    const { username } = await request.json().catch(() => ({}));
+    if (!username) return json({ ok: false, error: "Please enter your username." }, 400);
 
     const key = username.toLowerCase();
     const raw = await env.WHD_USERS.get(key);
     if (!raw) return json({ ok: false, error: "No account found for that username." });
 
     const user = JSON.parse(raw);
-    if (!user.email) return json({ ok: false, error: "This account has no recovery email on file. Ask an owner/admin for help." });
-    if (user.email.toLowerCase() !== String(email).trim().toLowerCase()) {
-        return json({ ok: false, error: "That email doesn't match our records." });
+    if (!user.securityQuestion || !user.securityAnswerHash) {
+        return json({ ok: false, error: "This account has no security question on file. Contact support." });
     }
+
+    return json({ ok: true, question: user.securityQuestion, displayName: user.username });
+}
+
+// ── Step 2: verify the security answer, issue a short-lived reset ticket ─
+async function handleResetVerify(request, env) {
+    const { username, answer } = await request.json().catch(() => ({}));
+    if (!username || !answer) return json({ ok: false, error: "Please answer the security question." }, 400);
+
+    const key = username.toLowerCase();
+    const raw = await env.WHD_USERS.get(key);
+    if (!raw) return json({ ok: false, error: "Account not found." });
+    const user = JSON.parse(raw);
+    if (!user.securityAnswerHash) return json({ ok: false, error: "This account has no security question on file." });
+
+    const correct = await verifyPassword(normalizeAnswer(answer), user.securityAnswerHash);
+    if (!correct) return json({ ok: false, error: "That answer doesn't match. Try again." });
+
+    // Issue a short-lived ticket (10 min) that authorizes setting a new password.
+    const ticket = makeToken();
+    await env.WHD_TOKENS.put("resetticket:" + ticket, key, { expirationTtl: 60 * 10 });
+    return json({ ok: true, ticket });
+}
+
+// ── Step 3: set new password using the verified reset ticket ─────────────
+async function handleResetConfirm(request, env) {
+    const { username, ticket, newPassword } = await request.json().catch(() => ({}));
+    if (!username || !ticket || !newPassword) return json({ ok: false, error: "Missing fields." }, 400);
+    if (newPassword.length < 8) return json({ ok: false, error: "Password must be at least 8 characters." }, 400);
+
+    const key = username.toLowerCase();
+    const ticketKey = await env.WHD_TOKENS.get("resetticket:" + ticket);
+    if (!ticketKey || ticketKey !== key) {
+        return json({ ok: false, error: "Reset session expired or invalid. Start over." });
+    }
+
+    const raw = await env.WHD_USERS.get(key);
+    if (!raw) return json({ ok: false, error: "Account not found." });
+    const user = JSON.parse(raw);
 
     user.hash = await hashPassword(newPassword);
     await env.WHD_USERS.put(key, JSON.stringify(user));
 
-    // Invalidate existing sessions isn't tracked per-user, so we just issue a
-    // fresh token for this reset; old tokens remain valid until they expire
-    // naturally (90 days) since WHD_TOKENS has no per-user reverse index.
+    // Consume the ticket so it can't be reused
+    await env.WHD_TOKENS.delete("resetticket:" + ticket);
+
+    // Issue a fresh session token
     const token = makeToken();
     await env.WHD_TOKENS.put(token, key, { expirationTtl: 60 * 60 * 24 * 90 });
     return json({ ok: true, token, joinedAt: user.joinedAt, role: user.role });
 }
 
+// ── Update the security question/answer for a logged-in user ─────────────
+async function handleUpdateSecurityQuestion(request, env) {
+    const { token, securityQuestion, securityAnswer } = await request.json().catch(() => ({}));
+    const user = await getUserFromToken(token, env);
+    if (!user) return json({ ok: false, error: "Invalid or expired session." }, 401);
+
+    const question = String(securityQuestion || "").trim();
+    const answer   = String(securityAnswer || "").trim();
+    if (!question || !answer) return json({ ok: false, error: "A security question and answer are required." });
+    if (question.length > 150) return json({ ok: false, error: "Security question is too long." });
+
+    user.securityQuestion = question;
+    user.securityAnswerHash = await hashPassword(normalizeAnswer(answer));
+    await env.WHD_USERS.put(user.key, JSON.stringify(user));
+    return json({ ok: true, question: user.securityQuestion });
+}
+
+// ── Update recovery email for a signed-in user ───────────────────────────
 async function handleLogin(request, env) {
     const { username, password } = await request.json().catch(() => ({}));
     if (!username || !password) return json({ ok: false, error: "Missing fields." }, 400);
@@ -186,7 +251,7 @@ async function handleLoad(request, env) {
         await env.WHD_USERS.put(user.key, JSON.stringify(user));
     }
 
-    return json({ ok: true, data: user.data || {}, joinedAt: user.joinedAt, role: user.role });
+    return json({ ok: true, data: user.data || {}, joinedAt: user.joinedAt, role: user.role, hasSecurityQuestion: !!user.securityQuestion });
 }
 
 async function handleDelete(request, env) {
@@ -225,7 +290,7 @@ async function handleUsers(request, env) {
                 // so calling it here for every user was silently erasing every
                 // admin promotion back to "user" on each list refresh.
                 const role = (u.username || "").toLowerCase() === OWNER_NAME ? "owner" : (u.role || "user");
-                return { username: u.username, role, joinedAt: u.joinedAt, hasEmail: !!u.email };
+                return { username: u.username, role, joinedAt: u.joinedAt, hasSecurityQuestion: !!u.securityQuestion };
             })
     );
     return json({
@@ -467,6 +532,10 @@ export default {
         if (url.pathname === "/auth/signup")         return handleSignup(request, env);
         if (url.pathname === "/auth/login")           return handleLogin(request, env);
         if (url.pathname === "/auth/resetpassword")    return handleResetPassword(request, env);
+        if (url.pathname === "/auth/resetrequest")     return handleResetRequest(request, env);
+        if (url.pathname === "/auth/resetverify")      return handleResetVerify(request, env);
+        if (url.pathname === "/auth/resetconfirm")     return handleResetConfirm(request, env);
+        if (url.pathname === "/auth/updatesecurityquestion") return handleUpdateSecurityQuestion(request, env);
         if (url.pathname === "/auth/save")            return handleSave(request, env);
         if (url.pathname === "/auth/load")            return handleLoad(request, env);
         if (url.pathname === "/auth/delete")          return handleDelete(request, env);
