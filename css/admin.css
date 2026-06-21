@@ -530,7 +530,7 @@
     background:var(--accent-glow);
 }
 #adminHeader h2{margin:0;font-size:15px;font-weight:700;letter-spacing:.12em;color:var(--accent);text-transform:uppercase;}
-#adminCloseBtn{background:none;border:none;color:rgba(255,255,255,0.4);font-size:20px;cursor:pointer;padding:0 4px;transition:color .15s;}
+#adminCloseBtn{background:none;border:none;color:rgba(255,255,255,0.4); position:relative;left: 10%;font-size:20px;cursor:pointer;padding:0 4px;transition:color .15s;}
 #adminCloseBtn:hover{color:#fff;}
 
 #adminTabs{
