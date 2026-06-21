@@ -130,24 +130,22 @@
     font-weight: 700;
     letter-spacing: 3px;
     text-transform: uppercase;
-    color: var(--accent);
-    background: var(--accent-glow);
-    border: 1px solid var(--accent);
+    color: var(--accent) !important;
+    background: transparent;
+    border: 1px solid var(--accent-dim) !important;
     border-radius: 8px;
     cursor: pointer;
-    transition: box-shadow 0.25s ease, transform 0.2s ease, background 0.2s ease;
+    box-shadow: 0 0 12px var(--accent-dim), 0 4px 16px rgba(0,0,0,0.4) !important;
+    transition: box-shadow 0.25s ease, transform 0.2s ease, background 0.2s ease, border-color 0.2s ease !important;
 }
 #storyFinishedExitBtn:hover {
-    background: var(--accent);
+    background: var(--accent) !important;
     transform: translateY(-2px);
-    color: #fff;
+    color: #000000 !important;
     box-shadow:
         0 0 30px var(--accent),
         0 0 70px var(--accent-dim),
-        0 10px 32px rgba(0,0,0,0.6);
-}
-#storyFinishedExitBtn:active {
-    transform: translateY(0);
+        0 10px 32px rgba(0,0,0,0.6) !important;
 }
 
 #storyFinishedButtons {
@@ -175,7 +173,7 @@
 #storyFinishedPlayAgainBtn:hover {
     background: var(--accent);
     transform: translateY(-2px);
-    color: #fff;
+    color: #000000;
     box-shadow:
         0 0 30px var(--accent),
         0 0 70px var(--accent-dim),
