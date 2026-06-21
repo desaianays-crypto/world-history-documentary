@@ -450,3 +450,5 @@
 }
 #storyBookmarkBtn.bm-active:hover {
     background: white;
+    color: var(--accent);
+}
