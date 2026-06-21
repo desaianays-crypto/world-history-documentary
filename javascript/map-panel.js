@@ -404,8 +404,6 @@ window.addEventListener("resize", () => {
 });
 
 function clampPanelToScreen() {
-    // BUG FIX: always clear right/bottom so the browser doesn't use them
-    // as a competing positioning axis when left/top are also set.
     panel.style.right = "auto";
     panel.style.bottom = "auto";
 
@@ -431,6 +429,10 @@ function clampPanelToScreen() {
     panel.style.width = width + "px";
     panel.style.height = height + "px";
 }
+const seasonsBar = document.getElementById("seasons");
+let isDragging = false;
+let startX;
+let scrollLeft;
 
 window.onload = () => {
     navStack = [];
@@ -444,46 +446,9 @@ window.onload = () => {
     applySettings(s);
     syncSettingsUI(s);
     initCustomSelects();
+    wolfCode(seasonsBar);
 };
 
-const seasonsBar = document.getElementById("seasons");
-let isDragging = false;
-let startX;
-let scrollLeft;
-
-//Wolf Code
-seasonsBar.addEventListener("mousedown", (e) => {
-    isDragging = true;
-
-    seasonsBar.classList.add("dragging");
-    startX = e.pageX - seasonsBar.offsetLeft;
-    scrollLeft = seasonsBar.scrollLeft;
-});
-seasonsBar.addEventListener("mouseleave", () => {
-    isDragging = false;
-    seasonsBar.classList.remove("dragging");
-});
-seasonsBar.addEventListener("mouseup", () => {
-    isDragging = false;
-    seasonsBar.classList.remove("dragging");
-});
-seasonsBar.addEventListener("mousemove", (e) => {
-    if (!isDragging) return;
-
-    e.preventDefault();
-    const x = e.pageX - seasonsBar.offsetLeft;
-    const walk = (x - startX) * 1.5;
-
-    seasonsBar.scrollLeft = scrollLeft - walk;
-});
-seasonsBar.addEventListener("wheel", (e) => {
-    const isVerticalScroll =
-        Math.abs(e.deltaY) > Math.abs(e.deltaX);
-    if (isVerticalScroll) {
-        e.preventDefault();
-        seasonsBar.scrollLeft += e.deltaY;
-    }
-}, { passive: false });
 
 const PLAYLIST_STORAGE_KEY = "whd_playlists_v1";
 

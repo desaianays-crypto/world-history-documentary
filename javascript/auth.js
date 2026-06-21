@@ -501,7 +501,11 @@
         if (!document.getElementById("authModal")) return;
         const loggedInRow = document.getElementById("authLoggedInRow");
         const guestRow    = document.getElementById("authGuestRow");
-        const tabs        = document.getElementById("authTabs");
+        const tabs = document.getElementById("authTabs");
+        let isDragging = false;
+        let startX;
+        let scrollLeft;
+        wolfCode(tabs)
         const forms       = document.querySelectorAll(".auth-form");
         const divider     = document.querySelector(".auth-divider");
 
@@ -1561,3 +1565,39 @@ ${_buildEmailSectionHTML()}
 
     window.renderSettingsAccountPage = renderSettingsAccountPage;
 })();
+
+//Wolf Code
+function wolfCode(element,){
+element.addEventListener("mousedown", (e) => {
+    isDragging = true;
+
+    element.classList.add("dragging");
+    startX = e.pageX - element.offsetLeft;
+    scrollLeft = element.scrollLeft;
+});
+element.addEventListener("mouseleave", () => {
+    isDragging = false;
+    element.classList.remove("dragging");
+});
+element.addEventListener("mouseup", () => {
+    isDragging = false;
+    element.classList.remove("dragging");
+});
+element.addEventListener("mousemove", (e) => {
+    if (!isDragging) return;
+
+    e.preventDefault();
+    const x = e.pageX - element.offsetLeft;
+    const walk = (x - startX) * 1.5;
+
+    element.scrollLeft = scrollLeft - walk;
+});
+element.addEventListener("wheel", (e) => {
+    const isVerticalScroll =
+        Math.abs(e.deltaY) > Math.abs(e.deltaX);
+    if (isVerticalScroll) {
+        e.preventDefault();
+        element.scrollLeft += e.deltaY;
+    }
+}, { passive: false });
+}
