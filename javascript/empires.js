@@ -1,70 +1,26 @@
-/**
- * EMPIRE_GEOJSON_MAP — Fact-checked empire extent database
- *
- * Format: sceneId: { year: <dataset year>, names: [<polity names in GeoJSON>] }
- *
- * Source dataset: aourednik/historical-basemaps (GitHub)
- * Available years: 100, 200, 300, 400, 500, 600, 700, 800, 900, 1000, 1100,
- *                  1200, 1279, 1300, 1400, 1500, 1600, 1700, 1800, 1900
- * No BCE snapshots exist — earliest proxy for pre-100 CE scenes is year 100.
- *
- * Fact-check notes are included as comments above each group.
- * Harappan Civilisation, Spanish Empire peak, and other commonly-inaccurate
- * mappings have been corrected with explicit justification.
- */
-
+// EMPIRE_GEOJSON_MAP — sceneId -> { year, names } proxy mapping into the aourednik/historical-basemaps dataset
 // eslint-disable-next-line no-unused-vars
 const EMPIRE_GEOJSON_MAP = {
 
-    // ═══════════════════════════════════════════════════════════════════════
-    // INDIA
-    // ═══════════════════════════════════════════════════════════════════════
-
-    // ── Indus / Harappan Civilisation (c.3300–1300 BCE) ───────────────────
-    // CORRECTION: Previously mapped to "Magadha" (northeast India), which is
-    // completely wrong. The Harappan / Indus Valley Civilisation was centred
-    // on the Indus River basin — modern Pakistan (Sindh, Punjab) and northwest
-    // India (Gujarat, Rajasthan). The dataset has no BCE snapshots and has no
-    // "Harappan" polygon. The best available proxy is year 200 "Magadha" for
-    // the general Indian subcontinent shape, but this is geographically
-    // misleading. We use it with a note — the overlay will be northeast-biased.
-    // A future improvement would be custom GeoJSON for the Indus basin.
     indus_early:                { year: 200, names: ["Magadha"] },
     indus_mature:               { year: 200, names: ["Magadha"] },
     indus_decline:              { year: 200, names: ["Magadha"] },
 
-    // ── Vedic Period (c.1500–500 BCE) ────────────────────────────────────
-    // Vedic culture centred on the Indo-Gangetic plain. Year 200 Magadha
-    // (Gangetic heartland) is the closest available proxy.
     vedic_early:                { year: 200, names: ["Magadha"] },
     vedic_late:                 { year: 200, names: ["Magadha"] },
 
-    // ── Mahajanapadas (c.600–321 BCE) ─────────────────────────────────────
-    // 16 kingdoms across the Gangetic plain and beyond. Magadha was the
-    // dominant and eventually surviving one. Year 200 proxy.
     mahajanapadas:              { year: 200, names: ["Magadha", "Kalinga"] },
 
-    // ── Maurya Empire ─────────────────────────────────────────────────────
-    // Founded 321 BCE by Chandragupta. Peak under Ashoka (268–232 BCE)
-    // encompassed almost the entire subcontinent except the far south.
-    // Dataset has no BCE data. Year 200 CE "Magadha" is the earliest proxy
-    // for the northeastern heartland.
     maurya_founding:            { year: 200, names: ["Magadha"] },
     // Ashoka's empire: combined Magadha + Kalinga (conquered 261 BCE) +
     // Chola (southern ally). Best available multi-feature proxy.
     ashoka:                     { year: 200, names: ["Magadha", "Kalinga", "Chola"] },
     maurya_decline:             { year: 200, names: ["Magadha"] },
 
-    // ── Gupta Empire (319–550 CE) ─────────────────────────────────────────
-    // FACT-CHECKED: Year 400 "Gupta Empire" is accurate for the golden age.
-    // Year 300 is used for the early rise phase.
     gupta_rise:                 { year: 300, names: ["Gupta Empire"] },
     gupta_gold:                 { year: 400, names: ["Gupta Empire"] },
     gupta_decline:              { year: 500, names: ["Gupta Empire"] },
 
-    // ── Chola Empire (c.850–1279 CE) ─────────────────────────────────────
-    // Peak c.1010–1070 under Rajendra I — dominated South India and raided
-    // Southeast Asia. Year 1100 "Cholas" is the correct snapshot.
     chola:                      { year: 1100, names: ["Cholas"] },
 
     // ── Vijayanagara Empire (1336–1646) ───────────────────────────────────
@@ -75,21 +31,11 @@ const EMPIRE_GEOJSON_MAP = {
     // Deccan sultanate, successor to Delhi in the south. Year 1500.
     bahmani:                    { year: 1500, names: ["Bahmani Kingdom"] },
 
-    // ── Delhi Sultanate (1206–1526) ───────────────────────────────────────
-    // FACT-CHECKED: Year 1279 for Mamluk, 1300 for Khilji (maximum extent
-    // under Alauddin who pushed to Tamil Nadu), 1300 for Tughlaq.
     delhi_sultanate_overview:   { year: 1300, names: ["Sultanate of Delhi"] },
     delhi_sultanate_mamluk:     { year: 1279, names: ["Sultanate of Delhi"] },
     delhi_sultanate_khilji:     { year: 1300, names: ["Sultanate of Delhi"] },
     delhi_sultanate_tuglaq:     { year: 1300, names: ["Sultanate of Delhi"] },
 
-    // ── Mughal Empire (1526–1857) ─────────────────────────────────────────
-    // FACT-CHECKED:
-    // Babur (1526–1530): seized Delhi & Agra from Ibrahim Lodi — tiny territory.
-    //   Year 1500 "Sultanate of Delhi" best represents what he captured.
-    // Akbar (1556–1605): year 1600 is exactly his reign — correct.
-    // Aurangzeb (1658–1707): maximum extent, almost entire subcontinent —
-    //   year 1700 has the largest Mughal polygon — correct.
     mughal:                     { year: 1700, names: ["Mughal Empire"] },
     babur:                      { year: 1500, names: ["Sultanate of Delhi"] },
     humayun:                    { year: 1500, names: ["Sultanate of Delhi"] },
@@ -98,9 +44,6 @@ const EMPIRE_GEOJSON_MAP = {
     shah_jahan:                 { year: 1700, names: ["Mughal Empire"] },
     aurangzeb:                  { year: 1700, names: ["Mughal Empire"] },
 
-    // ── Maratha Confederacy (1674–1818) ───────────────────────────────────
-    // FACT-CHECKED: Year 1800 "Maratha Confederacy" is accurate.
-    // Peshwa era was the widest (northern India to Bengal to Karnataka).
     maratha_c:                  { year: 1800, names: ["Maratha Confederacy"] },
     maratha_p:                  { year: 1800, names: ["Maratha Confederacy"] },
 
@@ -116,14 +59,6 @@ const EMPIRE_GEOJSON_MAP = {
     // Silk Road: Han China + Parthian Empire spanning Central Asia
     silk_road:                  { year: 100,  names: ["Han", "Parthian Empire"] },
 
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // CHINA
-    // ═══════════════════════════════════════════════════════════════════════
-
-    // ── Pre-Han dynasties (all before 100 CE — earliest dataset year) ──────
-    // Xia, Shang, Zhou, Warring States, Qin all predate the dataset.
-    // Year 100 CE "Han" covers the same core Chinese territory.
     china_xia:                  { year: 100, names: ["Han"] },
     china_shang:                { year: 100, names: ["Han"] },
     china_zhou:                 { year: 100, names: ["Han"] },
@@ -137,9 +72,6 @@ const EMPIRE_GEOJSON_MAP = {
     china_han:                  { year: 100, names: ["Han"] },
     china_buddhism:             { year: 100, names: ["Han"] },
 
-    // ── Three Kingdoms (220–280 CE) ───────────────────────────────────────
-    // FACT-CHECKED: Year 300 — dataset has "Wei", "Shu Han", "Wu" at year 300,
-    // which is actually the Jin reunification period. Show Jin as successor.
     china_three_kingdoms:       { year: 400, names: ["Jin"] },
 
     // ── Sui (581–618) ─────────────────────────────────────────────────────
@@ -180,15 +112,6 @@ const EMPIRE_GEOJSON_MAP = {
     cultural_revolution:        { year: 1900, names: ["Manchu Empire"] },
     reform_opening:             { year: 1900, names: ["Manchu Empire"] },
 
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // MONGOLS
-    // ═══════════════════════════════════════════════════════════════════════
-
-    // FACT-CHECKED:
-    // Genghis Khan died 1227; by year 1200 the empire was expanding rapidly.
-    // Peak 1279 — four khanates shown together: Great Khanate (China/Mongolia),
-    // Chagatai (Central Asia), Ilkhanate (Persia/Iraq), Golden Horde (Russia).
     mongol_genghis:             { year: 1200, names: ["Mongol Empire"] },
     mongol_conquest:            { year: 1200, names: ["Mongol Empire"] },
     mongol_large:               { year: 1279, names: ["Great Khanate", "Chagatai Khanate", "Ilkhanate", "Khanate of the Golden Horde"] },
@@ -197,17 +120,6 @@ const EMPIRE_GEOJSON_MAP = {
     mongol_china:               { year: 1279, names: ["Great Khanate"] },
     mongol_invasions_india:     { year: 1279, names: ["Great Khanate", "Chagatai Khanate"] },
 
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // IRAN / PERSIA
-    // ═══════════════════════════════════════════════════════════════════════
-
-    // FACT-CHECKED:
-    // Achaemenid / Medes / Elamite: all BCE — dataset starts at 100 CE.
-    //   Year 200 "Parthian Empire" covers the Iranian plateau core.
-    // Sasanian: year 400 "Persia" is the correct Sasanian-era label in dataset.
-    // Safavid peak was c.1600–1650 — year 1600 is correct.
-    // Qajar: year 1800 "Persia" is correct.
     iran_3:                     { year: 200,  names: ["Parthian Empire"] },
     iran_4:                     { year: 200,  names: ["Parthian Empire"] },
     iran_5:                     { year: 200,  names: ["Parthian Empire"] },
@@ -227,23 +139,6 @@ const EMPIRE_GEOJSON_MAP = {
     iran_19:                    { year: 1900, names: ["Persia"] },
     iran_20:                    { year: 1900, names: ["Persia"] },
 
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // JAPAN
-    // ═══════════════════════════════════════════════════════════════════════
-
-    // FACT-CHECKED:
-    // Jōmon (14000–300 BCE) and Yayoi (300 BCE–300 CE) predate dataset.
-    //   Year 800 "Japan" is the earliest proxy — Nara/early Heian era.
-    // Kofun (300–538): year 400 — no specific "Yamato" yet; "Jin" covers east Asia.
-    // Asuka (538–710): year 600 "Yamato" — correct polity name.
-    // Nara (710–794): year 800 "Japan" — correct.
-    // Heian (794–1185): year 1000 "Imperial Japan (Fujiwara)" — exact match.
-    // Kamakura (1185–1333): year 1279 "Shogun Japan (Kamakura)" — exact.
-    // Muromachi (1336–1573): dataset still labels this Kamakura through 1400.
-    // Sengoku (1467–1615): year 1500 "Japan" (fragmented).
-    // Edo (1603–1868): year 1700 "Tokugawa Shogunate" — exact.
-    // Meiji (1868+): year 1900 "Imperial Japan" — exact.
     jomon_period:               { year: 800,  names: ["Japan"] },
     yayoi_period:               { year: 800,  names: ["Japan"] },
     kofun_period:               { year: 400,  names: ["Jin"] },
@@ -260,11 +155,6 @@ const EMPIRE_GEOJSON_MAP = {
     postwar_japan:              { year: 1900, names: ["Imperial Japan"] },
     modern_japan:               { year: 1900, names: ["Imperial Japan"] },
 
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // SOUTHEAST ASIA — KHMER
-    // ═══════════════════════════════════════════════════════════════════════
-
     // FACT-CHECKED: Khmer Empire peak c.1000–1200 CE. Dataset has "Khmer Empire"
     // at years 1000–1300. Correct.
     khmer_1:                    { year: 1000, names: ["Khmer Empire"] },
@@ -273,16 +163,6 @@ const EMPIRE_GEOJSON_MAP = {
     khmer_4:                    { year: 1279, names: ["Khmer Empire"] },
     khmer_5:                    { year: 1300, names: ["Khmer Empire"] },
 
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // ISLAMIC CALIPHATES
-    // ═══════════════════════════════════════════════════════════════════════
-
-    // FACT-CHECKED:
-    // Umayyad peak: year 700 — correct (peak ~715 CE).
-    // Abbasid: year 800 "Abbasid Caliphate" — correct (peak ~850 CE).
-    // Fatimid (969–1171): year 1000 "Fatimid Caliphate" — correct.
-    // Andalus / Córdoba (756–1031): year 1000 "Caliphate of Córdoba" — correct.
     islam_expansion:            { year: 700,  names: ["Umayyad Caliphate"] },
     islam_unified:              { year: 700,  names: ["Umayyad Caliphate"] },
     islam_abbasid:              { year: 800,  names: ["Abbasid Caliphate"] },
@@ -293,14 +173,6 @@ const EMPIRE_GEOJSON_MAP = {
     islam_ottoman_peak:         { year: 1600, names: ["Ottoman Empire"] },
     islam_decline:              { year: 1800, names: ["Ottoman Empire"] },
 
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // OTTOMAN EMPIRE
-    // ═══════════════════════════════════════════════════════════════════════
-
-    // FACT-CHECKED: Ottoman peak c.1566 (death of Suleiman the Magnificent).
-    // Year 1600 shows the empire near its widest. Year 1700 shows it after
-    // some losses (Battle of Vienna 1683). Year 1800 shows significant retreat.
     ottoman_1:                  { year: 1400, names: ["Ottoman Empire"] },
     ottoman_2:                  { year: 1500, names: ["Ottoman Empire"] },
     ottoman_3:                  { year: 1600, names: ["Ottoman Empire"] },
@@ -308,20 +180,6 @@ const EMPIRE_GEOJSON_MAP = {
     ottoman_5:                  { year: 1800, names: ["Ottoman Empire"] },
     ottoman_6:                  { year: 1900, names: ["Ottoman Empire"] },
 
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // SPAIN
-    // ═══════════════════════════════════════════════════════════════════════
-
-    // FACT-CHECKED:
-    // Spain_empire_peak: The Spanish Empire's peak was under Philip II
-    // (c.1556–1598), encompassing Iberia, Southern Italy, Sicily, Sardinia,
-    // the Spanish Netherlands, and vast Americas + Philippines.
-    // CORRECTION: Year 1600 is correct for the peak. However the previous
-    // mapping only used a few names. The full Habsburg extent needs:
-    // Spain, Spanish Netherlands, Viceroyalty of New Spain (Mexico/Central
-    // America), Peru, and other American territories — but the dataset only
-    // has limited labels for overseas territories.
     spain_rome:                 { year: 100,  names: ["Roman Empire"] },
     spain_punic_wars:           { year: 100,  names: ["Roman Empire"] },
     spain_iberians:             { year: 100,  names: ["Roman Empire"] },
@@ -338,11 +196,6 @@ const EMPIRE_GEOJSON_MAP = {
     spain_granada:              { year: 1400, names: ["Granada", "Castile", "Portugal"] },
     spain_columbus:             { year: 1500, names: ["Castille", "Portugal"] },
 
-    // Spanish Empire peak (c.1580–1598): Philip II ruled Spain, Portugal
-    // (personal union 1580–1640), Spanish Netherlands, Italian states, and
-    // the Americas. This is the broadest extent.
-    // FACT-CHECK: Year 1600 is correct. Names include Spain (Iberia),
-    // Habsburg Netherlands, and key American viceroyalties available in dataset.
     spain_empire_peak:          {
         year: 1600,
         names: [
@@ -375,22 +228,12 @@ const EMPIRE_GEOJSON_MAP = {
     spain_ww2:                  { year: 1900, names: ["Spain"] },
     spain_democracy:            { year: 1900, names: ["Spain"] },
 
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // GREECE
-    // ═══════════════════════════════════════════════════════════════════════
-
     // Classical/Hellenistic Greece all predates dataset (BCE).
     // Year 100 Roman Empire covers the Aegean world after Roman conquest.
     greece_empires:             { year: 100,  names: ["Roman Empire", "Parthian Empire"] },
     greece_myth:                { year: 100,  names: ["Roman Empire"] },
     greece_war:                 { year: 100,  names: ["Roman Empire"] },
     greece_culture:             { year: 100,  names: ["Roman Empire"] },
-
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // ITALY / ROME
-    // ═══════════════════════════════════════════════════════════════════════
 
     // FACT-CHECKED: Year 100 "Roman Empire" for Republican and Imperial Rome.
     // Year 400 shows the East/West split (395 CE).
@@ -419,24 +262,9 @@ const EMPIRE_GEOJSON_MAP = {
     italy_republic_modern:      { year: 1900, names: ["Italy"] },
     italy_miracle:              { year: 1900, names: ["Italy"] },
 
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // ROMAN GAUL / CAESAR
-    // ═══════════════════════════════════════════════════════════════════════
-
     roman_gaul:                 { year: 100,  names: ["Roman Empire"] },
     caesar_conquest:            { year: 100,  names: ["Roman Empire"] },
 
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // UNITED KINGDOM
-    // ═══════════════════════════════════════════════════════════════════════
-
-    // FACT-CHECKED:
-    // Roman Britain (43–410 CE): year 100 Roman Empire — correct.
-    // Hadrian's Wall (122 CE): year 100 Roman Empire — correct.
-    // Tudor (1485–1603): year 1500 "England" — correct (pre-union with Scotland).
-    // British Empire peak (c.1920): year 1900 snapshot is closest — correct.
     uk_roman_invasion:          { year: 100,  names: ["Roman Empire"] },
     uk_hadrians_wall:           { year: 100,  names: ["Roman Empire"] },
     uk_celts:                   { year: 100,  names: ["Roman Empire"] },
@@ -481,22 +309,12 @@ const EMPIRE_GEOJSON_MAP = {
     uk_ww2:                     { year: 1900, names: ["United Kingdom of Great Britain and Ireland"] },
     uk_postwar:                 { year: 1900, names: ["United Kingdom of Great Britain and Ireland"] },
 
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // EUROPE — FRANKS / CAROLINGIANS
-    // ═══════════════════════════════════════════════════════════════════════
-
     // FACT-CHECKED: Merovingian Frankish Kingdom: year 600 correct.
     // Carolingian peak (Charlemagne): year 800 correct.
     frankish_kingdom:           { year: 600,  names: ["Frankish Kingdom"] },
     germany_frankish_rise:      { year: 700,  names: ["Frankish Kingdom"] },
     carolingian_empire:         { year: 800,  names: ["Carolingian Empire"] },
     germany_charlemagne:        { year: 800,  names: ["Carolingian Empire"] },
-
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // EUROPE — HOLY ROMAN EMPIRE
-    // ═══════════════════════════════════════════════════════════════════════
 
     // FACT-CHECKED: HRE existed 962–1806. Various years from 1000–1500 shown.
     germany_city_growth:        { year: 1000, names: ["Holy Roman Empire"] },
@@ -508,11 +326,6 @@ const EMPIRE_GEOJSON_MAP = {
     austria_6:                  { year: 1200, names: ["Holy Roman Empire"] },
     austria_7:                  { year: 1400, names: ["Holy Roman Empire"] },
     austria_8:                  { year: 1500, names: ["Holy Roman Empire"] },
-
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // EUROPE — GERMANY
-    // ═══════════════════════════════════════════════════════════════════════
 
     germany_early_settlers:     { year: 100,  names: ["Roman Empire"] },
     germany_tribal_unification_attempts: { year: 100, names: ["Roman Empire"] },
@@ -528,15 +341,6 @@ const EMPIRE_GEOJSON_MAP = {
     germany_post_ww2_rebuild:   { year: 1900, names: ["Germany"] },
     germany_modern_power:       { year: 1900, names: ["Germany"] },
 
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // EUROPE — RUSSIA
-    // ═══════════════════════════════════════════════════════════════════════
-
-    // FACT-CHECKED:
-    // Kievan Rus: year 900/1000 "Kyivan Rus" — correct spelling in dataset.
-    // Peter the Great (1682–1725): proclaimed Russian Empire 1721.
-    //   Year 1800 "Russian Empire" is correct (empire well-established).
     russia_1:                   { year: 600,  names: ["Slavs"] },
     russia_2:                   { year: 900,  names: ["Kyivan Rus"] },
     russia_3:                   { year: 1000, names: ["Kyivan Rus"] },
@@ -561,11 +365,6 @@ const EMPIRE_GEOJSON_MAP = {
     russia_22:                  { year: 1900, names: ["Russian Empire"] },
     russia_23:                  { year: 1900, names: ["Russian Empire"] },
 
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // EUROPE — AUSTRIA
-    // ═══════════════════════════════════════════════════════════════════════
-
     austria_early:              { year: 100,  names: ["Roman Empire"] },
     austria_2:                  { year: 100,  names: ["Roman Empire"] },
     austria_3:                  { year: 400,  names: ["Eastern Roman Empire", "Western Roman Empire"] },
@@ -580,11 +379,6 @@ const EMPIRE_GEOJSON_MAP = {
     austria_17:                 { year: 1900, names: ["Austria Hungary"] },
     austria_18:                 { year: 1900, names: ["Austria Hungary"] },
 
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // EUROPE — FRANCE
-    // ═══════════════════════════════════════════════════════════════════════
-
     gaul_tribes:                { year: 100,  names: ["Roman Empire"] },
     feudal_france:              { year: 1000, names: ["Kingdom of France"] },
     crusades_france:            { year: 1200, names: ["Kingdom of France"] },
@@ -595,16 +389,6 @@ const EMPIRE_GEOJSON_MAP = {
     ww2_france:                 { year: 1900, names: ["France"] },
     modern_france:              { year: 1900, names: ["France"] },
 
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // AFRICA — MALI / GHANA / SONGHAI
-    // ═══════════════════════════════════════════════════════════════════════
-
-    // FACT-CHECKED:
-    // Ghana Empire peak c.1000–1076 — year 1000 "Ghana" correct.
-    // Mali Empire founded 1235 — year 1279 is first available snapshot.
-    // Mansa Musa (1312–1337) — year 1300 correct.
-    // Songhai peak (Askia Muhammad, 1493–1528) — year 1500 correct.
     mali_ghana_empire:          { year: 1000, names: ["Ghana"] },
     mali_sundiata:              { year: 1279, names: ["Mali"] },
     mali_empire_trade:          { year: 1279, names: ["Mali"] },
@@ -625,16 +409,6 @@ const EMPIRE_GEOJSON_MAP = {
     mali_2012_crisis:           { year: 1900, names: ["France"] },
     mali_modern_instability:    { year: 1900, names: ["France"] },
 
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // AFRICA — EGYPT
-    // ═══════════════════════════════════════════════════════════════════════
-
-    // FACT-CHECKED:
-    // Ancient Egypt (pre-100 CE): no dataset coverage — no entry for those scenes.
-    // Roman Egypt: year 100 Roman Empire — correct.
-    // Fatimid Caliphate (969–1171): year 1000 "Fatimid Caliphate" — correct.
-    // Mamluk Sultanate (1250–1517): year 1279 "Mamluke Sultanate" — correct.
     egy_11:                     { year: 100,  names: ["Roman Empire"] },
     egy_12:                     { year: 400,  names: ["Eastern Roman Empire"] },
     egy_13:                     { year: 700,  names: ["Umayyad Caliphate"] },
@@ -645,11 +419,6 @@ const EMPIRE_GEOJSON_MAP = {
     egy_18:                     { year: 1800, names: ["France"] },
     egy_19:                     { year: 1800, names: ["Ottoman Empire"] },
     egy_20:                     { year: 1900, names: ["Egypt"] },
-
-
-    // ═══════════════════════════════════════════════════════════════════════
-    // AFRICA — ETHIOPIA
-    // ═══════════════════════════════════════════════════════════════════════
 
     // FACT-CHECKED:
     // Aksum peak c.350 CE (Ezana's reign) — year 400 "Axum" — correct.

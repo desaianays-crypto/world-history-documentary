@@ -1,17 +1,3 @@
-// World History Documentary — shared admin data + auth Worker
-//
-// KV namespaces needed (bind in Cloudflare dashboard):
-//   WHD_USERS   — stores user records keyed by lowercase username
-//   WHD_TOKENS  — stores session tokens (TTL 90 days)
-//   ADMIN_KV    — stores shared admin content edits
-//
-// Secrets needed:
-//   ADMIN_PASSCODE — passcode for the admin panel
-//
-// Roles:
-//   owner  — hardcoded to username "anay". Can promote/demote admins.
-//   admin  — granted via passcode OR promoted by owner. Can edit content.
-//   user   — default for everyone else.
 
 const KV_KEY     = "admin_data";
 const ANNOUNCEMENT_KEY = "announcement";
@@ -283,12 +269,6 @@ async function handleUsers(request, env) {
                 if (!raw) return null;
                 const u = JSON.parse(raw);
                 if (!u.username) return null; // skip malformed records
-                // Owner is always derived from the hardcoded username (safety net
-                // in case a KV record was ever edited/corrupted). Everyone else
-                // keeps whatever role is actually stored — assignRole() only
-                // distinguishes owner vs. user and has no concept of "admin",
-                // so calling it here for every user was silently erasing every
-                // admin promotion back to "user" on each list refresh.
                 const role = (u.username || "").toLowerCase() === OWNER_NAME ? "owner" : (u.role || "user");
                 return { username: u.username, role, joinedAt: u.joinedAt, hasSecurityQuestion: !!u.securityQuestion };
             })
@@ -359,11 +339,6 @@ async function handleChangePassword(request, env) {
     return json({ ok: true });
 }
 
-// ── Maintenance mode ───────────────────────────────────────────────────────
-// Owner can toggle maintenance mode on/off. Stored as a simple KV flag.
-// GET  /auth/maintenance/status  — public, returns { maintenance: bool, message: string }
-// POST /auth/maintenance          — owner only, body: { token, on: bool, message?: string }
-
 async function handleMaintenanceStatus(request, env) {
     const raw = await env.WHD_USERS.get("__maintenance__");
     if (!raw) return json({ maintenance: false, message: "" });
@@ -383,10 +358,6 @@ async function handleMaintenance(request, env) {
     }));
     return json({ ok: true, maintenance: !!on });
 }
-
-// ── Update Log ───────────────────────────────────────────────────────────────
-// POST /auth/updatelog  body: { token, action: "list"|"save"|"delete", ...fields }
-// Entries stored as a JSON array in KV under "__updatelog__"
 
 async function handleUpdateLog(request, env) {
     const body = await request.json().catch(() => ({}));
@@ -431,6 +402,69 @@ async function handleUpdateLog(request, env) {
         entries = entries.filter(e => e.id !== id);
         if (entries.length === before) return json({ ok: false, error: "Entry not found." }, 404);
         await env.WHD_USERS.put("__updatelog__", JSON.stringify(entries));
+        return json({ ok: true });
+    }
+
+    return json({ ok: false, error: "Unknown action." }, 400);
+}
+
+async function handleBugReports(request, env) {
+    const body = await request.json().catch(() => ({}));
+    const { token, action } = body;
+
+    const raw = await env.WHD_USERS.get("__bugreports__");
+    let reports = raw ? JSON.parse(raw) : [];
+
+    if (action === "list") {
+        return json({ ok: true, reports });
+    }
+
+    if (action === "add") {
+        const caller = token ? await getUserFromToken(token, env) : null;
+        const title = String(body.title || "").trim().slice(0, 120);
+        if (!title) return json({ ok: false, error: "Title is required." }, 400);
+        const validSev = ["low", "medium", "high", "critical"];
+        const report = {
+            id:        "bug_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2, 7),
+            title,
+            category:  String(body.category || "other").slice(0, 30),
+            severity:  validSev.includes(body.severity) ? body.severity : "high",
+            details:   String(body.details || "").trim().slice(0, 2000),
+            url:       String(body.url || "").trim().slice(0, 300),
+            reporter:  caller ? caller.username : "anonymous",
+            ts:        Date.now(),
+            resolved:  false,
+        };
+        reports.unshift(report);
+        reports = reports.slice(0, 500); // cap stored history
+        await env.WHD_USERS.put("__bugreports__", JSON.stringify(reports));
+        return json({ ok: true, report });
+    }
+
+    // Everything past this point mutates/removes existing reports — admin only.
+    const caller = await getUserFromToken(token, env);
+    if (!caller) return json({ ok: false, error: "Not authenticated." }, 401);
+    if (!isAdminOrAbove(caller)) return json({ ok: false, error: "Admin access required." }, 403);
+
+    if (action === "resolve" || action === "reopen") {
+        const r = reports.find(x => x.id === body.id);
+        if (!r) return json({ ok: false, error: "Report not found." }, 404);
+        r.resolved   = action === "resolve";
+        r.resolvedAt = r.resolved ? Date.now() : null;
+        await env.WHD_USERS.put("__bugreports__", JSON.stringify(reports));
+        return json({ ok: true, report: r });
+    }
+
+    if (action === "delete") {
+        const before = reports.length;
+        reports = reports.filter(x => x.id !== body.id);
+        if (reports.length === before) return json({ ok: false, error: "Report not found." }, 404);
+        await env.WHD_USERS.put("__bugreports__", JSON.stringify(reports));
+        return json({ ok: true });
+    }
+
+    if (action === "clear") {
+        await env.WHD_USERS.put("__bugreports__", JSON.stringify([]));
         return json({ ok: true });
     }
 
@@ -548,10 +582,8 @@ export default {
         if (url.pathname === "/auth/maintenance")     return handleMaintenance(request, env);
         if (url.pathname === "/auth/maintenance/status") return handleMaintenanceStatus(request, env);
         if (url.pathname === "/auth/updatelog")       return handleUpdateLog(request, env);
+        if (url.pathname === "/auth/bugs")            return handleBugReports(request, env);
 
-        // One-time fix: force-assign owner role to the OWNER_NAME account.
-        // Call once from the browser: GET /auth/fixowner
-        // Safe to call repeatedly — only affects the owner account.
         if (url.pathname === "/auth/fixowner" && request.method === "GET") {
             const raw = await env.WHD_USERS.get(OWNER_NAME);
             if (!raw) return json({ ok: false, error: "Owner account not found. Sign up first." }, 404);

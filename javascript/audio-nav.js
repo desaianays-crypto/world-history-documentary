@@ -264,7 +264,6 @@ function setUIState(state) {
         setMapLock(false);
     }
 
-
         if (!isStory && !isScene) {
         hideTimelineScrubber();
     }
@@ -277,7 +276,6 @@ function setUIState(state) {
 function showSeasonsBar() {
     document.getElementById("seasons").style.display = "flex";
 }
-
 
 function stopSFX() {
     if (currentSFX) {
@@ -379,7 +377,6 @@ function goRandomScene() {
     }
 
     const randomScene = pool[Math.floor(Math.random() * pool.length)];
-
 
     showScene(randomScene);
     setUIState("scene");

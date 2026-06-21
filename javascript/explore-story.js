@@ -13,9 +13,6 @@ function goToBookmark(sceneId) {
     closeBookmarks();
     showScene(scene);
 }
-// ═══════════════════════════════════════════════════════════════
-// EXPLORE TAB — playlist picker + add-to-playlist buttons
-// ═══════════════════════════════════════════════════════════════
 
 // Populate #explorePlTarget whenever the explore tab is opened.
 // Wraps the already-defined switchPanelTab.
@@ -245,10 +242,6 @@ filterExploreSearch = function() {
         row.insertBefore(addBtn, goBtn);
     });
 };
-
-// ═══════════════════════════════════════════════════════════════
-// STORY CONTROLS — Bookmark + Add to Playlist buttons
-// ═══════════════════════════════════════════════════════════════
 
 let _storyCurrentSceneId = null;
 

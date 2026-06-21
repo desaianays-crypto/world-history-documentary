@@ -1,0 +1,161 @@
+/*CSS*/
+:root {
+  --ui-font-size: 18px;
+  --base-font: var(--ui-font-size);
+  --accent:    #c0161f;
+  --accent-dim: rgba(192, 22, 31, 0.55);
+  --accent-glow: rgba(192, 22, 31, 0.25);
+  --panel-blur: 12px;
+  --radius: 10px;
+  --bg-dark:   #0a0a0a;
+  --panel-bg:  rgba(10, 10, 10, 0.92);
+  --surface:   rgba(255,255,255,0.04);
+  --border:    rgba(255,255,255,0.08);
+  --scrollbar-w: 6px;
+  /* Text colour on top of --accent backgrounds.
+     Flipped to dark by JS when accent luminance is high (e.g. white). */
+  --on-accent: #fff;
+}
+
+mark.sh {
+    background: var(--accent-glow);
+    color: var(--accent);
+    padding: 0 0.15em;
+    border-radius: 3px;
+    font-weight: 700;
+    box-shadow: inset 0 0 0 1px var(--accent-dim);
+}
+
+/* ═══════════════════════════════════════════════════════════════
+   BASE & RESETS
+   ═══════════════════════════════════════════════════════════════ */
+* {
+    user-select: none;
+    -webkit-user-select: none;
+    -ms-user-select: none;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 0;
+    font-family: "Inter", sans-serif;
+    font-size: 17px;
+    background: var(--bg-dark);
+    overflow: hidden;
+    color: white;
+}
+
+    /* ── Global announcement banner ────────────────────────────────────────── */
+    #announcementBanner {
+        display: none;
+        position: fixed;
+        top: 16px;
+        left: 50%;
+        transform: translateX(-50%);
+        z-index: 120;
+        width: min(560px, calc(100vw - 32px));
+        padding: 0;
+        background: transparent;
+        border: none;
+        box-shadow: none;
+        backdrop-filter: blur(10px);
+        -webkit-backdrop-filter: blur(10px);
+    }
+    #announcementBanner {
+        --announcement-accent: #c0161f;
+        --announcement-accent-soft: rgba(192, 22, 31, 0.14);
+    }
+    #announcementBanner.announcement-type-info {
+        --announcement-accent: #4d8fe8;
+        --announcement-accent-soft: rgba(77, 143, 232, 0.14);
+    }
+    #announcementBanner.announcement-type-warning {
+        --announcement-accent: #d69522;
+        --announcement-accent-soft: rgba(214, 149, 34, 0.14);
+    }
+    #announcementBanner.announcement-type-success {
+        --announcement-accent: #2ea56b;
+        --announcement-accent-soft: rgba(46, 165, 107, 0.14);
+    }
+    #announcementBanner.announcement-type-error {
+        --announcement-accent: #e05656;
+        --announcement-accent-soft: rgba(224, 86, 86, 0.14);
+    }
+    #announcementBanner.announcement-type-update {
+        --announcement-accent: #8d81ff;
+        --announcement-accent-soft: rgba(141, 129, 255, 0.14);
+    }
+    #announcementBanner.announcement-type-event {
+        --announcement-accent: #cf67ff;
+        --announcement-accent-soft: rgba(207, 103, 255, 0.14);
+    }
+    #announcementBanner.active {
+        display: flex;
+    }
+    .announcement-banner-inner {
+        width: 100%;
+        padding: 11px 14px;
+        margin: 0;
+        display: flex;
+        flex-direction: column;
+        gap: 0;
+        border-radius: 10px;
+        border: 1px solid rgba(255,255,255,0.09);
+        border-left: 4px solid var(--announcement-accent);
+        background: rgba(12,12,16,0.97);
+        box-shadow: 0 8px 30px rgba(0,0,0,0.55);
+        position: relative;
+        overflow: hidden;
+    }
+    .announcement-banner-header {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+    }
+    .announcement-banner-icon {
+        font-size: 15px;
+        flex-shrink: 0;
+        line-height: 1;
+    }
+    .announcement-banner-close {
+        flex: 0 0 22px;
+        width: 22px !important;
+        min-width: 22px !important;
+        max-width: 22px !important;
+        height: 22px;
+        padding: 0;
+        border: none;
+        border-radius: 5px;
+        background: rgba(255,255,255,0.07);
+        color: rgba(255,255,255,0.55);
+        font-size: 15px;
+        font-weight: lighter;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        cursor: pointer;
+        flex-shrink: 0;
+        margin-left: auto;
+        transition: background 0.15s, color 0.15s;
+        font-family: inherit;
+    }
+    .announcement-banner-close:hover {
+        background: rgba(255,255,255,0.14);
+        color: #fff;
+    }
+    .announcement-banner-close:active {
+        transform: scale(0.95);
+    }
+    .announcement-banner-message {
+        flex: 1;
+        min-width: 0;
+        color: #e8e8e8;
+        font-size: 13px;
+        line-height: 1.45;
+        font-weight: 600;
+    }
+    body.announcement-active #topBar {
+        top: 0;
+    }

@@ -1,10 +1,39 @@
 //Admin code
+
+function enhanceNumberInputs(ids) {
+    (ids || []).forEach(id => {
+        const input = document.getElementById(id);
+        if (!input || input.dataset.numEnhanced) return;
+        input.dataset.numEnhanced = "1";
+        input.classList.add("admin-numfield-input");
+
+        const wrap = document.createElement("div");
+        wrap.className = "admin-numfield";
+
+        const dec = document.createElement("button");
+        dec.type = "button";
+        dec.className = "admin-numfield-btn admin-numfield-dec";
+        dec.textContent = "−";
+        dec.setAttribute("aria-label", "Decrease");
+
+        const inc = document.createElement("button");
+        inc.type = "button";
+        inc.className = "admin-numfield-btn admin-numfield-inc";
+        inc.textContent = "+";
+        inc.setAttribute("aria-label", "Increase");
+
+        input.parentNode.insertBefore(wrap, input);
+        wrap.appendChild(input);
+        wrap.appendChild(dec);
+        wrap.appendChild(inc);
+
+        const fire = () => input.dispatchEvent(new Event("input", { bubbles: true }));
+        dec.addEventListener("click", () => { input.stepDown(); fire(); });
+        inc.addEventListener("click", () => { input.stepUp(); fire(); });
+    });
+}
+
 (function () {
-    // ── Shared admin data (Cloudflare Worker) ──────────────────────
-    // Set this to your deployed Worker URL, e.g.
-    //   "https://whd-admin-data.yourname.workers.dev"
-    // Leave empty ("") to keep everything local-only (old behaviour:
-    // no passcode, edits stay in this browser's localStorage).
     const WORKER_URL       = "https://whd-admin-data.desaianays.workers.dev";
     const LS_SCENES        = "whd_admin_scenes";      // added/edited scenes
     const LS_DELETED       = "whd_admin_deleted";     // deleted scene ids
@@ -15,7 +44,8 @@
     const SS_PASSCODE      = "whd_ADMIN_PASSCODE";    // sessionStorage: passcode used to verify
     const LS_SYNC_VERSION  = "whd_admin_sync_version"; // last-seen shared-data version
 
-    // ── HTML ──────────────────────────────────────────────────────
+    const ADMIN_BUG_ICON_SVG = `<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:2px"><path d="M8 2l1.5 1.5"/><path d="M16 2l-1.5 1.5"/><path d="M9 7.5h6a3 3 0 0 1 3 3V14a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5v-3.5a3 3 0 0 1 3-3z"/><path d="M5 12H2"/><path d="M22 12h-3"/><path d="M5 17l-2.5 2"/><path d="M19 17l2.5 2"/><path d="M5 8.5L3 7"/><path d="M19 8.5L21 7"/><line x1="12" y1="7.5" x2="12" y2="19"/></svg>`;
+
     const html = `
     <div id="adminOverlay"></div>
     <div id="adminPanel">
@@ -33,6 +63,7 @@
                 <div class="admin-tab active" data-tab="add">➕ Add / Edit</div>
                 <div class="admin-tab" data-tab="manage">📋 Manage Entries</div>
                 <div class="admin-tab" data-tab="tree">🌳 World Tree</div>
+                <div class="admin-tab" data-tab="bugs">${ADMIN_BUG_ICON_SVG} Bugs <span id="adminBugsBadge" style="display:none;background:var(--accent);color:var(--on-accent);font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px;margin-left:4px;vertical-align:middle;"></span></div>
                 <div class="admin-tab admin-tab-owner" data-tab="owner" id="adminOwnerTab" style="display:none">👑 Owner</div>
                 <div class="admin-tab" data-tab="info">ℹ Info</div>
             </div>
@@ -339,11 +370,49 @@
 
                 <!-- INFO PAGE -->
                 <div class="admin-page" data-page="info">
-                    <p class="admin-section-title">📊 Database Overview</p>
+                    <p class="admin-section-title">⌨ Keyboard Shortcuts</p>
+                    <div class="admin-info-about">
+                        <div class="admin-info-row"><span class="admin-info-key"><kbd class="admin-kbd">O</kbd></span><span class="admin-info-val">Open / close this admin panel</span></div>
+                        <div class="admin-info-row"><span class="admin-info-key"><kbd class="admin-kbd">B</kbd></span><span class="admin-info-val">Report a bug (closed automatically while this panel is open)</span></div>
+                        <div class="admin-info-row"><span class="admin-info-key"><kbd class="admin-kbd">Esc</kbd></span><span class="admin-info-val">Close the active panel, modal, or confirm dialog</span></div>
+                        <div class="admin-info-row"><span class="admin-info-key"><kbd class="admin-kbd">Space</kbd> / <kbd class="admin-kbd">P</kbd></span><span class="admin-info-val">Pause / resume Story Mode</span></div>
+                        <div class="admin-info-row"><span class="admin-info-key"><kbd class="admin-kbd">→</kbd> / <kbd class="admin-kbd">N</kbd></span><span class="admin-info-val">Skip to next scene (Story Mode)</span></div>
+                        <div class="admin-info-row"><span class="admin-info-key"><kbd class="admin-kbd">←</kbd> / <kbd class="admin-kbd">B</kbd></span><span class="admin-info-val">Go back one scene (Story Mode)</span></div>
+                    </div>
+
+                    <p class="admin-section-title" style="margin-top:20px;">🧭 Tabs Guide</p>
+                    <div class="admin-help-grid">
+                        <div class="admin-help-card">
+                            <div class="admin-help-card-title">➕ Add / Edit</div>
+                            <div class="admin-help-card-sub">Create a new scene by hand, or bulk-import scenes by pasting code. Edits here go live immediately.</div>
+                        </div>
+                        <div class="admin-help-card">
+                            <div class="admin-help-card-title">📋 Manage Entries</div>
+                            <div class="admin-help-card-sub">Browse, edit, or delete existing scenes across every database. Deleted scenes can be restored.</div>
+                        </div>
+                        <div class="admin-help-card">
+                            <div class="admin-help-card-title">🌳 World Tree</div>
+                            <div class="admin-help-card-sub">Override the region → country → era hierarchy shown to users, independent of the raw scene data.</div>
+                        </div>
+                        <div class="admin-help-card">
+                            <div class="admin-help-card-title">${ADMIN_BUG_ICON_SVG} Bugs</div>
+                            <div class="admin-help-card-sub">Shared bug-report inbox. Anyone can file a report (press <kbd class="admin-kbd">B</kbd>); admins can resolve, reopen, or delete them.</div>
+                        </div>
+                        <div class="admin-help-card">
+                            <div class="admin-help-card-title">👑 Owner</div>
+                            <div class="admin-help-card-sub">Owner-only: manage user roles, publish announcements, edit the update log, and toggle site-wide maintenance mode.</div>
+                        </div>
+                        <div class="admin-help-card">
+                            <div class="admin-help-card-title">ℹ Info</div>
+                            <div class="admin-help-card-sub">This page — shortcuts, a guide to each tab, and live stats about the database and storage.</div>
+                        </div>
+                    </div>
+
+                    <p class="admin-section-title" style="margin-top:20px;">📊 Database Overview</p>
                     <div id="adminInfoStats" class="admin-info-stats"></div>
                     <p class="admin-section-title" style="margin-top:20px;">🗂 Content Breakdown</p>
                     <div id="adminInfoBreakdown" class="admin-info-breakdown"></div>
-                    <p class="admin-section-title" style="margin-top:20px;">ℹ About This Panel</p>
+                    <p class="admin-section-title" style="margin-top:20px;">⚙ About This Panel</p>
                     <div class="admin-info-about">
                         <div class="admin-info-row"><span class="admin-info-key">Application</span><span class="admin-info-val">World History Documentary</span></div>
                         <div class="admin-info-row"><span class="admin-info-key">Admin Version</span><span class="admin-info-val">2.0</span></div>
@@ -357,14 +426,20 @@
 
                 </div>
 
+                <!-- BUGS PAGE -->
+                <div class="admin-page" data-page="bugs">
+                    <p class="admin-section-title">${ADMIN_BUG_ICON_SVG} Bug Reports</p>
+                    <div id="adminBugsContainer"></div>
+                </div>
+
                 <div class="admin-page" data-page="owner">
                     <p class="admin-section-title">👑 Owner Controls <span style="font-size:11px;color:rgba(255,255,255,0.35);font-weight:400;margin-left:8px;">Owner only</span></p>
 
                     <div class="admin-owner-tabs">
                         <button class="admin-owner-tab active" data-otab="users">👥 Users</button>
                         <button class="admin-owner-tab" data-otab="announce">📢 Announce</button>
-                        <button class="admin-owner-tab" data-otab="site">🚧 Site</button>
                         <button class="admin-owner-tab" data-otab="updatelog">📋 Update Log</button>
+                        <button class="admin-owner-tab" data-otab="site">🚧 Site</button>
                     </div>
 
                     <!-- USERS TAB -->
@@ -485,6 +560,9 @@
     wrapper.innerHTML = html;
     document.body.appendChild(wrapper);
 
+    // Replace native number-input spin arrows with styled custom steppers
+    enhanceNumberInputs(["aStartYear", "aEndYear", "aLat", "aLng", "aZoom"]);
+
     // ── State ─────────────────────────────────────────────────────
     let unlocked      = sessionStorage.getItem(SS_UNLOCKED) === "1";
     let activeTab     = "add";
@@ -509,10 +587,6 @@
         try { localStorage.setItem(key, JSON.stringify(val)); } catch {}
     }
 
-    // ── Shared admin data sync (Cloudflare Worker) ─────────────────
-    // Pushes the current admin overrides (scenes, deletions, tree) to the
-    // shared Worker store so every visitor sees them, not just this browser.
-    // Debounced so rapid edits don't spam the Worker.
     let _syncTimer = null;
     function queueWorkerSync() {
         if (!WORKER_URL) return;
@@ -545,10 +619,6 @@
         }
     }
 
-    // Fetches the shared admin data on page load and caches it locally for
-    // next time. Because the rest of the app already ran applyPersistedData()
-    // synchronously using last time's cache, a newly-detected change is
-    // surfaced via a small "refresh" prompt rather than a live re-render.
     function fetchSharedAdminData() {
         if (!WORKER_URL) return;
         fetch(WORKER_URL + "/data")
@@ -564,9 +634,6 @@
                 if (data.tree) lsSet(LS_TREE, data.tree);
                 localStorage.setItem(LS_SYNC_VERSION, version);
 
-                // Only bother the visitor if this isn't their first-ever visit
-                // (i.e. they had something cached already, so the page they're
-                // looking at is now stale).
                 if (localStorage.getItem("whd_admin_seen") === "1") {
                     showRefreshBanner();
                 }
@@ -890,6 +957,7 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         refreshManageList();
         refreshTree();
         initEventRows();
+        _refreshAdminBugsBadge();
     }
 
     async function checkPass() {
@@ -937,6 +1005,7 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
             if (page) page.classList.add("active");
             activeTab = tab.dataset.tab;
             if (activeTab === "owner") { adminUsersRefresh(); adminMaintLoad(); adminAnnounceLoad(); adminUpdateLogLoad(); }
+            if (activeTab === "bugs")  { if (typeof renderBugsTab === "function") renderBugsTab(); }
         });
     });
 
@@ -1365,23 +1434,35 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
     }
 
     function _ulDeleteEntry(id) {
-        if (!confirm("Delete this update entry?")) return;
-        const token = window.WHDAuth ? window.WHDAuth.getToken() : null;
-        fetch(WORKER_URL + "/auth/updatelog", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ action: "delete", token, id }),
-        }).then(r => r.json()).catch(() => ({ ok: false }))
-        .then(data => {
-            if (data.ok) {
-                _ulEntries = _ulEntries.filter(e => e.id !== id);
-                _ulActiveId = null;
-                _ulRenderTabStrip();
-                toast("Entry deleted");
-            } else {
-                toast(data.error || "Delete failed.", true);
-            }
-        });
+        const run = () => {
+            const token = window.WHDAuth ? window.WHDAuth.getToken() : null;
+            fetch(WORKER_URL + "/auth/updatelog", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ action: "delete", token, id }),
+            }).then(r => r.json()).catch(() => ({ ok: false }))
+            .then(data => {
+                if (data.ok) {
+                    _ulEntries = _ulEntries.filter(e => e.id !== id);
+                    _ulActiveId = null;
+                    _ulRenderTabStrip();
+                    toast("Entry deleted");
+                } else {
+                    toast(data.error || "Delete failed.", true);
+                }
+            });
+        };
+        if (typeof showAppConfirm === "function") {
+            showAppConfirm({
+                icon: "⚠️",
+                title: "Delete this update entry?",
+                msg: "This cannot be undone.",
+                okLabel: "Delete",
+                okDanger: true,
+            }).then(ok => { if (ok) run(); });
+        } else if (window.confirm("Delete this update entry?")) {
+            run();
+        }
     }
 
     function switchToTab(tab) {
@@ -1890,11 +1971,6 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         if (toDelete.includes(editingId)) resetAddForm();
     });
 
-
-// Search engine primitives (_trigrams, _editDist, _parseYearToken, _yearMatches,
-// _tokenMatchField, _scoreToken, searchScenes, highlightMatches) live in
-// javascript/search.js — loaded before admin.js.
-// adminSearchScenes and adminHighlight are thin aliases used below.
     function adminSearchScenes(query, sceneList) {
         return searchScenes(query, sceneList);
     }
@@ -2044,7 +2120,6 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         if (editingId === sceneId) resetAddForm();
     }
 
-
     function duplicateScene(scene, dbKey) {
         const copy = JSON.parse(JSON.stringify(scene));
         copy.id   = (copy.id || "scene") + "_copy";
@@ -2122,9 +2197,6 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         bulk.style.display = "flex";
 
         ids.forEach(sceneId => {
-            // Deleted scenes are removed from live arrays, so look them up
-            // from the backup store first, then fall back to live lookup
-            // (covers scenes deleted mid-session before the store was populated).
             let dbKey, s;
             const stored = deletedSceneStore[sceneId];
             if (stored) {
@@ -2766,11 +2838,25 @@ function adminLiveSfx(val) {
         } catch(e) {}
     })();
 
-    // Replace every native <select> in the admin panel with the same custom
-    // dropdown component used elsewhere in the app (see playlists-play.js),
-    // so nothing here falls back to the browser's default <select> UI.
     if (typeof initCustomSelects === "function") {
         initCustomSelects(["aDb", "importDb", "importContinent", "importCountry", "importSeason", "adminAnnounceType"]);
     }
+
+    function _refreshAdminBugsBadge() {
+        const badge = document.getElementById("adminBugsBadge");
+        if (!badge) return;
+        try {
+            const reports = (typeof getCachedBugReports === "function") ? getCachedBugReports() : [];
+            const open = reports.filter(r => !r.resolved).length;
+            badge.textContent = open;
+            badge.style.display = open > 0 ? "inline-block" : "none";
+        } catch(e) {
+            badge.style.display = "none";
+        }
+    }
+    // Update badge whenever the shared bug list refreshes (new report from
+    // anyone, resolve/reopen/delete from any admin, initial load, etc.)
+    window.addEventListener("whd:bugs:updated", _refreshAdminBugsBadge);
+    if (typeof loadBugReports === "function") loadBugReports().then(_refreshAdminBugsBadge);
 
 })();

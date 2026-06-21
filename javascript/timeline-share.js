@@ -127,10 +127,6 @@
     });
 })();
 
-// ═══════════════════════════════════════════════════════════════════════════
-// FEATURE 4 — Keyboard shortcuts
-// ═══════════════════════════════════════════════════════════════════════════
-
 (function _initKeyboardShortcuts() {
     document.addEventListener("keydown", e => {
         // Ignore when typing in an input/textarea
@@ -187,10 +183,6 @@
     });
 })();
 
-// ═══════════════════════════════════════════════════════════════════════════
-// FEATURE 5 — Now Playing widget
-// ═══════════════════════════════════════════════════════════════════════════
-
 let _lastNowPlayingTrack = "";
 
 function updateNowPlaying(trackName) {
@@ -221,10 +213,6 @@ function setNowPlayingPaused(isPaused) {
     if (!widget) return;
     widget.classList.toggle("np-paused", isPaused);
 }
-
-// ═══════════════════════════════════════════════════════════════════════════
-// FEATURE 7 — Share scene URL via hash
-// ═══════════════════════════════════════════════════════════════════════════
 
 function shareCurrentScene() {
     const sceneId = window.currentSceneId;

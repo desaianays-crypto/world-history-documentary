@@ -1,12 +1,3 @@
-// ═══════════════════════════════════════════════════════════════════════════
-//  AUTH SYSTEM  —  login · signup · guest/userless · account sync
-//  Worker endpoints:
-//    POST /auth/signup  { username, password }        → { ok, token, error? }
-//    POST /auth/login   { username, password }        → { ok, token, error? }
-//    POST /auth/save    { token, data:{…} }           → { ok }
-//    POST /auth/load    { token }                     → { ok, data:{…} }
-//    POST /auth/delete  { token, password }           → { ok }
-// ═══════════════════════════════════════════════════════════════════════════
 
 (function () {
     const WORKER_URL    = "https://whd-admin-data.desaianays.workers.dev";
@@ -60,15 +51,7 @@
         }
     };
 
-    // ═════════════════════════════════════════════════════════════════════
-    //  AUTH MODAL  —  full-screen two-panel layout
-    // ═════════════════════════════════════════════════════════════════════
-    const SECURITY_QUESTIONS = [""
-    ];
-
     function _buildAuthModalHTML() {
-        const questionOptions = SECURITY_QUESTIONS
-            .map(q => `<option value="${_escHtml(q)}">${_escHtml(q)}</option>`).join("");
         return `
 <div id="authOverlay"></div>
 <div id="authPanel">
@@ -211,12 +194,11 @@
           </div>
         </div>
         <div class="auth-field">
-          <label>Security Question <span class="auth-hint">used to recover your account</span></label>
-          <input id="authSignupQuestionSelect" class="auth-select" type="text" placeholder="Choose a question…" maxlength="150"/>
-          <input id="authSignupQuestionCustom" type="text" placeholder="Type your own question" style="display:none;margin-top:8px" maxlength="150"/>
+          <label>Security Question <span class="auth-hint">required — used to recover your account</span></label>
+          <input id="authSignupQuestion" type="text" autocomplete="off" placeholder="Write your own question (don't pick something guessable)" spellcheck="false" maxlength="150"/>
         </div>
         <div class="auth-field">
-          <label>Your Answer</label>
+          <label>Your Answer <span class="auth-hint">required</span></label>
           <input id="authSignupAnswer" type="text" autocomplete="off" placeholder="Answer (not case sensitive)" spellcheck="false"/>
         </div>
         <div id="authTransferRow" class="auth-transfer-row" style="display:none">
@@ -578,9 +560,6 @@
         modal.classList.remove("visible");
     }
 
-    // ═════════════════════════════════════════════════════════════════════
-    //  AUTH ACTIONS
-    // ═════════════════════════════════════════════════════════════════════
     async function doLogin() {
         const user = document.getElementById("authLoginUser").value.trim();
         const pass = document.getElementById("authLoginPass").value;
@@ -619,11 +598,7 @@
         const user  = document.getElementById("authSignupUser").value.trim();
         const pass  = document.getElementById("authSignupPass").value;
         const pass2 = document.getElementById("authSignupPass2").value;
-        const qSelect = document.getElementById("authSignupQuestionSelect");
-        const qCustom = document.getElementById("authSignupQuestionCustom");
-        const question = qSelect && qSelect.value === "__custom__"
-            ? (qCustom?.value || "").trim()
-            : (qSelect?.value || "").trim();
+        const question = document.getElementById("authSignupQuestion")?.value.trim() || "";
         const answer = document.getElementById("authSignupAnswer")?.value.trim() || "";
         const err   = document.getElementById("authSignupError");
         err.textContent = "";
@@ -632,7 +607,7 @@
         if (!/^[a-zA-Z0-9_]{3,24}$/.test(user)) { err.textContent = "Username: 3–24 chars, letters/numbers/_ only."; return; }
         if (pass.length < 8)  { err.textContent = "Password must be at least 8 characters."; return; }
         if (pass !== pass2)   { err.textContent = "Passwords don't match."; return; }
-        if (!question) { err.textContent = "Please choose or write a security question."; return; }
+        if (!question) { err.textContent = "A security question is required."; return; }
         if (!answer)   { err.textContent = "Please provide an answer to your security question."; return; }
 
         const doTransfer = document.getElementById("authTransferCheck")?.checked && _hasLocalData();
@@ -651,8 +626,7 @@
                 document.getElementById("authSignupPass").value  = "";
                 document.getElementById("authSignupPass2").value = "";
                 document.getElementById("authSignupAnswer").value = "";
-                if (qSelect) qSelect.value = "";
-                if (qCustom) { qCustom.value = ""; qCustom.style.display = "none"; }
+                document.getElementById("authSignupQuestion").value = "";
 
                 if (doTransfer) {
                     await pushNow();
@@ -723,9 +697,6 @@
         localStorage.removeItem(LS_GUEST);
     }
 
-    // ═════════════════════════════════════════════════════════════════════
-    //  SETTINGS — ACCOUNT TAB
-    // ═════════════════════════════════════════════════════════════════════
     function renderSettingsAccountPage() {
         const el = document.getElementById("settingsAccountContent");
         if (!el) return;
@@ -796,7 +767,6 @@ ${_buildEmailSectionHTML()}
             _wireEmailSection();
             _initEyeButtons(el);
 
-
         } else {
             el.innerHTML = `
 <div class="acct-guest-block">
@@ -804,47 +774,66 @@ ${_buildEmailSectionHTML()}
   <div class="acct-guest-title">${_guest ? "You're in Guest Mode" : "Not signed in"}</div>
   <div class="acct-guest-sub">Sign in to sync playlists, bookmarks &amp; settings across devices.</div>
   <button class="auth-primary-btn acct-signin-btn" id="acctSignInBtn">Sign In / Create Account</button>
+</div>
+
+<div class="settings-section-title" style="margin-top:24px;">Why sign in?</div>
+<div class="acct-benefits-grid">
+  <div class="acct-benefit-card">
+    <div class="acct-benefit-icon">☁</div>
+    <div class="acct-benefit-title">Cross-device sync</div>
+    <div class="acct-benefit-sub">Your bookmarks, playlists, and settings follow you to any browser or device.</div>
+  </div>
+  <div class="acct-benefit-card">
+    <div class="acct-benefit-icon">🔖</div>
+    <div class="acct-benefit-title">Bookmarks &amp; playlists saved</div>
+    <div class="acct-benefit-sub">Guest data lives only in this browser — sign in so nothing's lost if you clear your cache.</div>
+  </div>
+  <div class="acct-benefit-card">
+    <div class="acct-benefit-icon">🛡</div>
+    <div class="acct-benefit-title">Account recovery</div>
+    <div class="acct-benefit-sub">A security question means you can always get back in, even if you forget your password.</div>
+  </div>
+  <div class="acct-benefit-card">
+    <div class="acct-benefit-icon">📢</div>
+    <div class="acct-benefit-title">Announcements &amp; updates</div>
+    <div class="acct-benefit-sub">Get notified about new features, scenes, and important site announcements.</div>
+  </div>
 </div>`;
             document.getElementById("acctSignInBtn").onclick = () => window.WHDAuth.openModal();
         }
     }
 
-
     // ── Security question section ────────────────────────────────────────────
     function _buildEmailSectionHTML() {
         const has = !!_securityQuestionOnFile;
         return `
-<div class="settings-section-title" style="margin-top:20px;">🛡 Security Question</div>
-<div class="settings-row" id="acctEmailRow">
+<div class="settings-section-title" style="margin-top:20px;">🛡 Security Question <span class="auth-hint" style="text-transform:none;letter-spacing:normal;">required</span></div>
+<div class="settings-row" id="acctEmailRow" style="${has ? "" : "display:none"}">
   <div class="settings-label">
     <span>Recovery question</span>
-    <span class="settings-hint">${has ? "Used if you forget your password" : "Set one to recover your account"}</span>
+    <span class="settings-hint">Used if you forget your password</span>
   </div>
   <div class="settings-control" style="gap:6px">
-    ${has
-      ? `<span class="acct-count-badge acct-email-badge">✓ Set</span>
-         <button class="settings-btn" id="acctEmailEditBtn">Change</button>`
-      : `<span class="acct-count-badge acct-email-badge acct-email-missing">Not set</span>
-         <button class="settings-btn" id="acctEmailEditBtn">Add</button>`
-    }
+    <span class="acct-count-badge acct-email-badge">✓ Set</span>
+    <button class="settings-btn" id="acctEmailEditBtn">Change</button>
   </div>
 </div>
-<div id="acctEmailForm" style="display:none;padding:12px 0 4px">
+<div id="acctEmailForm" style="${has ? "display:none" : "display:block"};padding:12px 0 4px">
+  ${has ? "" : `<div class="settings-hint" style="margin-bottom:8px;color:var(--accent,#e05)">A security question is required on every account — you can't skip this.</div>`}
   <div class="auth-field" style="margin-bottom:8px">
     <label>Security question</label>
-    <input id="acctQuestionSelect" class="auth-select" style="width:100%;box-sizing:border-box" placeholder="Type a subjective question"></input>
-    <input id="acctQuestionCustom" type="text" placeholder="Type your own question" maxlength="150"
-      style="display:none;margin-top:8px;width:100%;box-sizing:border-box"/>
+    <input id="acctQuestionInput" type="text" autocomplete="off" placeholder="Write your own question (don't pick something guessable)" maxlength="150"
+      style="width:100%;box-sizing:border-box"/>
   </div>
   <div class="auth-field" style="margin-bottom:8px">
-    <label>New answer</label>
+    <label>${has ? "New answer" : "Answer"}</label>
     <input id="acctEmailInput" type="text" autocomplete="off" placeholder="Your answer"
       style="width:100%;box-sizing:border-box"/>
   </div>
   <div class="auth-error" id="acctEmailError" style="margin-bottom:6px"></div>
   <div style="display:flex;gap:8px">
     <button class="auth-primary-btn" id="acctEmailSaveBtn" style="flex:1;padding:9px">Save</button>
-    <button class="settings-btn" id="acctEmailCancelBtn">Cancel</button>
+    ${has ? `<button class="settings-btn" id="acctEmailCancelBtn">Cancel</button>` : ""}
   </div>
 </div>`;
     }
@@ -855,47 +844,39 @@ ${_buildEmailSectionHTML()}
     function _wireEmailSection() {
         const editBtn   = document.getElementById("acctEmailEditBtn");
         const form      = document.getElementById("acctEmailForm");
-        const saveBtn   = document.getElementById("acctEmailSaveBtn");
         const cancelBtn = document.getElementById("acctEmailCancelBtn");
         const input     = document.getElementById("acctEmailInput");
         const errEl     = document.getElementById("acctEmailError");
-        const qSelect   = document.getElementById("acctQuestionSelect");
-        const qCustom   = document.getElementById("acctQuestionCustom");
-        if (!editBtn || !form) return;
+        const qInput    = document.getElementById("acctQuestionInput");
+        const saveBtn   = document.getElementById("acctEmailSaveBtn");
 
-        editBtn.onclick = () => {
-            form.style.display = form.style.display === "none" ? "block" : "none";
-            if (form.style.display === "block" && input) { input.value = ""; if (qSelect) qSelect.value = ""; if (qCustom) { qCustom.value = ""; qCustom.style.display = "none"; } }
-            if (errEl) errEl.textContent = "";
-        };
-        if (qSelect) qSelect.addEventListener("change", () => {
-            if (qCustom) {
-                qCustom.style.display = qSelect.value === "__custom__" ? "block" : "none";
-                if (qSelect.value === "__custom__") qCustom.focus();
-            }
-        });
+        if (editBtn) {
+            editBtn.onclick = () => {
+                form.style.display = form.style.display === "none" ? "block" : "none";
+                if (form.style.display === "block") { if (input) input.value = ""; if (qInput) qInput.value = ""; }
+                if (errEl) errEl.textContent = "";
+            };
+        }
         if (cancelBtn) cancelBtn.onclick = () => {
             form.style.display = "none";
             if (errEl) errEl.textContent = "";
         };
         if (saveBtn) saveBtn.onclick = () => _saveEmail();
         if (input) input.addEventListener("keydown", e => { if (e.key === "Enter") _saveEmail(); });
+        if (qInput) qInput.addEventListener("keydown", e => { if (e.key === "Enter") _saveEmail(); });
     }
 
     async function _saveEmail() {
         const input    = document.getElementById("acctEmailInput");
         const errEl    = document.getElementById("acctEmailError");
         const saveBtn  = document.getElementById("acctEmailSaveBtn");
-        const qSelect  = document.getElementById("acctQuestionSelect");
-        const qCustom  = document.getElementById("acctQuestionCustom");
+        const qInput   = document.getElementById("acctQuestionInput");
         if (errEl) errEl.textContent = "";
 
-        const question = qSelect && qSelect.value === "__custom__"
-            ? (qCustom?.value || "").trim()
-            : (qSelect?.value || "").trim();
+        const question = qInput ? qInput.value.trim() : "";
         const answer = input ? input.value.trim() : "";
 
-        if (!question) { errEl.textContent = "Please choose or write a security question."; return; }
+        if (!question) { errEl.textContent = "A security question is required."; return; }
         if (!answer)   { errEl.textContent = "Please provide an answer."; return; }
 
         saveBtn.textContent = "Saving…"; saveBtn.disabled = true;
@@ -1168,12 +1149,75 @@ ${_buildEmailSectionHTML()}
 
             // Always re-render — role may have just been corrected by the server
             renderSettingsAccountPage();
+
+            if (!_securityQuestionOnFile) _forceSecurityQuestionSetup();
         } catch { /* silent */ }
     }
 
-    // ═════════════════════════════════════════════════════════════════════
-    //  ADMIN GATE
-    // ═════════════════════════════════════════════════════════════════════
+    function _forceSecurityQuestionSetup() {
+        if (document.getElementById("forceSecQOverlay")) return;
+
+        const overlay = document.createElement("div");
+        overlay.id = "forceSecQOverlay";
+        overlay.innerHTML = `
+            <div id="forceSecQModal" role="dialog" aria-modal="true" aria-label="Set a security question">
+                <div class="auth-reset-icon">🛡</div>
+                <div class="auth-reset-title">Set a Security Question</div>
+                <div class="auth-reset-sub">Every account needs one — it's how you'll recover your account if you forget your password. This step is required and can't be skipped.</div>
+                <div class="auth-field" style="margin-top:14px">
+                    <label>Security question</label>
+                    <input id="forceSecQQuestion" type="text" autocomplete="off" placeholder="Write your own question (don't pick something guessable)" maxlength="150"/>
+                </div>
+                <div class="auth-field">
+                    <label>Your answer</label>
+                    <input id="forceSecQAnswer" type="text" autocomplete="off" placeholder="Answer (not case sensitive)"/>
+                </div>
+                <div class="auth-error" id="forceSecQError"></div>
+                <button class="auth-primary-btn" id="forceSecQSaveBtn">Save &amp; Continue</button>
+            </div>
+        `;
+        document.body.appendChild(overlay);
+        requestAnimationFrame(() => overlay.classList.add("force-secq-visible"));
+
+        const save = async () => {
+            const qEl  = document.getElementById("forceSecQQuestion");
+            const aEl  = document.getElementById("forceSecQAnswer");
+            const errEl = document.getElementById("forceSecQError");
+            const btn  = document.getElementById("forceSecQSaveBtn");
+            const question = qEl ? qEl.value.trim() : "";
+            const answer   = aEl ? aEl.value.trim() : "";
+            if (errEl) errEl.textContent = "";
+            if (!question) { errEl.textContent = "A security question is required."; return; }
+            if (!answer)   { errEl.textContent = "Please provide an answer."; return; }
+
+            btn.textContent = "Saving…"; btn.disabled = true;
+            try {
+                const res  = await fetch(WORKER_URL + "/auth/updatesecurityquestion", {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ token: _token, securityQuestion: question, securityAnswer: answer }),
+                });
+                const data = await res.json().catch(() => ({}));
+                if (data.ok) {
+                    _securityQuestionOnFile = true;
+                    overlay.remove();
+                    renderSettingsAccountPage();
+                    _showSyncToast("Security question saved.");
+                } else {
+                    errEl.textContent = data.error || "Could not save security question.";
+                    btn.textContent = "Save & Continue"; btn.disabled = false;
+                }
+            } catch {
+                errEl.textContent = "Network error. Try again.";
+                btn.textContent = "Save & Continue"; btn.disabled = false;
+            }
+        };
+
+        document.getElementById("forceSecQSaveBtn").onclick = save;
+        document.getElementById("forceSecQAnswer").addEventListener("keydown", e => { if (e.key === "Enter") save(); });
+        // Intentionally no backdrop-click-to-close and no Escape handler —
+        // this step is mandatory, not optional.
+    }
+
     window.addEventListener("whd:auth:loggedin", () => {
         if (_pendingAdminCallback) {
             const cb = _pendingAdminCallback;
@@ -1183,9 +1227,6 @@ ${_buildEmailSectionHTML()}
         }
     });
 
-    // ═════════════════════════════════════════════════════════════════════
-    //  HELPERS
-    // ═════════════════════════════════════════════════════════════════════
     function _hasLocalData() {
         const bms = _tryJSON(localStorage.getItem("whd_bookmarks"))    || [];
         const pls = _tryJSON(localStorage.getItem("whd_playlists_v1")) || [];
@@ -1236,10 +1277,6 @@ ${_buildEmailSectionHTML()}
 
     function _applyAnnouncementBanner(active, type, message) {
         const isUnderMaintenance = document.getElementById("maintenancePage")?.classList.contains("active");
-        // While the maintenance overlay is showing, the normal top banner is
-        // buried beneath it (the overlay sits above everything by design).
-        // Render into a slot inside the maintenance page instead so the
-        // announcement is still visible to people sitting on that screen.
         const target = isUnderMaintenance
             ? document.getElementById("maintAnnouncementSlot")
             : document.getElementById("announcementBanner");
@@ -1310,9 +1347,6 @@ ${_buildEmailSectionHTML()}
         } catch { /* network error — don't block access */ }
     }
 
-    // ═════════════════════════════════════════════════════════════════════
-    //  MAINTENANCE PAGE
-    // ═════════════════════════════════════════════════════════════════════
     function _applyMaintenancePage(on, message) {
         let page = document.getElementById("maintenancePage");
         if (!page) return;
@@ -1383,13 +1417,6 @@ ${_buildEmailSectionHTML()}
             _applyMaintenancePage(!!data.maintenance, data.message || "");
         } catch { /* network error — don't block access */ }
     }
-
-    // ═════════════════════════════════════════════════════════════════════
-    //  MAINTENANCE MINIGAMES — a few tiny on-theme activities to pass the
-    //  time while waiting. Purely cosmetic: none of them unlock the site.
-    //  The page is only ever hidden by a confirmed admin/owner login
-    //  (_checkMaintenance) or maintenance being turned off.
-    // ═════════════════════════════════════════════════════════════════════
 
     // ── Trivia ──────────────────────────────────────────────────────────
     const _MAINT_TRIVIA = [
@@ -1499,10 +1526,6 @@ ${_buildEmailSectionHTML()}
         });
     }
 
-
-    // ═════════════════════════════════════════════════════════════════════
-    //  SETTINGS TAB HOOK
-    // ═════════════════════════════════════════════════════════════════════
     function _hookSettingsAccountTab() {
         const tabBtn = document.querySelector('.settings-tab[data-stab="account"]');
         if (!tabBtn || tabBtn._acctHooked) return;
@@ -1510,9 +1533,6 @@ ${_buildEmailSectionHTML()}
         tabBtn.addEventListener("click", () => setTimeout(renderSettingsAccountPage, 0));
     }
 
-    // ═════════════════════════════════════════════════════════════════════
-    //  INIT
-    // ═════════════════════════════════════════════════════════════════════
     async function init() {
         _injectAuthModal();
         _hookSettingsAccountTab();

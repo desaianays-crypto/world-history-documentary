@@ -148,7 +148,6 @@ function playActivePlaylist() {
     loopPlaylistStory();
 }
 
-
 function appendMyPlaylistsButton(bar) {
     const btn = document.createElement("div");
     btn.className = "season pl-bar-btn";
@@ -183,9 +182,6 @@ openSeason = function (season, skipNav = false) {
 };
 
 loadPlaylistsFromStorage();
-// ═══════════════════════════════════════════════════════════════
-//  SETTINGS SYSTEM
-// ═══════════════════════════════════════════════════════════════
 const LS_SETTINGS = "whd_settings";
 
 const THEME_PALETTES = {
@@ -213,9 +209,6 @@ function _applyAccentLightClass(hex) {
     document.body.classList.toggle('accent-is-light', _accentLuminance(hex) > 0.4);
 }
 
-// ═══════════════════════════════════════════════════════════════
-//  CUSTOM SELECT DROPDOWNS  (crossfade / map style / story speed)
-// ═══════════════════════════════════════════════════════════════
 function _escHtmlCS(s) {
     return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 }
@@ -330,9 +323,6 @@ function _buildCustomSelect(sel) {
 
     wrap.setValue = val => _csSetValue(wrap, val);
 
-    // Some callers (admin.js) set sel.value or sel.disabled directly from JS
-    // rather than through user interaction. Watch for that and mirror it into
-    // the visible custom dropdown so it never silently falls out of sync.
     const observer = new MutationObserver(() => _csSetDisabled(wrap, sel.disabled));
     observer.observe(sel, { attributes: true, attributeFilter: ['disabled'] });
 

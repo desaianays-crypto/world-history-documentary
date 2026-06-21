@@ -94,11 +94,6 @@ function _scoreToken(scene, tok) {
         return { matched: hit, score: hit ? 10 : 0, fields: hit ? new Set(["year"]) : new Set() };
     }
 
-    // If the token is purely numeric (digits, optional leading minus, optional
-    // BCE/CE suffix) but _parseYearToken returned null — meaning the digit count
-    // is out of the valid 1–4 range (e.g. a 14-digit number) — return no match
-    // immediately. Do NOT fall through to fuzzy text search; a huge number would
-    // otherwise spuriously fuzzy-match against short words in field strings.
     const isPureNumeric = /^-?\d+(bce|bc|ce|ad)?$/.test(tok.trim().toLowerCase());
     if (isPureNumeric) {
         return { matched: false, score: 0, fields: new Set() };
@@ -123,10 +118,6 @@ function _scoreToken(scene, tok) {
     return { matched: best > 0, score: best, fields };
 }
 
-// ── Main search entry point ───────────────────────────────────────
-// query: raw string from input
-// sceneList: array of scene objects
-// Returns sorted array of { scene, score, matchedFields: Set, tokens: string[] }
 function searchScenes(query, sceneList) {
     const raw = query.trim().toLowerCase();
     if (!raw) return sceneList.map(s => ({ scene: s, score: 0, matchedFields: new Set(), tokens: [] }));
@@ -160,9 +151,6 @@ function searchScenes(query, sceneList) {
     return results;
 }
 
-// ── Highlight matched tokens in a plain text string ──────────────
-// Returns an HTML string with <mark class="sh"> around matches.
-// escFn: an HTML-escaping function (escHtmlMain in script.js, escHtml in admin.js)
 function highlightMatches(text, tokens, escFn) {
     escFn = escFn || (s => (s == null ? "" : String(s))
         .replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"));
@@ -171,10 +159,6 @@ function highlightMatches(text, tokens, escFn) {
     for (const tok of tokens) {
         const yr = _parseYearToken(tok);
         if (yr !== null) {
-            // Year token: highlight the formatted display string that actually
-            // appears in the metadata, e.g. "1700 CE" or "10000 BCE".
-            // We build all plausible display forms for this parsed year and
-            // highlight whichever ones appear literally in the text.
             const yearDisplayForms = [];
             if (yr.exact !== undefined) {
                 // Exact year — build "NNNN BCE" or "NNNN CE"

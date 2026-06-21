@@ -452,9 +452,6 @@ handles.forEach(handle => {
     handle.addEventListener("mousedown", (e) => {
         if (isMobileViewport()) return;
 
-        // BUG FIX: Snapshot panel geometry once at drag start.
-        // This is the only correct time to read getBoundingClientRect()
-        // for a resize operation — before any style mutations happen.
         const rect = panel.getBoundingClientRect();
         resizeStartX = e.clientX;
         resizeStartY = e.clientY;
@@ -493,9 +490,6 @@ document.addEventListener("mousemove", (e) => {
 
     // LEFT resize — move left edge, right edge stays fixed
     if (dir.includes("l")) {
-        // BUG FIX: left resize must also be delta-based.
-        // Old code re-read rect.right inside mousemove which drifted
-        // because rect.right changes as width/left are applied.
         const newLeft = resizeOriginLeft + dx;
         const rightEdge = resizeOriginLeft + resizeOriginWidth; // fixed anchor
         width = rightEdge - newLeft;
@@ -551,10 +545,6 @@ document.addEventListener("mousemove", (e) => {
     panel.style.right = "auto";
     panel.style.bottom = "auto";
     panel.style.position = "fixed";
-    // NOTE: clampPanelToScreen() is intentionally NOT called here.
-    // It reads getBoundingClientRect() which is now stale (we just wrote styles
-    // but the browser hasn't reflowed yet), so it would cause jitter/drift.
-    // Boundary enforcement is handled inline above instead.
 });
 
 document.addEventListener("mouseup", () => {
@@ -576,9 +566,6 @@ let dragOffsetY = 0;
 dragBar.addEventListener("mousedown", (e) => {
     if (isMobileViewport()) return;
 
-    // BUG FIX: renamed offsetX/offsetY → dragOffsetX/dragOffsetY to avoid
-    // collision with the MouseEvent.offsetX/offsetY DOM properties which are
-    // read-only and could cause silent shadowing bugs in some environments.
     dragging = true;
 
     const rect = panel.getBoundingClientRect();
@@ -648,12 +635,6 @@ async function fetchEmpireYear(year) {
     } catch (e) { return null; }
 }
 
-// ── Empire overlay pane ───────────────────────────────────────────────────────
-// Create a named Leaflet pane that sits above tiles (z:200) but below markers
-// (z:600). This prevents the GeoJSON renderer from ever touching the tile pane
-// and eliminates the white-tile flash caused by Leaflet's default SVG renderer
-// writing into the wrong pane. pointer-events:none ensures the overlay never
-// blocks clicks on the map or the info panel.
 (function _initEmpirePane() {
     if (!map.getPane("empirePane")) {
         const pane = map.createPane("empirePane");
@@ -662,10 +643,28 @@ async function fetchEmpireYear(year) {
     }
 })();
 
+function _isNearWhite(colorStr) {
+    let r, g, b;
+    const s = (colorStr || "").trim();
+    if (s.startsWith("#")) {
+        let hex = s.slice(1);
+        if (hex.length === 3) hex = hex.split("").map(c => c + c).join("");
+        if (hex.length < 6) return false;
+        r = parseInt(hex.slice(0, 2), 16);
+        g = parseInt(hex.slice(2, 4), 16);
+        b = parseInt(hex.slice(4, 6), 16);
+    } else {
+        const m = s.match(/rgba?\(\s*([\d.]+)\s*,\s*([\d.]+)\s*,\s*([\d.]+)/i);
+        if (!m) return false;
+        r = parseFloat(m[1]); g = parseFloat(m[2]); b = parseFloat(m[3]);
+    }
+    if ([r, g, b].some(v => Number.isNaN(v))) return false;
+    // Perceptual luminance — treat anything very bright as "white-ish"
+    const luminance = (0.299 * r + 0.587 * g + 0.114 * b) / 255;
+    return luminance > 0.88;
+}
+
 async function showEmpireExtent(scene) {
-    // Increment token FIRST, before any async work, so a rapid scene change
-    // always cancels the previous in-flight fetch even when the GeoJSON year
-    // is cached and the await resolves in the same microtask.
     if (!showEmpireExtent._token) showEmpireExtent._token = 0;
     const token = ++showEmpireExtent._token;
 
@@ -679,10 +678,6 @@ async function showEmpireExtent(scene) {
     const cfg = EMPIRE_GEOJSON_MAP[scene.id];
     if (!cfg) return;
 
-    // Yield to the microtask queue BEFORE fetching so that a synchronous
-    // cache hit still lets a newer showEmpireExtent() call increment the
-    // token before our guard runs. Without this yield, two back-to-back calls
-    // that share the same cached year both see token === _token and both draw.
     await Promise.resolve();
     if (token !== showEmpireExtent._token) return; // superseded before fetch
 
@@ -698,7 +693,13 @@ async function showEmpireExtent(scene) {
     if (token !== showEmpireExtent._token) return; // superseded while filtering
 
     const accentDim   = getComputedStyle(document.documentElement).getPropertyValue('--accent-dim').trim() || 'rgba(192,22,31,0.55)';
-    const accentSolid = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()      || '#c0161f';
+    let   accentSolid = getComputedStyle(document.documentElement).getPropertyValue('--accent').trim()      || '#c0161f';
+
+    if (_isNearWhite(accentSolid)) {
+        let mapIsLight = true;
+        try { mapIsLight = (loadSettings().mapStyle || "light") === "light"; } catch(e) {}
+        if (mapIsLight) accentSolid = "#1c1c1f"; // dark fallback, reads clearly on the light basemap
+    }
 
     const geojsonCollection = { type: "FeatureCollection", features: matched };
 

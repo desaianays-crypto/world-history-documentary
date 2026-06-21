@@ -53,7 +53,6 @@ function updateMusicForScene(s) {
 
     lastMusic = musicName;
 
-
     playMusic(musicName);
 }
 
@@ -61,9 +60,6 @@ function showFinishedScreen(storyTitle, replayFn) {
     // Store replay callback for the Play Again button
     _storyReplayFn = replayFn || null;
 
-    // BUG FIX: setUIState was never called here, leaving controlButtons
-    // (Pause, Mute, Bookmark) visible with running=false — inconsistent state.
-    // We now hide those controls explicitly before showing the overlay.
     const controlBtns = document.getElementById("controlButtons");
     const progress    = document.getElementById("sceneProgress");
     const panel       = document.getElementById("infoPanel");
@@ -175,9 +171,6 @@ function loopStory() {
     }, time);
 }
 
-// Module-level playlist loop — used when playing a user playlist.
-// Extracted from inside playActivePlaylist so all other callers (dots,
-// keyboard shortcuts, timeline) can reference it without closure issues.
 function loopPlaylistStory() {
     if (!running || paused) return;
     if (index >= currentPlaylist.length) {
@@ -215,14 +208,8 @@ function showScene(s) {
     _closeStoryPlPicker();
     const current = navStack[navStack.length - 1];
 
-    // Only update currentLevel from navStack when NOT in a running story.
-    // When a story is running, startStory() has already set currentLevel
-    // correctly (e.g. "world") via detectLevel(), and we must not clobber it.
     if (!running) {
         if (!current) {
-            // No nav context (e.g. playing a playlist from the modal).
-            // Default to "country" so Auto music picks the scene's own track,
-            // not the generic world track.
             currentLevel = "country";
         } else {
             currentLevel = current.type;
@@ -233,10 +220,6 @@ function showScene(s) {
     setUIState(running ? "story" : "scene");
 
     const fade = document.getElementById("fadeScreen");
-    // FIX: was setting opacity="1" twice and display="block" after the first
-    // opacity set (which means the transition had already started before display
-    // was even applied — the fade-in was invisible on first call).
-    // Correct order: display → opacity in the same frame.
     fade.style.display = "block";
     fade.style.opacity = "1";
 
@@ -338,7 +321,6 @@ function showScene(s) {
     }, 400);
 }
 
-
 function showToast(message) {
     let toast = document.getElementById("toastMsg");
     if (!toast) {
@@ -368,10 +350,6 @@ function showToast(message) {
         toast.style.opacity = "0";
     }, 2500);
 }
-
-// ═══════════════════════════════════════════════════════════════════════════
-// FEATURE 1 — Scene Progress Bar with chapter label
-// ═══════════════════════════════════════════════════════════════════════════
 
 function updateSceneProgress() {
     const dotsEl  = document.getElementById("sceneProgressDots");
@@ -419,10 +397,6 @@ function updateSceneProgress() {
         dotsEl.appendChild(dot);
     }
 }
-
-// ═══════════════════════════════════════════════════════════════════════════
-// FEATURE 2 — Timeline scrubber
-// ═══════════════════════════════════════════════════════════════════════════
 
 function showTimelineScrubber() {
     const el = document.getElementById("timelineScrubber");

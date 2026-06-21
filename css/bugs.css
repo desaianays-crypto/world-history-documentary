@@ -1,0 +1,477 @@
+/* ═══════════════════════════════════════════════════════════════
+   bugs.css  —  Bug Report Panel + Admin Bugs Tab
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Overlay backdrop ────────────────────────────────────────── */
+#bugReportOverlay {
+    position: fixed;
+    inset: 0;
+    z-index: 9500;
+    background: rgba(0, 0, 0, 0.72);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 16px;
+    opacity: 0;
+    transition: opacity 0.2s ease;
+    backdrop-filter: blur(4px);
+    -webkit-backdrop-filter: blur(4px);
+}
+#bugReportOverlay.bug-overlay-visible {
+    opacity: 1;
+}
+
+/* ── Modal box ───────────────────────────────────────────────── */
+#bugReportModal {
+    position: relative;
+    background: #17181c;
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 14px;
+    width: 100%;
+    max-width: 520px;
+    max-height: 90vh;
+    overflow-y: auto;
+    overflow-x: hidden;
+    padding: 24px 26px 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    box-shadow: 0 24px 80px rgba(0,0,0,0.85);
+    transform: translateY(8px);
+    transition: transform 0.22s ease;
+}
+#bugReportOverlay.bug-overlay-visible #bugReportModal {
+    transform: translateY(0);
+}
+
+/* ── Header ──────────────────────────────────────────────────── */
+.bug-modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 2px;
+}
+.bug-modal-title {
+    font-size: 16px;
+    font-weight: 700;
+    letter-spacing: 0.01em;
+    color: var(--accent, #fff);
+    padding-right: 28px;
+}
+.bug-modal-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
+    background: none;
+    border: none;
+    color: rgba(255,255,255,0.45);
+    font-size: 15px;
+    cursor: pointer;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border-radius: 6px;
+    flex-shrink: 0;
+    transition: color 0.15s, background 0.15s;
+    line-height: 1;
+}
+.bug-modal-close:hover {
+    color: #fff;
+    background: rgba(255,255,255,0.08);
+}
+
+/* ── Field groups ────────────────────────────────────────────── */
+.bug-field-group {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+.bug-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+}
+.bug-required {
+    color: #e05;
+}
+
+/* ── Inputs / Textarea / Select ──────────────────────────────── */
+.bug-input {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 8px;
+    color: #fff;
+    font-size: 13px;
+    padding: 9px 12px;
+    outline: none;
+    transition: border-color 0.15s, background 0.15s;
+    font-family: inherit;
+    width: 100%;
+    box-sizing: border-box;
+}
+.bug-input:focus {
+    border-color: var(--accent, rgba(255,255,255,0.4));
+    background: rgba(255,255,255,0.08);
+}
+.bug-input-error {
+    border-color: #e05 !important;
+    animation: bugShake 0.35s ease;
+}
+@keyframes bugShake {
+    0%,100% { transform: translateX(0); }
+    25%      { transform: translateX(-5px); }
+    75%      { transform: translateX(5px); }
+}
+.bug-textarea {
+    resize: vertical;
+    min-height: 90px;
+    line-height: 1.55;
+}
+.bug-select-wrap {
+    position: relative;
+    display: inline-flex;
+    width: 100%;
+}
+.bug-select {
+    appearance: none;
+    -webkit-appearance: none;
+    cursor: pointer;
+    padding-right: 32px;
+}
+.bug-select-arrow {
+    position: absolute;
+    right: 11px;
+    top: 50%;
+    transform: translateY(-50%);
+    pointer-events: none;
+    color: rgba(255,255,255,0.4);
+    font-size: 13px;
+}
+
+/* ── Severity row ────────────────────────────────────────────── */
+.bug-severity-row {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.bug-sev-btn {
+    flex: 1;
+    min-width: 64px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 7px;
+    color: rgba(255,255,255,0.55);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 7px 6px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    font-family: inherit;
+    letter-spacing: 0.03em;
+}
+.bug-sev-btn:hover {
+    background: rgba(255,255,255,0.09);
+    color: #fff;
+}
+.bug-sev-btn.sev-active[data-sev="low"]      { background: rgba(60,180,60,.18);  border-color: #3b3; color: #6d6; }
+.bug-sev-btn.sev-active[data-sev="medium"]   { background: rgba(220,170,0,.18);  border-color: #da0; color: #fc3; }
+.bug-sev-btn.sev-active[data-sev="high"]     { background: rgba(220,100,0,.20);  border-color: #d60; color: #f93; }
+.bug-sev-btn.sev-active[data-sev="critical"] { background: rgba(200,30,30,.22);  border-color: #c33; color: #f66; }
+
+/* ── Footer ──────────────────────────────────────────────────── */
+.bug-modal-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-top: 4px;
+    gap: 10px;
+}
+.bug-char-count {
+    font-size: 11px;
+    color: rgba(255,255,255,0.28);
+    transition: color 0.2s;
+    white-space: nowrap;
+}
+.bug-char-warn {
+    color: #f93 !important;
+}
+.bug-footer-btns {
+    display: flex;
+    gap: 8px;
+    flex-shrink: 0;
+}
+.bug-btn-cancel {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 8px;
+    color: rgba(255,255,255,0.6);
+    font-size: 13px;
+    font-weight: 600;
+    padding: 8px 16px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    font-family: inherit;
+}
+.bug-btn-cancel:hover {
+    background: rgba(255,255,255,0.11);
+    color: #fff;
+}
+.bug-btn-submit {
+    background: var(--accent, rgba(255,255,255,0.85));
+    border: none;
+    border-radius: 8px;
+    color: #111;
+    font-size: 13px;
+    font-weight: 700;
+    padding: 8px 18px;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+    font-family: inherit;
+    letter-spacing: 0.02em;
+}
+.bug-btn-submit:hover  { opacity: 0.88; }
+.bug-btn-submit:active { transform: scale(0.97); }
+
+/* ═══════════════════════════════════════════════════════════════
+   ADMIN PANEL — Bugs Tab
+   ═══════════════════════════════════════════════════════════════ */
+
+/* ── Toolbar ─────────────────────────────────────────────────── */
+.bugs-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    margin-bottom: 14px;
+}
+.bugs-filter-group {
+    display: flex;
+    gap: 6px;
+    flex-wrap: wrap;
+}
+.bugs-filter-btn {
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 7px;
+    color: rgba(255,255,255,0.55);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 13px;
+    cursor: pointer;
+    transition: background 0.15s, border-color 0.15s, color 0.15s;
+    font-family: inherit;
+}
+.bugs-filter-btn:hover { background: rgba(255,255,255,0.09); color:#fff; }
+.bugs-filter-btn.active {
+    background: var(--accent-dim, rgba(255,255,255,0.12));
+    border-color: var(--accent, rgba(255,255,255,0.35));
+    color: var(--accent, #fff);
+}
+.bugs-sort-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.bugs-sort-label {
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+    white-space: nowrap;
+}
+.bugs-sort-sel {
+    font-size: 12px;
+    padding: 5px 30px 5px 10px;
+}
+.bugs-clear-btn {
+    background: rgba(180,30,30,0.15);
+    border: 1px solid rgba(200,50,50,0.25);
+    border-radius: 7px;
+    color: #f66;
+    font-size: 12px;
+    font-weight: 600;
+    padding: 6px 12px;
+    cursor: pointer;
+    transition: background 0.15s;
+    font-family: inherit;
+    white-space: nowrap;
+}
+.bugs-clear-btn:hover { background: rgba(180,30,30,0.28); }
+
+/* ── Empty state ─────────────────────────────────────────────── */
+.bugs-empty {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    padding: 48px 20px;
+    color: rgba(255,255,255,0.35);
+    font-size: 14px;
+    text-align: center;
+}
+.bugs-kbd {
+    display: inline-block;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid rgba(255,255,255,0.18);
+    border-radius: 4px;
+    padding: 1px 6px;
+    font-family: monospace;
+    font-size: 11px;
+}
+
+/* ── Bug list ─────────────────────────────────────────────────── */
+.bugs-list {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+/* ── Bug card ─────────────────────────────────────────────────── */
+.bug-card {
+    background: rgba(255,255,255,0.04);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 10px;
+    padding: 13px 16px 11px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    transition: background 0.15s;
+}
+.bug-card:hover { background: rgba(255,255,255,0.06); }
+.bug-card-resolved {
+    opacity: 0.55;
+    border-color: rgba(255,255,255,0.05);
+}
+.bug-card-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+.bug-card-title {
+    font-size: 14px;
+    font-weight: 600;
+    color: #fff;
+    flex: 1;
+    min-width: 120px;
+}
+
+/* Severity pills */
+.bug-sev-pill {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    padding: 2px 8px;
+    border-radius: 20px;
+    white-space: nowrap;
+    border: 1px solid transparent;
+}
+.bug-sev-low      { background: rgba(60,180,60,.15);  border-color: #3b3;  color: #6d6; }
+.bug-sev-medium   { background: rgba(220,170,0,.15);  border-color: #da0;  color: #fc3; }
+.bug-sev-high     { background: rgba(220,100,0,.18);  border-color: #d60;  color: #f93; }
+.bug-sev-critical { background: rgba(200,30,30,.20);  border-color: #c33;  color: #f66; }
+
+/* Category pill */
+.bug-cat-pill {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.55);
+    white-space: nowrap;
+}
+
+/* Resolved badge */
+.bug-resolved-badge {
+    font-size: 11px;
+    font-weight: 700;
+    color: #6d6;
+    letter-spacing: 0.04em;
+}
+
+/* Details text */
+.bug-card-details {
+    font-size: 12px;
+    color: rgba(255,255,255,0.60);
+    line-height: 1.55;
+    white-space: pre-wrap;
+    word-break: break-word;
+    padding: 8px 10px;
+    background: rgba(0,0,0,0.20);
+    border-radius: 6px;
+    border-left: 2px solid rgba(255,255,255,0.10);
+}
+
+/* Meta row */
+.bug-card-meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 12px;
+    font-size: 11px;
+    color: rgba(255,255,255,0.35);
+}
+.bug-card-url {
+    cursor: default;
+    font-family: monospace;
+    font-size: 10px;
+}
+
+/* Action buttons row */
+.bug-card-actions {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin-top: 2px;
+}
+.bug-action-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.10);
+    border-radius: 7px;
+    color: rgba(255,255,255,0.65);
+    font-size: 12px;
+    font-weight: 600;
+    padding: 5px 13px;
+    cursor: pointer;
+    transition: background 0.15s, color 0.15s;
+    font-family: inherit;
+}
+.bug-action-btn:hover { background: rgba(255,255,255,0.12); color: #fff; }
+.bug-resolve-btn:hover {
+    background: rgba(60,180,60,.18);
+    border-color: #3b3;
+    color: #6d6;
+}
+.bug-reopen-btn:hover {
+    background: rgba(220,170,0,.15);
+    border-color: #da0;
+    color: #fc3;
+}
+.bug-delete-btn:hover {
+    background: rgba(200,30,30,.18);
+    border-color: #c33;
+    color: #f66;
+}
+
+/* ── Responsive ──────────────────────────────────────────────── */
+@media (max-width: 480px) {
+    #bugReportModal {
+        padding: 18px 16px 16px;
+    }
+    .bug-severity-row {
+        gap: 5px;
+    }
+    .bug-sev-btn {
+        font-size: 11px;
+        padding: 6px 4px;
+    }
+    .bugs-toolbar {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+}

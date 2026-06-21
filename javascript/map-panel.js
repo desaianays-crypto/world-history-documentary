@@ -13,12 +13,8 @@ function ensureMusicReady() {
     });
 }
 
-
 function goToLevel(level) {
     if (!level) return;
-    // FIX: renamed local `index` to `stackIndex` to avoid shadowing the
-    // module-level `index` variable used by loopStory(). The shadow was silent
-    // but if goToLevel were ever called mid-story, it would corrupt playback.
     const stackIndex = navStack.findIndex(n =>
         n.type === level.type && n.name === level.name
     );
@@ -41,7 +37,6 @@ function goToLevel(level) {
     }
     showSeasonsBar()
 }
-
 
 function getSmartPlaylist() {
 
@@ -251,7 +246,6 @@ function openSeason(season, skipNav = false) {
     setUIState("episodes");
 }
 
-
 function togglePause() {
 
     paused = !paused;
@@ -336,9 +330,6 @@ function updateBounds() {
     map.setMaxBounds(worldBounds);
 }
 
-// Phones / narrow tablets get a fixed bottom-sheet info panel (see
-// the "MOBILE / RESPONSIVE LAYOUT" section in style.css) rather than
-// the freely draggable/resizable desktop window.
 function isMobileViewport() {
     return window.innerWidth <= 760;
 }
@@ -377,10 +368,6 @@ function loadPanelSize() {
         ? savedHeight + "px"
         : "650px";
 
-    // FIX: restore saved position, or fall back to the CSS default (right:20px)
-    // which keeps the panel on-screen on any monitor width.
-    // Always clear `right` when `left` is set, and vice-versa, so the browser
-    // doesn't use both axes simultaneously.
     if (savedLeft >= 0 && savedLeft <= window.innerWidth - 300) {
         infoPanel.style.left = savedLeft + "px";
         infoPanel.style.right = "auto";

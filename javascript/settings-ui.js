@@ -6,9 +6,6 @@ function applyMapTile(style) {
         attribution: "© OpenStreetMap © CARTO",
         opacity: 0.95
     }).addTo(map);
-    // Re-raise the empire pane so the new tile layer doesn't land on top of it.
-    // Leaflet inserts new layers at the end of their pane; re-setting zIndex
-    // forces the empirePane back above the tile pane (z:200 vs tile pane z:200).
     const ep = map.getPane("empirePane");
     if (ep) ep.style.zIndex = 250;
 }
@@ -141,9 +138,6 @@ document.getElementById("settingsPage").addEventListener("click", function(e) {
     if (e.target === this) closeSettings();
 });
 
-// ── Slider fill helper ────────────────────────────────────────────────────
-// Updates the --fill CSS custom property so the track shows a filled
-// portion from the left up to the current thumb position.
 function _syncSliderFill(el) {
     if (!el) return;
     const min = parseFloat(el.min) || 0;
@@ -211,10 +205,6 @@ function resetAllSettings() {
 
 // Settings are now applied in window.onload so the DOM is fully ready.
 
-
-// ═══════════════════════════════════════════════════════════════
-//  BOOKMARKS
-// ═══════════════════════════════════════════════════════════════
 const LS_BOOKMARKS = "whd_bookmarks";
 
 function loadBookmarks() {
@@ -387,7 +377,6 @@ function renderBookmarksList() {
             </div>
         </div>`).join("");
 }
-
 
 // ── Explore tab — search any scene and jump to it ────────────────────────────
 function filterExploreSearch() {

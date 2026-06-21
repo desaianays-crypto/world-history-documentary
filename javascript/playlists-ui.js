@@ -115,10 +115,6 @@ function createNewPlaylist() {
     }, 50);
 }
 
-// ════════════════════════════════════════════════════════════════════
-//  Shared confirmation dialog (mirrors admin panel style)
-// ════════════════════════════════════════════════════════════════════
-
 let _appConfirmResolve = null;
 
 function _ensureAppConfirmModal() {
@@ -369,11 +365,6 @@ function renderSearchSuggestions() {
     label.textContent = "Try adding these to start:";
     sugBox.appendChild(label);
 }
-
-
-// Search engine functions (_trigrams, _editDist, _parseYearToken, _yearMatches,
-// _tokenMatchField, _scoreToken, searchScenes, highlightMatches) are defined in
-// javascript/search.js, which is loaded before this file.
 
 function filterSceneSearch() {
     const input = document.getElementById("sceneSearchInput");
