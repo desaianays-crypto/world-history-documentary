@@ -82,7 +82,7 @@ function openBugReportPanel() {
         <div id="bugReportModal" role="dialog" aria-modal="true" aria-label="Bug Report">
             <div class="bug-modal-header">
                 <span class="bug-modal-title"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" style="vertical-align:-2px;margin-right:4px"><path d="M8 2l1.5 1.5"/><path d="M16 2l-1.5 1.5"/><path d="M9 7.5h6a3 3 0 0 1 3 3V14a5 5 0 0 1-5 5h-2a5 5 0 0 1-5-5v-3.5a3 3 0 0 1 3-3z"/><path d="M5 12H2"/><path d="M22 12h-3"/><path d="M5 17l-2.5 2"/><path d="M19 17l2.5 2"/><path d="M5 8.5L3 7"/><path d="M19 8.5L21 7"/><line x1="12" y1="7.5" x2="12" y2="19"/></svg>Report a Bug</span>
-                <button class="bug-modal-close" id="bugModalClose" onclick="closeBugReportPanel()" aria-label="Close">✕</button>
+                <button class="bug-modal-close" onclick="closeBugReportPanel()" aria-label="Close">✕</button>
             </div>
 
             <div class="bug-field-group">

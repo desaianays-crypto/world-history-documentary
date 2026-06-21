@@ -1420,14 +1420,14 @@ ${_buildEmailSectionHTML()}
 
     // ── Trivia ──────────────────────────────────────────────────────────
     const _MAINT_TRIVIA = [
-        { q: "Which empire built the road network later reused by Persia's royal couriers?", a: ["The Achaemenid Empire", "The Akkadian Empire", "The Hittite Empire", "The Assyrian Empire"], c: 0 },
+        { q: "Which empire built an earlier road network later extended by Persia's royal couriers?", a: ["The Achaemenid Empire", "The Akkadian Empire", "The Hittite Empire", "The Assyrian Empire"], c: 3 },
         { q: "The Great Library once stood in which ancient city?", a: ["Alexandria", "Babylon", "Carthage", "Thebes"], c: 0 },
         { q: "Which dynasty unified China and standardized its writing script?", a: ["Han", "Qin", "Tang", "Ming"], c: 1 },
         { q: "The Code of Hammurabi originated in which civilization?", a: ["Egyptian", "Babylonian", "Phoenician", "Sumerian"], c: 1 },
         { q: "Machu Picchu was built by which civilization?", a: ["Aztec", "Maya", "Inca", "Olmec"], c: 2 },
         { q: "Which empire's currency, the denarius, influenced coinage across Europe?", a: ["Roman", "Byzantine", "Ottoman", "Macedonian"], c: 0 },
         { q: "The Rosetta Stone helped decode which ancient script?", a: ["Cuneiform", "Linear B", "Egyptian hieroglyphs", "Phoenician"], c: 2 },
-        { q: "Who is traditionally credited with unifying Japan's warring states in the late 1500s?", a: ["Tokugawa Ieyasu", "Oda Nobunaga", "Toyotomi Hideyoshi", "Minamoto Yoritomo"], c: 1 },
+        { q: "Who is traditionally credited with unifying Japan's warring states in the late 1500s?", a: ["Tokugawa Ieyasu", "Oda Nobunaga", "Toyotomi Hideyoshi", "Minamoto Yoritomo"], c: 2 },
         { q: "The Silk Road primarily connected which two regions?", a: ["Europe and the Americas", "East Asia and the Mediterranean", "Africa and Oceania", "South America and Europe"], c: 1 },
         { q: "Which river valley is associated with the earliest known cities of Mesopotamia?", a: ["Nile", "Indus", "Tigris–Euphrates", "Yangtze"], c: 2 },
         { q: "The Hagia Sophia was originally built as a cathedral in which empire?", a: ["Ottoman Empire", "Byzantine Empire", "Roman Empire", "Persian Empire"], c: 1 },

@@ -58,26 +58,30 @@
     color: var(--accent, #fff);
     padding-right: 28px;
 }
-#bugModalClose {
-    position: fixed !important;
-    width: 20px !important;
-    height: 20px !important;
-    left: 85% !important;
-    padding: none !important;
-    text-align: center;
+.bug-modal-close {
+    position: absolute;
+    top: 14px;
+    right: 14px;
     background: none;
     border: none;
     color: rgba(255,255,255,0.45);
-    font-size: 20px;
+    font-size: 15px;
     cursor: pointer;
+    width: 20px;
+    min-width: 0 !important;
+    height: 20px;
     display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
     border-radius: 6px;
     flex-shrink: 0;
     transition: color 0.15s, background 0.15s;
+    line-height: 1;
 }
-
-#bugModalClose:hover {
+.bug-modal-close:hover {
     color: #fff;
+    background: rgba(255,255,255,0.08);
 }
 
 /* ── Field groups ────────────────────────────────────────────── */

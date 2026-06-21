@@ -354,7 +354,7 @@ function enhanceNumberInputs(ids) {
                         <p style="font-size:12px;color:rgba(255,255,255,0.4);margin:-4px 0 14px;">These scenes have been hidden from the database. You can permanently remove them or recover them.</p>
                         <div id="adminDeletedList"></div>
                         <div id="adminDeletedEmpty" style="display:none;color:rgba(255,255,255,0.3);font-size:13px;padding:10px 0;">No deleted scenes.</div>
-                        <div id="adminDeletedBulkBar" style="display:none;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.07);display:flex;gap:9px;flex-wrap:wrap;">
+                        <div id="adminDeletedBulkBar" style="display:none;margin-top:14px;padding-top:12px;border-top:1px solid rgba(255,255,255,0.07);gap:9px;flex-wrap:wrap;">
                             <button class="admin-btn admin-btn-warn" id="adminRestoreAllBtn">↺ Restore All</button>
                             <button class="admin-btn admin-btn-danger" id="adminPurgeAllBtn">💀 Permanently Delete All</button>
                         </div>
@@ -370,45 +370,7 @@ function enhanceNumberInputs(ids) {
 
                 <!-- INFO PAGE -->
                 <div class="admin-page" data-page="info">
-                    <p class="admin-section-title">⌨ Keyboard Shortcuts</p>
-                    <div class="admin-info-about">
-                        <div class="admin-info-row"><span class="admin-info-key"><kbd class="admin-kbd">O</kbd></span><span class="admin-info-val">Open / close this admin panel</span></div>
-                        <div class="admin-info-row"><span class="admin-info-key"><kbd class="admin-kbd">B</kbd></span><span class="admin-info-val">Report a bug (closed automatically while this panel is open)</span></div>
-                        <div class="admin-info-row"><span class="admin-info-key"><kbd class="admin-kbd">Esc</kbd></span><span class="admin-info-val">Close the active panel, modal, or confirm dialog</span></div>
-                        <div class="admin-info-row"><span class="admin-info-key"><kbd class="admin-kbd">Space</kbd> / <kbd class="admin-kbd">P</kbd></span><span class="admin-info-val">Pause / resume Story Mode</span></div>
-                        <div class="admin-info-row"><span class="admin-info-key"><kbd class="admin-kbd">→</kbd> / <kbd class="admin-kbd">N</kbd></span><span class="admin-info-val">Skip to next scene (Story Mode)</span></div>
-                        <div class="admin-info-row"><span class="admin-info-key"><kbd class="admin-kbd">←</kbd> / <kbd class="admin-kbd">B</kbd></span><span class="admin-info-val">Go back one scene (Story Mode)</span></div>
-                    </div>
-
-                    <p class="admin-section-title" style="margin-top:20px;">🧭 Tabs Guide</p>
-                    <div class="admin-help-grid">
-                        <div class="admin-help-card">
-                            <div class="admin-help-card-title">➕ Add / Edit</div>
-                            <div class="admin-help-card-sub">Create a new scene by hand, or bulk-import scenes by pasting code. Edits here go live immediately.</div>
-                        </div>
-                        <div class="admin-help-card">
-                            <div class="admin-help-card-title">📋 Manage Entries</div>
-                            <div class="admin-help-card-sub">Browse, edit, or delete existing scenes across every database. Deleted scenes can be restored.</div>
-                        </div>
-                        <div class="admin-help-card">
-                            <div class="admin-help-card-title">🌳 World Tree</div>
-                            <div class="admin-help-card-sub">Override the region → country → era hierarchy shown to users, independent of the raw scene data.</div>
-                        </div>
-                        <div class="admin-help-card">
-                            <div class="admin-help-card-title">${ADMIN_BUG_ICON_SVG} Bugs</div>
-                            <div class="admin-help-card-sub">Shared bug-report inbox. Anyone can file a report (press <kbd class="admin-kbd">B</kbd>); admins can resolve, reopen, or delete them.</div>
-                        </div>
-                        <div class="admin-help-card">
-                            <div class="admin-help-card-title">👑 Owner</div>
-                            <div class="admin-help-card-sub">Owner-only: manage user roles, publish announcements, edit the update log, and toggle site-wide maintenance mode.</div>
-                        </div>
-                        <div class="admin-help-card">
-                            <div class="admin-help-card-title">ℹ Info</div>
-                            <div class="admin-help-card-sub">This page — shortcuts, a guide to each tab, and live stats about the database and storage.</div>
-                        </div>
-                    </div>
-
-                    <p class="admin-section-title" style="margin-top:20px;">📊 Database Overview</p>
+                    <p class="admin-section-title">📊 Database Overview</p>
                     <div id="adminInfoStats" class="admin-info-stats"></div>
                     <p class="admin-section-title" style="margin-top:20px;">🗂 Content Breakdown</p>
                     <div id="adminInfoBreakdown" class="admin-info-breakdown"></div>
@@ -562,6 +524,43 @@ function enhanceNumberInputs(ids) {
 
     // Replace native number-input spin arrows with styled custom steppers
     enhanceNumberInputs(["aStartYear", "aEndYear", "aLat", "aLng", "aZoom"]);
+
+    // Make the tab strip mouse-drag-scrollable (overflow-x:auto alone only
+    // supports touch/trackpad/scrollbar — plain click-and-drag with a mouse
+    // doesn't scroll a div natively) and map vertical wheel to horizontal
+    // scroll for convenience on a regular mouse.
+    (function enableAdminTabsMouseScroll() {
+        const tabs = document.getElementById("adminTabs");
+        if (!tabs) return;
+        let isDown = false, startX = 0, startScroll = 0;
+        tabs._dragMoved = false;
+
+        tabs.addEventListener("mousedown", e => {
+            isDown = true;
+            startX = e.pageX;
+            startScroll = tabs.scrollLeft;
+            tabs.classList.add("admin-tabs-dragging");
+        });
+        window.addEventListener("mousemove", e => {
+            if (!isDown) return;
+            const dx = e.pageX - startX;
+            if (Math.abs(dx) > 5) tabs._dragMoved = true;
+            tabs.scrollLeft = startScroll - dx;
+        });
+        window.addEventListener("mouseup", () => {
+            if (!isDown) return;
+            isDown = false;
+            tabs.classList.remove("admin-tabs-dragging");
+            // Clear the drag flag on the next tick — after any click event
+            // from this same mouse-up has already had a chance to check it.
+            if (tabs._dragMoved) setTimeout(() => { tabs._dragMoved = false; }, 0);
+        });
+        tabs.addEventListener("wheel", e => {
+            if (e.deltaY === 0) return;
+            tabs.scrollLeft += e.deltaY;
+            e.preventDefault();
+        }, { passive: false });
+    })();
 
     // ── State ─────────────────────────────────────────────────────
     let unlocked      = sessionStorage.getItem(SS_UNLOCKED) === "1";
@@ -998,6 +997,8 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
     // ── Tabs ──────────────────────────────────────────────────────
     document.querySelectorAll(".admin-tab").forEach(tab => {
         tab.addEventListener("click", () => {
+            const tabsEl = document.getElementById("adminTabs");
+            if (tabsEl && tabsEl._dragMoved) return; // this click was the end of a drag-scroll, not a real tap
             document.querySelectorAll(".admin-tab").forEach(t => t.classList.remove("active"));
             document.querySelectorAll(".admin-page").forEach(p => p.classList.remove("active"));
             tab.classList.add("active");
@@ -1546,7 +1547,6 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
     function loadSceneIntoForm(scene, dbKey) {
         editingId    = scene.id;
         editingDbKey = dbKey;
-        // Switch to add tab, then to manual subtab
         switchToTab("add");
         document.querySelectorAll(".admin-add-subtab[data-subtab]").forEach(b => b.classList.remove("active"));
         document.querySelectorAll(".admin-add-subpage[data-subpage]").forEach(p => p.classList.remove("active"));
@@ -1901,6 +1901,26 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
     // ── MANAGE TAB ────────────────────────────────────────────────
     document.getElementById("adminSceneFilter").addEventListener("input", refreshManageList);
 
+    // Delegated events for scene list rows (edit / delete / duplicate / checkbox)
+    document.getElementById("adminSceneList").addEventListener("click", function(e) {
+        const row = e.target.closest(".admin-scene-row");
+        if (!row) return;
+        const sid = row.dataset.sid;
+        const idx = this._sceneIndex && this._sceneIndex[sid];
+        if (!idx) return;
+        const { dbKey, scene: s } = idx;
+        if (e.target.closest("[data-edit]"))   { loadSceneIntoForm(s, dbKey); return; }
+        if (e.target.closest("[data-del]"))    { deleteScene(dbKey, s.id, s.name); return; }
+        if (e.target.closest("[data-dup]"))    { duplicateScene(s, dbKey); return; }
+    });
+    document.getElementById("adminSceneList").addEventListener("change", function(e) {
+        const cb = e.target.closest(".admin-cb[data-id]");
+        if (!cb) return;
+        if (cb.checked) selectedSceneIds.add(cb.dataset.id);
+        else selectedSceneIds.delete(cb.dataset.id);
+        updateMultiBar();
+    });
+
     // DB chip filter removed
 
     // Sort button clicks
@@ -2037,49 +2057,42 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
             return;
         }
 
+        // Build scene index for delegated event handling
+        const _sceneIndex = {};
+        const frag = document.createDocumentFragment();
+
         filtered.forEach((item) => { const { dbKey, scene: s } = item;
+            _sceneIndex[s.id] = { dbKey, scene: s };
             const row = document.createElement("div");
             row.className = "admin-scene-row";
+            row.dataset.sid = s.id;
             const sy = s.startYear < 0 ? Math.abs(s.startYear)+"BC" : s.startYear;
             const ey = s.endYear   < 0 ? Math.abs(s.endYear)+"BC"   : s.endYear;
             const isEdited = s._adminAdded || s._adminEdited;
             const isSelected = selectedSceneIds.has(s.id);
-
-            const cb = document.createElement("input");
-            cb.type = "checkbox";
-            cb.className = "admin-cb";
-            cb.dataset.id = s.id;
-            cb.checked = isSelected;
-            cb.addEventListener("change", () => {
-                if (cb.checked) selectedSceneIds.add(s.id);
-                else selectedSceneIds.delete(s.id);
-                updateMultiBar();
-            });
-
-            const inner = document.createElement("div");
-            inner.style.cssText = "display:flex;align-items:center;flex:1;gap:8px;min-width:0;";
             const _sr = item._searchResult || null;
             const _toks = _sr ? _sr.tokens : [];
-            inner.innerHTML = `
-                <div class="admin-scene-info" style="flex:1;min-width:0;">
-                    <div class="admin-scene-name">${adminHighlight(s.name, _toks)}${isEdited ? ' <span style="font-size:9px;color:#f5a623;border:1px solid rgba(200,120,0,0.4);border-radius:99px;padding:1px 5px;font-weight:700;">EDITED</span>' : ""}</div>
-                    <div class="admin-scene-meta">${adminHighlight(s.country||"", _toks)} · ${adminHighlight(s.season||"", _toks)} · ${sy}–${ey}</div>
-                </div>
-                <span class="admin-scene-db db-${dbKey}" style="flex-shrink:0;">${DB_MAP[dbKey].label}</span>
-                <div class="admin-scene-actions" style="flex-shrink:0;">
-                    <button class="admin-btn admin-btn-secondary" style="padding:4px 9px;font-size:11px;" data-dup title="Duplicate scene">⎘</button>
-                    <button class="admin-btn admin-btn-warn" style="padding:4px 9px;font-size:11px;" data-edit>✏️ Edit</button>
-                    <button class="admin-btn admin-btn-danger" style="padding:4px 9px;font-size:11px;" data-del>🗑</button>
+            row.innerHTML = `
+                <input type="checkbox" class="admin-cb" data-id="${s.id}" ${isSelected ? "checked" : ""}>
+                <div style="display:flex;align-items:center;flex:1;gap:8px;min-width:0;">
+                    <div class="admin-scene-info" style="flex:1;min-width:0;">
+                        <div class="admin-scene-name">${adminHighlight(s.name, _toks)}${isEdited ? ' <span style="font-size:9px;color:#f5a623;border:1px solid rgba(200,120,0,0.4);border-radius:99px;padding:1px 5px;font-weight:700;">EDITED</span>' : ""}</div>
+                        <div class="admin-scene-meta">${adminHighlight(s.country||"", _toks)} · ${adminHighlight(s.season||"", _toks)} · ${sy}–${ey}</div>
+                    </div>
+                    <span class="admin-scene-db db-${dbKey}" style="flex-shrink:0;">${DB_MAP[dbKey].label}</span>
+                    <div class="admin-scene-actions" style="flex-shrink:0;">
+                        <button class="admin-btn admin-btn-secondary" style="padding:4px 9px;font-size:11px;" data-dup title="Duplicate scene">⎘</button>
+                        <button class="admin-btn admin-btn-warn" style="padding:4px 9px;font-size:11px;" data-edit>✏️ Edit</button>
+                        <button class="admin-btn admin-btn-danger" style="padding:4px 9px;font-size:11px;" data-del>🗑</button>
+                    </div>
                 </div>
             `;
-            inner.querySelector("[data-edit]").addEventListener("click", () => loadSceneIntoForm(s, dbKey));
-            inner.querySelector("[data-del]").addEventListener("click", () => deleteScene(dbKey, s.id, s.name));
-            inner.querySelector("[data-dup]").addEventListener("click", () => duplicateScene(s, dbKey));
-
-            row.appendChild(cb);
-            row.appendChild(inner);
-            container.appendChild(row);
+            frag.appendChild(row);
         });
+
+        container.appendChild(frag);
+        // Store scene index on the container for delegated events
+        container._sceneIndex = _sceneIndex;
         updateMultiBar();
     }
 
