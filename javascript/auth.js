@@ -502,10 +502,6 @@
         const loggedInRow = document.getElementById("authLoggedInRow");
         const guestRow    = document.getElementById("authGuestRow");
         const tabs = document.getElementById("authTabs");
-        let isDragging = false;
-        let startX;
-        let scrollLeft;
-        wolfCode(tabs)
         const forms       = document.querySelectorAll(".auth-form");
         const divider     = document.querySelector(".auth-divider");
 
@@ -1566,38 +1562,49 @@ ${_buildEmailSectionHTML()}
     window.renderSettingsAccountPage = renderSettingsAccountPage;
 })();
 
-//Wolf Code
-function wolfCode(element,){
-element.addEventListener("mousedown", (e) => {
-    isDragging = true;
+// wolfCode — adds mouse drag-to-scroll + wheel-to-horizontal-scroll support
+// to a horizontally-scrolling strip (tabs, chips, etc). Native overflow-x
+// only responds to touch/trackpad/scrollbar-drag, not a plain mouse
+// click-and-drag, so this fills that gap. Safe to call on multiple
+// elements — each gets its own private drag state instead of sharing
+// global variables.
+function wolfCode(element) {
+    if (!element || element._wolfCoded) return;
+    element._wolfCoded = true;
 
-    element.classList.add("dragging");
-    startX = e.pageX - element.offsetLeft;
-    scrollLeft = element.scrollLeft;
-});
-element.addEventListener("mouseleave", () => {
-    isDragging = false;
-    element.classList.remove("dragging");
-});
-element.addEventListener("mouseup", () => {
-    isDragging = false;
-    element.classList.remove("dragging");
-});
-element.addEventListener("mousemove", (e) => {
-    if (!isDragging) return;
+    let isDragging = false;
+    let startX = 0;
+    let startScroll = 0;
+    let moved = false;
 
-    e.preventDefault();
-    const x = e.pageX - element.offsetLeft;
-    const walk = (x - startX) * 1.5;
-
-    element.scrollLeft = scrollLeft - walk;
-});
-element.addEventListener("wheel", (e) => {
-    const isVerticalScroll =
-        Math.abs(e.deltaY) > Math.abs(e.deltaX);
-    if (isVerticalScroll) {
-        e.preventDefault();
-        element.scrollLeft += e.deltaY;
-    }
-}, { passive: false });
+    element.addEventListener("mousedown", (e) => {
+        isDragging = true;
+        moved = false;
+        element.classList.add("dragging");
+        startX = e.pageX;
+        startScroll = element.scrollLeft;
+    });
+    window.addEventListener("mouseup", () => {
+        if (!isDragging) return;
+        isDragging = false;
+        element.classList.remove("dragging");
+        if (moved) setTimeout(() => { moved = false; }, 0);
+    });
+    window.addEventListener("mousemove", (e) => {
+        if (!isDragging) return;
+        const dx = e.pageX - startX;
+        if (Math.abs(dx) > 5) moved = true;
+        element.scrollLeft = startScroll - dx;
+    });
+    // Prevent a drag-release from also registering as a click on a tab/chip
+    element.addEventListener("click", (e) => {
+        if (moved) { e.preventDefault(); e.stopPropagation(); }
+    }, true);
+    element.addEventListener("wheel", (e) => {
+        const horizontalIntent = Math.abs(e.deltaY) > Math.abs(e.deltaX);
+        if (horizontalIntent) {
+            e.preventDefault();
+            element.scrollLeft += e.deltaY;
+        }
+    }, { passive: false });
 }

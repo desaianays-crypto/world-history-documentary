@@ -332,7 +332,7 @@ function _buildCustomSelect(sel) {
             _lastSeenValue = sel.value;
             _csSetValue(wrap, sel.value);
         }
-    }, 200);
+    }, 350);
 }
 
 function initCustomSelects(ids) {

@@ -226,7 +226,7 @@ body.accent-is-light .ac-ok-danger        { color: #111; }
 }
 #authPanelRight::-webkit-scrollbar { width: 5px; }
 #authPanelRight::-webkit-scrollbar-track { background: transparent; }
-#authPanelRight::-webkit-scrollbar-thumb { background: var(--accent-dim); border-radius: 99px; }
+#authPanelRight::-webkit-scrollbar-thumb { background: var(--accent-dim); border-radius: 3px; }
 #authPanelRight::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
 #authPanelInner {

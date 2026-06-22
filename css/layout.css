@@ -59,10 +59,10 @@
     border: 1px solid var(--accent-dim);
     background: rgba(20, 0, 0, 0.6);
     box-shadow:
-        0 0 60px var(--accent-glow),
-        0 0 120px rgba(192, 22, 31, 0.18),
-        0 0 200px rgba(192, 22, 31, 0.08),
-        inset 0 0 40px rgba(192, 22, 31, 0.07),
+        0 0 60px var(--accent),
+        0 0 120px var(--accent-glow),
+        0 0 200px var(--accent-dim),
+        inset 0 0 40px var(--accent-dim),
         0 20px 80px rgba(0, 0, 0, 0.8);
     animation: finishedCardIn 1.0s 0.3s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
@@ -92,7 +92,7 @@
     text-shadow:
         0 0 20px var(--accent),
         0 0 40px var(--accent-dim),
-        0 0 80px rgba(192, 22, 31, 0.3);
+        0 0 80px var(--accent-glow);
     margin-bottom: 18px;
     line-height: 1.1;
     animation: titleGlow 3s ease-in-out 1.5s infinite;
@@ -334,15 +334,15 @@ header {
     scrollbar-width: thin;
     scrollbar-color: var(--accent-dim) rgba(255,255,255,0.04);
 }
-#seasons::-webkit-scrollbar { height: var(--scrollbar-w); }
+#seasons::-webkit-scrollbar { height: var(--scrollbar-w); border-radius: 0; }
 #seasons::-webkit-scrollbar-track {
     background: rgba(255,255,255,0.04);
-    border-radius: 99px;
+    border-radius: 3px;
     margin: 0 6px;
 }
 #seasons::-webkit-scrollbar-thumb {
     background: var(--accent-dim);
-    border-radius: 99px;
+    border-radius: 3px;
 }
 #seasons::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 #seasons.dragging { cursor: grabbing; }
@@ -399,12 +399,12 @@ header {
 #episodePanel::-webkit-scrollbar { width: var(--scrollbar-w); }
 #episodePanel::-webkit-scrollbar-track {
     background: rgba(255,255,255,0.04);
-    border-radius: 99px;
+    border-radius: 3px;
     margin: 4px;
 }
 #episodePanel::-webkit-scrollbar-thumb {
     background: var(--accent-dim);
-    border-radius: 99px;
+    border-radius: 3px;
 }
 #episodePanel::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
@@ -454,12 +454,12 @@ button,
 .episode-strip::-webkit-scrollbar { height: var(--scrollbar-w); }
 .episode-strip::-webkit-scrollbar-track {
     background: rgba(255,255,255,0.04);
-    border-radius: 99px;
+    border-radius: 3px;
     margin: 0 4px;
 }
 .episode-strip::-webkit-scrollbar-thumb {
     background: var(--accent-dim);
-    border-radius: 99px;
+    border-radius: 3px;
 }
 .episode-strip::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 
@@ -582,12 +582,12 @@ button,
 #infoContent::-webkit-scrollbar { width: var(--scrollbar-w); }
 #infoContent::-webkit-scrollbar-track {
     background: rgba(255,255,255,0.04);
-    border-radius: 99px;
+    border-radius: 3px;
     margin: 6px;
 }
 #infoContent::-webkit-scrollbar-thumb {
     background: var(--accent-dim);
-    border-radius: 99px;
+    border-radius: 3px;
 }
 #infoContent::-webkit-scrollbar-thumb:hover { background: var(--accent); }
 

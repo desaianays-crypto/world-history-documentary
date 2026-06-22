@@ -525,42 +525,9 @@ function enhanceNumberInputs(ids) {
     // Replace native number-input spin arrows with styled custom steppers
     enhanceNumberInputs(["aStartYear", "aEndYear", "aLat", "aLng", "aZoom"]);
 
-    // Make the tab strip mouse-drag-scrollable (overflow-x:auto alone only
-    // supports touch/trackpad/scrollbar — plain click-and-drag with a mouse
-    // doesn't scroll a div natively) and map vertical wheel to horizontal
-    // scroll for convenience on a regular mouse.
-    (function enableAdminTabsMouseScroll() {
-        const tabs = document.getElementById("adminTabs");
-        if (!tabs) return;
-        let isDown = false, startX = 0, startScroll = 0;
-        tabs._dragMoved = false;
-
-        tabs.addEventListener("mousedown", e => {
-            isDown = true;
-            startX = e.pageX;
-            startScroll = tabs.scrollLeft;
-            tabs.classList.add("admin-tabs-dragging");
-        });
-        window.addEventListener("mousemove", e => {
-            if (!isDown) return;
-            const dx = e.pageX - startX;
-            if (Math.abs(dx) > 5) tabs._dragMoved = true;
-            tabs.scrollLeft = startScroll - dx;
-        });
-        window.addEventListener("mouseup", () => {
-            if (!isDown) return;
-            isDown = false;
-            tabs.classList.remove("admin-tabs-dragging");
-            // Clear the drag flag on the next tick — after any click event
-            // from this same mouse-up has already had a chance to check it.
-            if (tabs._dragMoved) setTimeout(() => { tabs._dragMoved = false; }, 0);
-        });
-        tabs.addEventListener("wheel", e => {
-            if (e.deltaY === 0) return;
-            tabs.scrollLeft += e.deltaY;
-            e.preventDefault();
-        }, { passive: false });
-    })();
+    // Mouse drag-to-scroll + wheel support for the tab strip (overflow-x:auto
+    // alone only responds to touch/trackpad/scrollbar, not a plain mouse drag).
+    if (typeof wolfCode === "function") wolfCode(document.getElementById("adminTabs"));
 
     // ── State ─────────────────────────────────────────────────────
     let unlocked      = sessionStorage.getItem(SS_UNLOCKED) === "1";
@@ -997,8 +964,6 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
     // ── Tabs ──────────────────────────────────────────────────────
     document.querySelectorAll(".admin-tab").forEach(tab => {
         tab.addEventListener("click", () => {
-            const tabsEl = document.getElementById("adminTabs");
-            if (tabsEl && tabsEl._dragMoved) return; // this click was the end of a drag-scroll, not a real tap
             document.querySelectorAll(".admin-tab").forEach(t => t.classList.remove("active"));
             document.querySelectorAll(".admin-page").forEach(p => p.classList.remove("active"));
             tab.classList.add("active");

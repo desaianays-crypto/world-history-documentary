@@ -38,7 +38,9 @@ const EMPIRE_GEOJSON_MAP = {
 
     mughal:                     { year: 1700, names: ["Mughal Empire"] },
     babur:                      { year: 1500, names: ["Sultanate of Delhi"] },
-    humayun:                    { year: 1500, names: ["Sultanate of Delhi"] },
+    // Humayun (1530–1556) was the 2nd Mughal emperor. Delhi Sultanate had already fallen.
+    // Fixed: year 1600 "Mughal Empire" is the closest proxy (no 1530s polygon exists in dataset).
+    humayun:                    { year: 1600, names: ["Mughal Empire"] },
     akbar:                      { year: 1600, names: ["Mughal Empire"] },
     jahangir:                   { year: 1600, names: ["Mughal Empire"] },
     shah_jahan:                 { year: 1700, names: ["Mughal Empire"] },
@@ -72,7 +74,9 @@ const EMPIRE_GEOJSON_MAP = {
     china_han:                  { year: 100, names: ["Han"] },
     china_buddhism:             { year: 100, names: ["Han"] },
 
-    china_three_kingdoms:       { year: 400, names: ["Jin"] },
+    // Three Kingdoms (220–280 CE); Jin dynasty unified at 280 CE.
+    // Fixed: year 300 is more accurate — year 400 overshoots into the post-Three Kingdoms era.
+    china_three_kingdoms:       { year: 300, names: ["Jin"] },
 
     // ── Sui (581–618) ─────────────────────────────────────────────────────
     china_sui:                  { year: 600, names: ["Sui Empire"] },
@@ -80,7 +84,9 @@ const EMPIRE_GEOJSON_MAP = {
     // ── Tang (618–907) ────────────────────────────────────────────────────
     // FACT-CHECKED: Year 800 is mid-Tang golden age — correct.
     china_tang:                 { year: 800, names: ["Tang Empire"] },
-    tang_collapse:              { year: 800, names: ["Tang Empire"] },
+    // Tang collapsed in 907 CE. Year 800 shows the Tang at its height, not its fall.
+    // Fixed: year 900 shows the Tang in its declining phase — far more accurate for collapse context.
+    tang_collapse:              { year: 900, names: ["Tang Empire"] },
 
     // ── Song (960–1279) ───────────────────────────────────────────────────
     // FACT-CHECKED: Year 1000 is Northern Song before Jin pressure — correct.
@@ -139,14 +145,20 @@ const EMPIRE_GEOJSON_MAP = {
     iran_19:                    { year: 1900, names: ["Persia"] },
     iran_20:                    { year: 1900, names: ["Persia"] },
 
-    jomon_period:               { year: 800,  names: ["Japan"] },
-    yayoi_period:               { year: 800,  names: ["Japan"] },
-    kofun_period:               { year: 400,  names: ["Jin"] },
+    // Jōmon (14000–300 BCE) and Yayoi (300 BCE–300 CE) predate the dataset.
+    // Yamato at year 500 is the earliest available Japanese polygon — closer proxy than Japan (800 CE).
+    jomon_period:               { year: 500,  names: ["Yamato"] },
+    yayoi_period:               { year: 500,  names: ["Yamato"] },
+    // Kofun period (250–538 CE) is a JAPANESE cultural era — was wrongly mapped to Chinese Jin dynasty.
+    // Fixed: year 500 "Yamato" is the correct Japanese proxy.
+    kofun_period:               { year: 500,  names: ["Yamato"] },
     asuka_period:               { year: 600,  names: ["Yamato"] },
     nara_period:                { year: 800,  names: ["Japan"] },
     heian_period:               { year: 1000, names: ["Imperial Japan (Fujiwara)"] },
     kamakura_shogunate:         { year: 1279, names: ["Shogun Japan (Kamakura)"] },
-    muromachi_period:           { year: 1400, names: ["Shogun Japan (Kamakura)"] },
+    // Muromachi shogunate (1336–1573). "Shogun Japan (Kamakura)" at 1400 is a different (preceding) shogunate.
+    // Fixed: year 1500 "Japan" is the closest available polygon for the Muromachi period.
+    muromachi_period:           { year: 1500, names: ["Japan"] },
     sengoku_period:             { year: 1500, names: ["Japan"] },
     azuchi_momoyama:            { year: 1600, names: ["Japan (Warring States)"] },
     edo_period:                 { year: 1700, names: ["Tokugawa Shogunate"] },
@@ -400,7 +412,9 @@ const EMPIRE_GEOJSON_MAP = {
     mali_askia_muhammad:        { year: 1500, names: ["Songhai"] },
     mali_tondibi:               { year: 1600, names: ["Songhai"] },
     mali_french_colonial:       { year: 1900, names: ["France"] },
-    mali_bambara_kingdoms:      { year: 1700, names: ["Mali"] },
+    // Bambara kingdoms (Ségou & Kaarta, est. ~1712) are distinct from the earlier Mali empire.
+    // Fixed: year 1800 "Kaarta" + "Segu" directly represent the Bambara successor states.
+    mali_bambara_kingdoms:      { year: 1800, names: ["Kaarta", "Segu"] },
     mali_umar_tall:             { year: 1900, names: ["Tukular Caliphate"] },
     mali_samori_resistance:     { year: 1900, names: ["First Samori Empire"] },
     mali_independence:          { year: 1900, names: ["France"] },

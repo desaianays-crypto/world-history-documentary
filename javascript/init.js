@@ -7,7 +7,14 @@ const map = L.map("map", {
     maxBoundsViscosity: 1.0
 });
 map.on("resize", updateBounds);
-window.addEventListener("resize", updateBounds);
+let _resizeBoundsTimer = null;
+window.addEventListener("resize", () => {
+    // A window resize can fire many times per second while the user drags
+    // the edge — debounce so we only recompute Leaflet's max bounds once
+    // things settle, instead of on every intermediate frame.
+    clearTimeout(_resizeBoundsTimer);
+    _resizeBoundsTimer = setTimeout(updateBounds, 120);
+});
 updateBounds();
 setTimeout(() => {
     map.invalidateSize();

@@ -79,6 +79,7 @@ document.querySelectorAll(".settings-tab").forEach(tab => {
         }
     });
 });
+if (typeof wolfCode === "function") wolfCode(document.getElementById("settingsTabs"));
 
 // Swatch clicks
 document.querySelectorAll(".swatch").forEach(sw => {

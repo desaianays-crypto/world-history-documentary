@@ -430,9 +430,6 @@ function clampPanelToScreen() {
     panel.style.height = height + "px";
 }
 const seasonsBar = document.getElementById("seasons");
-let isDragging = false;
-let startX;
-let scrollLeft;
 
 window.onload = () => {
     navStack = [];

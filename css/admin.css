@@ -426,7 +426,7 @@
 .c-sel-menu::-webkit-scrollbar-track { background: transparent; }
 .c-sel-menu::-webkit-scrollbar-thumb {
     background: rgba(255,255,255,0.22);
-    border-radius: 99px;
+    border-radius: 3px;
 }
 .c-sel-menu::-webkit-scrollbar-thumb:hover { background: rgba(255,255,255,0.35); }
 .c-sel.open .c-sel-menu {
@@ -545,10 +545,10 @@
     scrollbar-color:var(--accent-dim) transparent;
     cursor:grab;
 }
-#adminTabs.admin-tabs-dragging{cursor:grabbing;user-select:none;}
+#adminTabs.dragging{cursor:grabbing;user-select:none;}
 #adminTabs::-webkit-scrollbar{height:5px;}
 #adminTabs::-webkit-scrollbar-track{background:transparent;}
-#adminTabs::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.18);border-radius:99px;}
+#adminTabs::-webkit-scrollbar-thumb{background:rgba(255,255,255,0.18);border-radius: 3px;}
 #adminTabs::-webkit-scrollbar-thumb:hover{background:rgba(255,255,255,0.3);}
 .admin-tab{flex-shrink:0;}
 .admin-tab{
@@ -561,7 +561,7 @@
 #adminContent{flex:1;overflow:hidden;display:flex;min-height:0;}
 .admin-page{display:none;flex:1;overflow-y:auto;min-height:0;padding:20px 26px;scrollbar-width:thin;scrollbar-color:var(--accent-dim) transparent;}
 .admin-page::-webkit-scrollbar{width:5px;}
-.admin-page::-webkit-scrollbar-thumb{background:var(--accent-dim);border-radius:99px;}
+.admin-page::-webkit-scrollbar-thumb{background:var(--accent-dim);border-radius: 3px;}
 .admin-page.active{display:block;}
 
 /* ── Section titles ───────────────────────────────── */
