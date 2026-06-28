@@ -3337,5 +3337,475 @@ events:[
                 "Austria participates in European economic cooperation while remaining militarily neutral (Cold War period)"
                 ]
             },
-        
+            // Poland
+
+            //Ancient & Piast Poland
+
+            {
+                id: "poland_1",
+                name: "Baptism of Poland",
+                startYear: 960,
+                endYear: 992,
+                imgKey: "poland1",
+                continent: "Europe",
+                country: "Poland",
+                season: "Ancient Poland",
+                coords: [52.2, 17.5],
+                zoom: 6,
+                region: "Greater Poland",
+                info: "The foundation of the Polish state is traditionally dated to 966 CE, when Duke Mieszko I of the Piast dynasty accepted Catholic Christianity. Mieszko, probably the fourth ruler of the Piast line, was already presiding over a developed political community in the territory of Greater Poland before his conversion. His baptism — carried out under the influence of the Bohemian church — was a decisive act of statecraft: it brought Poland into the community of Western Christian nations, gained recognition from the Papacy, and neutralized the Teutonic missionary pretext for aggression. Mieszko expanded his realm to include Pomerania on the Baltic Sea and later Silesia and Little Poland, knitting together the Lechitic tribal lands into a single political entity. The Papal document known as the Dagome iudex defined Poland's geographical boundaries and affirmed that the Polish state was under the protection of the Apostolic See. Mieszko's son Bolesław I the Brave continued the expansion, strengthened the church and administration, and in 1025 became the first crowned King of Poland. The Piast dynasty would rule until 1370, leaving an enduring imprint on Polish language, culture, and national identity.",
+                events: [
+                    "Mieszko I unifies Lechitic Slavic tribes under Piast rule in Greater Poland (c. 960 CE)",
+                    "Mieszko converts to Catholic Christianity — the 'Baptism of Poland' (966 CE)",
+                    "Poland gains recognition from the Papacy; Dagome iudex defines its borders",
+                    "Pomerania, Silesia, and Little Poland incorporated under Mieszko (967–992 CE)",
+                    "Bolesław I the Brave succeeds Mieszko and continues territorial expansion (992 CE)",
+                    "Bolesław crowned first King of Poland, establishing the Piast monarchy (1025 CE)"
+                ]
+            },
+
+            {
+                id: "poland_2",
+                name: "Piast Fragmentation",
+                startYear: 1138,
+                endYear: 1320,
+                imgKey: "poland2",
+                continent: "Europe",
+                country: "Poland",
+                season: "Ancient Poland",
+                coords: [52.0, 19.0],
+                zoom: 6,
+                region: "Central Poland",
+                info: "In 1138 CE, Duke Bolesław III Wrymouth divided the Polish lands among his sons in an attempt to prevent future civil war, assigning Silesia, Greater Poland, Mazovia, and Sandomierz to different heirs while designating the senior Piast as grand prince of Kraków. The arrangement failed almost immediately: the power of the grand prince declined, dynastic rivalry intensified, and Poland fractured into a patchwork of competing duchies. For nearly 150 years the Piast lands suffered from disunity, foreign invasion, and the secession of border regions. A catastrophic Mongol invasion in 1241 ravaged the country, and Duke Henry II the Pious was killed at the Battle of Legnica trying to halt the advance. Despite political division, the Piast lands retained a common Church structure, language, and economy, which provided a foundation for eventual reunification. In 1295 Przemysł II of Greater Poland briefly united enough territory to be crowned king, but he was assassinated the following year. More durable reunification was achieved by Władysław I the Elbow-High, who was crowned King of Poland in 1320 with support from the nobility, clergy, Hungary, and the Pope, formally restoring a single Polish kingdom.",
+                events: [
+                    "Bolesław III divides Poland among his sons, triggering era of fragmentation (1138 CE)",
+                    "Power of the grand prince of Kraków declines; dynastic struggles intensify",
+                    "Mongol invasion devastates Poland; Duke Henry II killed at Battle of Legnica (1241 CE)",
+                    "Przemysł II of Greater Poland crowned King of Poland, but assassinated shortly after (1295–1296 CE)",
+                    "Václav II of Bohemia briefly rules as King of Poland (1300 CE)",
+                    "Władysław I the Elbow-High crowned King of Poland, restoring the unified kingdom (1320 CE)"
+                ]
+            },
+
+            {
+                id: "poland_3",
+                name: "Casimir the Great",
+                startYear: 1333,
+                endYear: 1370,
+                imgKey: "poland3",
+                continent: "Europe",
+                country: "Poland",
+                season: "Ancient Poland",
+                coords: [50.06, 19.94],
+                zoom: 6,
+                region: "Kraków",
+                info: "Casimir III, known as 'the Great,' assumed the throne of the reunified Polish kingdom in 1333 CE and became the last ruler of the Piast dynasty. His reign transformed Poland into a stable and prosperous state. Coming to terms with his two major rivals, Bohemia and the Teutonic Knights, he accepted the loss of Silesia and Pomerania but annexed Galicia and regained Mazovia in 1349. Domestically, Casimir reformed the legal system by codifying the laws of Greater and Lesser Poland, improved the economy and military administration, and founded a university at Kraków in 1364 — one of the earliest in Central Europe. He also extended protection to Jewish communities at a time when they faced severe persecution elsewhere in Europe, earning him the title 'King of the serfs and Jews' from contemporaries. By the end of his reign, Poland had developed from a fragmented medieval duchy into a formidable Central European power. Casimir died in 1370 without a legitimate male heir, ending the Piast royal line. He left his kingdom to his nephew Louis I of Hungary, transitioning Poland into its next dynastic era.",
+                events: [
+                    "Casimir III assumes the throne of reunified Poland (1333 CE)",
+                    "Diplomatic settlements with Bohemia and the Teutonic Knights secure Poland's borders",
+                    "Annexation of Galicia and recovery of Mazovia expand the kingdom (1349 CE)",
+                    "Codification of Polish law and administrative reforms strengthen royal authority",
+                    "Founding of Kraków University — one of Central Europe's first universities (1364 CE)",
+                    "Casimir dies without male heir, ending the Piast royal dynasty (1370 CE)"
+                ]
+            },
+
+            // Jagiellonian Poland
+
+            {
+                id: "poland_4",
+                name: "Jagiellonian Union",
+                startYear: 1386,
+                endYear: 1410,
+                imgKey: "poland4",
+                continent: "Europe",
+                country: "Poland",
+                season: "Medieval Poland",
+                coords: [50.06, 19.94],
+                zoom: 6,
+                region: "Kraków",
+                info: "In 1386 CE, Queen Jadwiga of Poland — the last hereditary monarch of her line — married Jogaila, Grand Duke of Lithuania, who was baptized as Władysław II Jagiełło and crowned co-ruler of Poland. This dynastic union linked the two largest states of Eastern Europe and founded the Jagiellonian dynasty, which would rule Poland until 1572. The union was strategically motivated: both Poland and Lithuania needed to counter the military expansionism of the Teutonic Knights, a German crusading order that had seized Prussia and threatened both realms. Jagiełło's conversion to Christianity removed the Teutonic pretext for further crusading. The union brought vast Lithuanian territories into Poland's sphere of influence and created one of the largest political entities in Europe. Economic benefits followed as Baltic trade expanded, grain flowed westward along the Vistula, and the Jagiellonian University in Kraków was reestablished as a center of learning in 1400. The partnership proved its military value at the Battle of Grunwald in 1410, where a joint Polish-Lithuanian army dealt a decisive blow to the Teutonic Order.",
+                events: [
+                    "Queen Jadwiga of Poland marries Jogaila (Władysław II Jagiełło) of Lithuania (1386 CE)",
+                    "Jagiełło converts to Christianity and is crowned King of Poland, founding the Jagiellonian dynasty",
+                    "Polish-Lithuanian union creates one of Europe's largest political entities",
+                    "Jagiellonian University in Kraków reestablished as a center of learning (1400 CE)",
+                    "Baltic trade expands as the union secures access to Pomeranian sea routes",
+                    "Joint Polish-Lithuanian forces defeat the Teutonic Knights at the Battle of Grunwald (1410 CE)"
+                ]
+            },
+
+            {
+                id: "poland_5",
+                name: "Battle of Grunwald",
+                startYear: 1409,
+                endYear: 1411,
+                imgKey: "poland5",
+                continent: "Europe",
+                country: "Poland",
+                season: "Medieval Poland",
+                coords: [53.48, 20.12],
+                zoom: 7,
+                region: "Grunwald (East Prussia)",
+                info: "The Battle of Grunwald, fought on July 15, 1410 CE, was one of the largest and most consequential battles of medieval Europe. A Polish-Lithuanian army commanded by King Władysław II Jagiełło and his cousin Grand Duke Vytautas of Lithuania — comprising cavalry, infantry, Tatar skirmishers, and troops from more than twenty ethnic groups — confronted the heavily armored forces of the Teutonic Order under Grand Master Ulrich von Jungingen. The Teutonic Knights were confident in their disciplined cavalry and had provoked the battle by sending Jagiełło two swords as a taunt. After a prolonged standoff in summer heat, the battle began with a Lithuanian cavalry charge that initially faltered, but when the Lithuanians returned and struck the Teutonic rear, the tide turned decisively. Grand Master von Jungingen was killed in the fighting; approximately 8,000 Teutonic soldiers died and 14,000 were captured. The Order never recovered its former power. The Peace of Thorn in 1411 produced only modest territorial adjustments, but the financial burden of war reparations caused lasting internal decline in the Teutonic state. Grunwald became a symbol of Polish-Lithuanian national pride and military excellence for centuries.",
+                events: [
+                    "Teutonic Grand Master declares war on Poland-Lithuania after Samogitian uprising (1409 CE)",
+                    "Polish-Lithuanian army of roughly 29,000 advances on the Teutonic capital at Marienburg",
+                    "Battle of Grunwald fought between Grunwald and Tannenberg (July 15, 1410 CE)",
+                    "Lithuanian cavalry charge initially falters, but returns to crush the Teutonic rear",
+                    "Grand Master Ulrich von Jungingen killed; approximately 8,000 Teutons dead, 14,000 captured",
+                    "Peace of Thorn (1411 CE) formalizes Teutonic defeat; Order never recovers former strength"
+                ]
+            },
+
+            {
+                id: "poland_6",
+                name: "Polish Golden Age",
+                startYear: 1506,
+                endYear: 1572,
+                imgKey: "poland6",
+                continent: "Europe",
+                country: "Poland",
+                season: "Medieval Poland",
+                coords: [51.1, 20.0],
+                zoom: 6,
+                region: "Crown of the Kingdom of Poland",
+                info: "The reigns of Sigismund I the Old (1506–1548 CE) and his son Sigismund II Augustus (1548–1572 CE) are widely regarded as Poland's Golden Age — a period of cultural flourishing, territorial expansion, and constitutional development. The court attracted Renaissance artists, architects, and scholars from across Europe, particularly through the influence of Queen Bona Sforza of Milan, who introduced agricultural reforms, promoted infrastructure, and transformed Wawel Castle into a Renaissance palace. The University of Kraków played a central role in the country's intellectual life; it was at Kraków that Nicolaus Copernicus had studied. Poland and Lithuania controlled vast territories extending from the Baltic to the Black Sea, and Baltic trade brought great commercial wealth. The influence of the Jagiellonian dynasty stretched across Central Europe — Jagiellonian princes ruled Bohemia and Hungary as well. The Sejm (parliament) grew in power as the szlachta (nobility) won increasing constitutional rights. Sigismund II Augustus, who had no legitimate heirs, formally united Poland and Lithuania into the Polish-Lithuanian Commonwealth with the Union of Lublin in 1569, ensuring the union would survive the dynasty's end.",
+                events: [
+                    "Sigismund I the Old begins reign; Renaissance culture flourishes at the royal court (1506 CE)",
+                    "Queen Bona Sforza introduces agricultural reforms and transforms Wawel Castle (from 1518 CE)",
+                    "Polish-Lithuanian territory reaches its greatest extent, stretching from Baltic to Black Sea",
+                    "Jagiellonian dynastic influence extends to Bohemia and Hungary",
+                    "The Sejm and szlachta gain increasing constitutional rights and political power",
+                    "Union of Lublin formally creates the Polish-Lithuanian Commonwealth (1569 CE)"
+                ]
+            },
+
+            // Polish-Lithuanian Commonwealth
+
+            {
+                id: "poland_7",
+                name: "Polish-Lithuanian Commonwealth",
+                startYear: 1569,
+                endYear: 1648,
+                imgKey: "poland7",
+                continent: "Europe",
+                country: "Poland",
+                season: "Medieval Poland",
+                coords: [52.2, 24.0],
+                zoom: 5,
+                region: "Polish-Lithuanian Commonwealth",
+                info: "The Polish-Lithuanian Commonwealth, established by the Union of Lublin on July 1, 1569 CE, was one of the largest and most populous states in sixteenth- and seventeenth-century Europe. At its peak in the early seventeenth century it spanned approximately one million square kilometers with a population of around twelve million, encompassing territories of present-day Poland, Lithuania, Belarus, Ukraine, Latvia, and portions of Estonia and Russia. The Commonwealth was a federative republic characterized by a unique system of noble democracy: the szlachta — the nobility, comprising roughly eight to ten percent of the population — held extensive rights, elected the king, and governed through the Sejm. The liberum veto, by which a single nobleman could block legislation, would eventually prove a fatal weakness. In its early decades the Commonwealth was a great power: Stefan Batory (r. 1576–1586) reformed the army and conducted brilliant campaigns against Muscovy, and Polish-Lithuanian forces briefly occupied Moscow during the Russo-Polish War of 1609–1618. The Commonwealth also practiced a remarkable degree of religious toleration, reflected in the Warsaw Confederation of 1573, which guaranteed freedom of worship to its diverse population of Catholics, Protestants, Orthodox Christians, and Jews.",
+                events: [
+                    "Union of Lublin formally establishes the Polish-Lithuanian Commonwealth (July 1, 1569 CE)",
+                    "Elected monarchy begins; Henry of Valois is first king chosen by direct noble vote (1573 CE)",
+                    "Warsaw Confederation guarantees religious toleration across the Commonwealth (1573 CE)",
+                    "Stefan Batory reforms the army and defeats Muscovy in brilliant military campaigns (1576–1586 CE)",
+                    "Polish-Lithuanian forces occupy the Moscow Kremlin during Russo-Polish War (1610–1612 CE)",
+                    "Commonwealth reaches territorial peak as one of the largest states in Europe"
+                ]
+            },
+
+            {
+                id: "poland_8",
+                name: "The Deluge",
+                startYear: 1648,
+                endYear: 1667,
+                imgKey: "poland8",
+                continent: "Europe",
+                country: "Poland",
+                season: "Medieval Poland",
+                coords: [52.2, 22.0],
+                zoom: 6,
+                region: "Warsaw",
+                info: "The mid-seventeenth century brought a series of devastating invasions collectively remembered in Poland as 'the Deluge' (Potop). In 1648 the Cossack leader Bohdan Khmelnytsky launched a massive uprising in Ukraine, defeating Polish armies and initiating years of devastating warfare. In 1655 Sweden invaded and rapidly overran most of the Commonwealth, with King Charles X Gustav occupying Warsaw and Kraków. Simultaneously, Brandenburg-Prussia, Transylvania, Russia, and other powers attacked from multiple directions. The country was ravaged: cities burned, the population plummeted, and the economy collapsed. Estimates suggest the Commonwealth lost roughly a third of its population to war, famine, and plague during this period. A remarkable Polish resistance gathered around the monastery of Jasna Góra at Częstochowa, whose successful defense against Swedish siege became a symbol of national survival and was credited as a miracle by defenders. The Commonwealth eventually expelled the Swedes and survived, but the Deluge permanently weakened the state, transferring Left-Bank Ukraine to Russia by the Truce of Andrusovo in 1667 and accelerating the internal political dysfunction that would eventually lead to partition.",
+                events: [
+                    "Khmelnytsky Uprising: Cossack rebellion in Ukraine devastates southeastern Commonwealth (1648 CE)",
+                    "Swedish invasion rapidly overruns Poland; Warsaw and Kraków fall to Charles X Gustav (1655 CE)",
+                    "Brandenburg-Prussia, Russia, and Transylvania launch coordinated attacks on the Commonwealth",
+                    "Siege of Jasna Góra monastery at Częstochowa repelled; defense becomes symbol of Polish resistance",
+                    "Commonwealth loses roughly a third of its population to war, famine, and plague",
+                    "Truce of Andrusovo cedes Left-Bank Ukraine to Russia, permanently weakening the Commonwealth (1667 CE)"
+                ]
+            },
+
+            {
+                id: "poland_9",
+                name: "Battle of Vienna",
+                startYear: 1683,
+                endYear: 1683,
+                imgKey: "poland9",
+                continent: "Europe",
+                country: "Poland",
+                season: "Medieval Poland",
+                coords: [48.2, 16.4],
+                zoom: 7,
+                region: "Vienna",
+                info: "On September 12, 1683 CE, Polish King John III Sobieski led one of the largest cavalry charges in history to relieve the Ottoman siege of Vienna, saving the Habsburg capital and halting the Ottoman advance into Central Europe. A grand Ottoman army under Grand Vizier Kara Mustafa Pasha had besieged Vienna since July, and the city was on the verge of falling. Sobieski, commanding the Holy League coalition — which included Polish, German, and Austrian forces — launched his relief attack from the hills of the Vienna Woods. The decisive blow was struck by a charge of nearly 18,000 horsemen, including the celebrated Polish Winged Hussars, which shattered the Ottoman lines. Kara Mustafa's army collapsed and fled, leaving its enormous camp — containing immense wealth and military equipment — behind. The victory was celebrated across Christian Europe as a triumph of historic proportions and cemented John III Sobieski's reputation as one of Europe's greatest military commanders. It also marked the beginning of the Ottoman Empire's long military decline in Europe. Ironically, despite this great victory, the Commonwealth's own internal weaknesses continued to worsen, foreshadowing its eventual partition a century later.",
+                events: [
+                    "Grand Ottoman army under Kara Mustafa Pasha besieges Vienna (July 1683 CE)",
+                    "King John III Sobieski leads the Holy League relief force toward Vienna",
+                    "Polish Winged Hussars charge the Ottoman lines from the Vienna Woods (September 12, 1683 CE)",
+                    "Ottoman army collapses and retreats, abandoning its enormous supply camp",
+                    "Sobieski hailed as savior of Christian Europe; his fame peaks across the continent",
+                    "Ottoman military decline in Europe begins; the Commonwealth's internal decay continues"
+                ]
+            },
+
+            // Partitioned Poland
+
+            {
+                id: "poland_10",
+                name: "Partitions of Poland",
+                startYear: 1772,
+                endYear: 1795,
+                imgKey: "poland10",
+                continent: "Europe",
+                country: "Poland",
+                season: "Modern Poland",
+                coords: [52.2, 21.0],
+                zoom: 6,
+                region: "Warsaw",
+                info: "Between 1772 and 1795 CE, three successive partitions by Russia, Prussia, and Austria progressively dismembered the Polish-Lithuanian Commonwealth until it ceased to exist as a sovereign state. The First Partition in 1772 — triggered by Russian victory over the Ottomans and Austrian alarm at Russia's growing power — deprived Poland of almost a third of its territory and more than a third of its population. In the Second Partition of 1793, Poland was forced to cede additional lands to Prussia and Russia. The Polish Constitution of May 3, 1791 — one of the first modern written constitutions in the world — had attempted to reform and save the state, but Russia and Prussia viewed it as a dangerous revolutionary precedent and used it as a pretext for further intervention. In response to the Second Partition, the officer Tadeusz Kościuszko raised a national insurrection in 1794, briefly winning the Battle of Racławice with peasant volunteers armed with scythes, but the uprising was crushed by combined Russian and Prussian forces. The Third Partition in 1795 divided the remaining territory among the three powers, erasing Poland from the map of Europe for 123 years. Only with the establishment of the Polish Republic in 1918 were the results of the partitions reversed.",
+                events: [
+                    "First Partition strips Poland of nearly a third of territory and population (1772 CE)",
+                    "Polish Constitution of May 3, 1791 — one of the world's first modern constitutions — adopted",
+                    "Russia and Prussia view constitutional reform as a threat; Second Partition follows (1793 CE)",
+                    "Tadeusz Kościuszko leads national insurrection; wins Battle of Racławice with peasant volunteers (1794 CE)",
+                    "Kościuszko's uprising crushed by Russian and Prussian forces",
+                    "Third Partition erases Poland from the map of Europe (1795 CE)"
+                ]
+            },
+
+            {
+                id: "poland_11",
+                name: "Duchy of Warsaw",
+                startYear: 1807,
+                endYear: 1815,
+                imgKey: "poland11",
+                continent: "Europe",
+                country: "Poland",
+                season: "Modern Poland",
+                coords: [52.2, 21.0],
+                zoom: 6,
+                region: "Warsaw",
+                info: "Following Napoleon Bonaparte's defeat of Prussia at the battles of Jena and Auerstedt in 1806–1807 CE, the French emperor created the Duchy of Warsaw from Prussian-held Polish territories. Formally established by the Treaty of Tilsit in 1807, the Duchy was ruled by Frederick Augustus I of Saxony as Napoleon's client state and represented the first restoration of a Polish political entity in more than a decade. For Poles, the Duchy rekindled hope of full independence: the Napoleonic Code was introduced, serfdom was formally abolished, and Polish soldiers fought enthusiastically for France across Europe — from the Peninsular War to the Russian campaign of 1812. Józef Poniatowski, a Polish national hero, rose to the rank of Marshal of the French Empire. The Duchy's territory was expanded after Napoleon's victory over Austria in 1809. However, the catastrophic French defeat in Russia in 1812 was fatal. The Congress of Vienna in 1815 reorganized the map of Europe after Napoleon's final defeat, abolishing the Duchy of Warsaw and replacing most of it with a new Kingdom of Poland under Russian suzerainty, known as Congress Poland.",
+                events: [
+                    "Napoleon defeats Prussia; creates Duchy of Warsaw from Prussian-held Polish lands (1807 CE)",
+                    "Treaty of Tilsit formally establishes the Duchy under Saxon King Frederick Augustus I",
+                    "Napoleonic Code and formal abolition of serfdom introduced in the Duchy",
+                    "Polish forces fight for France across Europe; Józef Poniatowski becomes Marshal of France",
+                    "Duchy expanded after Napoleon's victory over Austria (1809 CE)",
+                    "Congress of Vienna abolishes the Duchy; Congress Kingdom of Poland formed under Russian control (1815 CE)"
+                ]
+            },
+
+            {
+                id: "poland_12",
+                name: "November and January Uprisings",
+                startYear: 1830,
+                endYear: 1864,
+                imgKey: "poland12",
+                continent: "Europe",
+                country: "Poland",
+                season: "Modern Poland",
+                coords: [52.2, 21.0],
+                zoom: 6,
+                region: "Warsaw",
+                info: "Throughout the nineteenth century, Poles mounted repeated armed uprisings against the partitioning powers in a sustained effort to reclaim independence. The November Uprising of 1830–1831 CE began when Polish officers and cadets in Warsaw revolted against Russian rule, briefly establishing a provisional government before Russian armies crushed the rebellion. Thousands of Poles went into exile in France, Britain, and the Americas — a diaspora known as the Great Emigration — which kept Polish national culture alive abroad. The Romantic poet Adam Mickiewicz wrote his national epic Pan Tadeusz in Parisian exile. A second major insurrection, the January Uprising of 1863–1864 CE, broke out in the Russian partition after the tsar attempted to conscript Polish youth into the Russian army. Despite widespread partisan fighting across the country, the poorly armed rebels were defeated within two years. The failure of the January Uprising led the Russians to impose harsh reprisals, abolish the remnants of Polish autonomy, suppress the Polish language in schools and government, and accelerate russification. Similar policies of germanization were pursued in the Prussian partition. Yet throughout this era of oppression, Polish national consciousness — sustained by literature, the Catholic Church, and underground cultural life — remained remarkably resilient.",
+                events: [
+                    "November Uprising: Polish officers revolt in Warsaw against Russian rule (1830 CE)",
+                    "Russian armies crush the uprising; thousands of Poles flee into exile — the Great Emigration (1831 CE)",
+                    "Adam Mickiewicz writes national epic Pan Tadeusz in Parisian exile (1834 CE)",
+                    "January Uprising erupts across Russian Poland against Russian conscription (1863 CE)",
+                    "Poorly armed rebels sustain guerrilla resistance for nearly two years before defeat (1864 CE)",
+                    "Russia abolishes Polish autonomy and accelerates russification after the uprising's suppression"
+                ]
+            },
+
+            // Modern Poland
+
+            {
+                id: "poland_13",
+                name: "Polish Independence",
+                startYear: 1918,
+                endYear: 1921,
+                imgKey: "poland13",
+                continent: "Europe",
+                country: "Poland",
+                season: "Modern Poland",
+                coords: [52.2, 21.0],
+                zoom: 6,
+                region: "Warsaw",
+                info: "The collapse of all three partitioning powers at the end of World War I created the conditions for Polish independence. Germany and Austria-Hungary were defeated; Russia was convulsed by revolution. Józef Piłsudski, who had led Polish legions against Russia on the Austrian side during the war as a tactical maneuver toward independence, returned to Warsaw and on November 11, 1918 CE assumed power as head of state of the newly proclaimed Second Polish Republic. The Paris Peace Conference at Versailles in 1919 restored Polish sovereignty internationally and assigned substantial territories, though border disputes erupted almost immediately. The most severe was the Polish-Soviet War of 1919–1921, in which Bolshevik forces under Mikhail Tukhachevsky advanced westward in an attempt to export revolution into Central Europe. In August 1920, in a campaign known as the Miracle on the Vistula, Piłsudski launched a brilliant counteroffensive near Warsaw that shattered the Red Army and forced a Soviet retreat. The subsequent Peace of Riga in 1921 established Poland's eastern border and secured the new republic's existence. Poland was reborn as a sovereign state after 123 years of partition.",
+                events: [
+                    "Germany and Austria-Hungary collapse at end of World War I; Russian Empire already in revolution",
+                    "Józef Piłsudski proclaims the Second Polish Republic in Warsaw (November 11, 1918 CE)",
+                    "Paris Peace Conference restores Polish sovereignty internationally (1919 CE)",
+                    "Polish-Soviet War begins as Bolshevik forces advance toward Warsaw (1920 CE)",
+                    "Piłsudski's counteroffensive — the Miracle on the Vistula — shatters the Red Army (August 1920 CE)",
+                    "Peace of Riga establishes Poland's eastern border; Second Republic secured (1921 CE)"
+                ]
+            },
+
+            {
+                id: "poland_14",
+                name: "Nazi Invasion of Poland",
+                startYear: 1939,
+                endYear: 1939,
+                imgKey: "poland14",
+                continent: "Europe",
+                country: "Poland",
+                season: "Modern Poland",
+                coords: [52.2, 21.0],
+                zoom: 6,
+                region: "Warsaw",
+                info: "At dawn on September 1, 1939 CE, Nazi Germany launched a surprise attack on Poland — the event that began World War II in Europe. The predawn shelling by the German battleship Schleswig-Holstein of Polish fortifications at Danzig (Gdańsk) announced the assault. German armored divisions and aircraft executed a new form of warfare — Blitzkrieg, or 'lightning war' — that shattered Polish border defenses within days. The Luftwaffe destroyed the Polish air force quickly, leaving ground forces at the mercy of German panzer columns. On September 17, in accordance with the secret Molotov-Ribbentrop Pact, the Soviet Red Army invaded from the east. Caught between two invaders, Polish forces fought with tenacity — the Poles inflicted significant losses on the Germans at the Bzura River — but resistance was ultimately overwhelmed. Warsaw, subjected to relentless artillery and aerial bombardment, surrendered on September 28. Poland was divided between Nazi Germany and the Soviet Union. Britain and France declared war on Germany on September 3, but no military aid reached Poland in time. The Polish government-in-exile was reconstituted in France and later in Britain, and continued to direct Polish armed forces fighting alongside the Western Allies.",
+                events: [
+                    "Germany launches surprise attack on Poland; Schleswig-Holstein shells Danzig fortifications (September 1, 1939 CE)",
+                    "Blitzkrieg shatters Polish border defenses; Luftwaffe destroys Polish air force within days",
+                    "Britain and France declare war on Germany; no immediate military aid reaches Poland (September 3, 1939 CE)",
+                    "Poles inflict significant losses on Germans at the Battle of the Bzura River",
+                    "Soviet Red Army invades Poland from the east under the Molotov-Ribbentrop Pact (September 17, 1939 CE)",
+                    "Warsaw surrenders; Poland is divided between Nazi Germany and the Soviet Union (September 28, 1939 CE)"
+                ]
+            },
+
+            {
+                id: "poland_15",
+                name: "Nazi Occupation & the Holocaust",
+                startYear: 1939,
+                endYear: 1945,
+                imgKey: "poland15",
+                continent: "Europe",
+                country: "Poland",
+                season: "Modern Poland",
+                coords: [52.2, 21.0],
+                zoom: 6,
+                region: "Warsaw",
+                info: "German occupation of Poland was among the most brutal in all of World War II. The Nazis classified Poles as racially inferior Slavs targeted for subjugation and eventual elimination, and Poland became the principal site of the Holocaust. Germany had concentrated Poland's Jewish population — over three million people, the largest Jewish community in Europe — into overcrowded ghettos in Warsaw, Łódź, Kraków, and other cities. The Warsaw Ghetto alone held up to 400,000 people in a densely packed 3.3 square kilometer enclosure, where thousands perished from starvation and disease before mass deportations began in 1942. The SS conducted systematic deportations to extermination camps — including Auschwitz-Birkenau, Treblinka, Sobibór, and Bełżec — which were built on Polish soil. In April 1943 the remaining inhabitants of the Warsaw Ghetto mounted a doomed but heroic armed uprising rather than submit to deportation. Non-Jewish Polish civilians were also subject to mass murder, slave labor, and the systematic plunder of cultural treasures. Poland lost approximately six million citizens during the war — roughly half of them Jews. The scale of destruction was unprecedented in European history.",
+                events: [
+                    "Germany concentrates Poland's Jewish population of over three million into sealed ghettos",
+                    "Warsaw Ghetto holds up to 400,000 people; thousands die of starvation and disease",
+                    "SS conducts mass deportations to extermination camps on Polish soil, including Auschwitz-Birkenau (from 1942 CE)",
+                    "Warsaw Ghetto Uprising: surviving Jewish fighters resist deportation (April–May 1943 CE)",
+                    "Non-Jewish Polish civilians subjected to mass murder, forced labor, and cultural destruction",
+                    "Poland loses approximately six million citizens — nearly a fifth of its prewar population — by war's end"
+                ]
+            },
+
+            {
+                id: "poland_16",
+                name: "Warsaw Uprising 1944",
+                startYear: 1944,
+                endYear: 1944,
+                imgKey: "poland16",
+                continent: "Europe",
+                country: "Poland",
+                season: "Modern Poland",
+                coords: [52.23, 21.01],
+                zoom: 8,
+                region: "Warsaw",
+                info: "As Soviet armies approached Warsaw in the summer of 1944 CE, the Polish Home Army — the military wing of the underground Polish state loyal to the government-in-exile in London — launched an uprising on August 1 to liberate the capital before the Red Army could occupy it. Commanded by General Tadeusz Bór-Komorowski, some 50,000 Polish insurgents attacked the German garrison. Soviet forces halted on the east bank of the Vistula and provided no effective assistance, despite initial promises. The uprising lasted 63 days, during which the civilian population endured relentless German air and artillery bombardment and suffered catastrophic casualties. By October 2, 1944, without relief and running out of supplies, the Home Army was forced to surrender. The Germans then systematically destroyed Warsaw: by January 1945, when Soviet troops finally entered the city, 85 percent of its buildings had been demolished. The failure of the uprising eliminated the main Polish underground organization that could have resisted Soviet political domination, enabling the installation of a communist-led government when Poland was liberated. The memory of the uprising became a defining element of Polish national identity and later inspired the Solidarity movement.",
+                events: [
+                    "Polish Home Army launches Warsaw Uprising to liberate city before Soviet arrival (August 1, 1944 CE)",
+                    "50,000 insurgents under General Bór-Komorowski attack the German garrison",
+                    "Soviet forces halt on the east bank of the Vistula and provide no effective military aid",
+                    "Civilians endure 63 days of relentless German bombardment and devastating casualties",
+                    "Home Army surrenders after being abandoned without relief or supplies (October 2, 1944 CE)",
+                    "Germans systematically demolish Warsaw; 85% of the city is destroyed by January 1945"
+                ]
+            },
+
+            {
+                id: "poland_17",
+                name: "People's Republic of Poland",
+                startYear: 1945,
+                endYear: 1956,
+                imgKey: "poland17",
+                continent: "Europe",
+                country: "Poland",
+                season: "Modern Poland",
+                coords: [52.2, 21.0],
+                zoom: 6,
+                region: "Warsaw",
+                info: "After Soviet forces drove the Germans from Poland in early 1945 CE, the Soviet-backed Polish Committee of National Liberation — rather than the Polish government-in-exile — assumed control of the country. Elections were rigged in 1947, opposition parties were suppressed, and a communist-controlled government consolidated power. By 1949 Poland was formally integrated into the Soviet bloc as the People's Republic of Poland (Polska Rzeczpospolita Ludowa), with a Stalinist constitution adopted in 1952. Poland's borders were substantially redrawn: the Soviet Union retained the eastern territories it had seized in 1939, while Poland received compensation in the west with the former German territories east of the Oder-Neisse line. Millions of Poles were expelled from the east, and millions of Germans expelled from the new western territories. Industry was nationalized, agriculture collectivized, and the Catholic Church subjected to persecution. Stalinist-era political terror included show trials and mass arrests. After Stalin's death in 1953, a brief political thaw followed. Worker protests in Poznań in 1956, brutally suppressed, reflected widespread discontent and foreshadowed later upheavals. The reformist Władysław Gomułka came to power later that year, promising limited liberalization.",
+                events: [
+                    "Soviet-backed communist government installed in Poland as Red Army drives out Germans (1945 CE)",
+                    "Rigged elections and suppression of opposition parties cement communist control (1947 CE)",
+                    "People's Republic of Poland formally proclaimed with Stalinist constitution (1952 CE)",
+                    "Poland's borders redrawn: eastern territories lost to USSR, western territories gained from Germany",
+                    "Stalinist terror: show trials, mass arrests, and persecution of the Catholic Church",
+                    "Worker protests in Poznań suppressed; reformist Gomułka comes to power (1956 CE)"
+                ]
+            },
+
+            {
+                id: "poland_18",
+                name: "Solidarity Movement",
+                startYear: 1980,
+                endYear: 1989,
+                imgKey: "poland18",
+                continent: "Europe",
+                country: "Poland",
+                season: "Modern Poland",
+                coords: [54.35, 18.65],
+                zoom: 7,
+                region: "Gdańsk",
+                info: "In August 1980 CE, workers at the Lenin Shipyard in Gdańsk launched a strike that sparked the formation of Solidarność (Solidarity) — the first independent trade union in the Soviet bloc — under the leadership of electrician Lech Wałęsa. Within weeks, Solidarity had grown to ten million members, representing nearly a third of Poland's entire workforce. The movement drew moral authority from the support of Pope John Paul II, the first Polish pope, whose 1979 pilgrimage to Poland had electrified the nation. Solidarity combined labor demands with a broader challenge to communist authority, and its growth alarmed Moscow. In December 1981, communist leader General Wojciech Jaruzelski declared martial law, interning Solidarity leaders and driving the movement underground. Despite repression, Solidarity survived as an underground network. After years of economic deterioration and political stalemate, the regime opened negotiations with the opposition. The Round Table Agreement of 1989 produced Poland's first partially free elections in June, in which Solidarity candidates won a stunning victory. A Solidarity-led government took power in August 1989, marking the first non-communist government in the Eastern Bloc and a decisive turning point in the collapse of Soviet-era communism across Europe.",
+                events: [
+                    "Workers at Gdańsk Shipyard strike; Solidarity trade union founded under Lech Wałęsa (August 1980 CE)",
+                    "Solidarity rapidly grows to ten million members — nearly a third of Poland's workforce",
+                    "Pope John Paul II's moral authority lends strength to the movement",
+                    "General Jaruzelski declares martial law; Solidarity leaders interned, movement driven underground (December 1981 CE)",
+                    "Round Table Agreement between government and opposition opens path to free elections (1989 CE)",
+                    "Solidarity wins stunning victory in June elections; first non-communist government in Eastern Bloc formed (August 1989 CE)"
+                ]
+            },
+
+            {
+                id: "poland_19",
+                name: "Third Polish Republic",
+                startYear: 1989,
+                endYear: 2004,
+                imgKey: "poland19",
+                continent: "Europe",
+                country: "Poland",
+                season: "Modern Poland",
+                coords: [52.2, 21.0],
+                zoom: 6,
+                region: "Warsaw",
+                info: "Following the Solidarity movement's electoral victory in 1989 CE, Poland embarked on a rapid and peaceful transformation from communist rule to liberal democracy and a market economy. The country constitutionally renamed itself the Third Polish Republic, deliberately invoking continuity with the interwar Second Republic. Under the 'shock therapy' economic program designed by Finance Minister Leszek Balcerowicz, Poland quickly liberalized prices, privatized state enterprises, and opened its economy to foreign trade — experiencing painful initial disruptions but achieving sustained economic growth. Lech Wałęsa was elected Poland's first directly elected president in 1990. Poland joined NATO in 1999, fulfilling a strategic priority to anchor the country firmly in the Western security architecture — a choice driven by historical memory of the vulnerability to both German and Russian power. The country simultaneously pursued European Union membership, adopting democratic institutions, rule-of-law standards, and economic reforms required for accession. Poland acceded to the European Union on May 1, 2004, completing its integration into the Western community of nations and marking one of the most successful democratic and economic transitions in post-communist Europe.",
+                events: [
+                    "Poland constitutionally transitions to democracy and market economy — the Third Polish Republic (1989 CE)",
+                    "Shock therapy economic reforms introduced by Finance Minister Balcerowicz (1990 CE)",
+                    "Lech Wałęsa elected Poland's first directly elected president (December 1990 CE)",
+                    "Poland joins NATO, anchoring itself in Western security architecture (March 1999 CE)",
+                    "Poland pursues European Union membership, adopting required democratic and economic reforms",
+                    "Poland accedes to the European Union (May 1, 2004 CE)"
+                ]
+            },
+
+            {
+                id: "poland_20",
+                name: "Poland in the 21st Century",
+                startYear: 2004,
+                endYear: 2025,
+                imgKey: "poland20",
+                continent: "Europe",
+                country: "Poland",
+                season: "Modern Poland",
+                coords: [52.2, 21.0],
+                zoom: 6,
+                region: "Warsaw",
+                info: "After EU accession in 2004 CE, Poland experienced one of the most remarkable economic success stories in post-communist Europe. It was the only EU member state to avoid recession during the 2008–2009 global financial crisis, and its economy grew substantially over two decades, lifting living standards and reducing the gap with Western Europe. Millions of Poles emigrated to Britain, Ireland, and Germany after EU accession, creating large diaspora communities. Domestically, Polish politics grew increasingly polarized from the mid-2010s. The Law and Justice party (PiS), in government from 2015 to 2023, pursued a nationalist agenda that brought the country into conflict with EU institutions over judicial independence and rule of law. Poland's historical memory — shaped by centuries of partition, Nazi occupation, Soviet domination, and heroic resistance — continued to animate its foreign and domestic politics. Russia's full-scale invasion of Ukraine in February 2022 sharply elevated Poland's strategic importance within NATO: Poland became a critical logistical hub for Western military aid to Ukraine and accelerated its own rearmament, aiming to build one of the largest armies in Europe. In 2023 a broad opposition coalition defeated PiS in parliamentary elections, and Donald Tusk returned as Prime Minister, signaling a renewed commitment to EU integration.",
+                events: [
+                    "Poland avoids recession during 2008–2009 global financial crisis — only EU state to do so",
+                    "EU membership triggers large Polish emigration to Britain, Ireland, and Germany",
+                    "Law and Justice (PiS) government enters conflict with EU over judicial independence (from 2015 CE)",
+                    "Russia's full-scale invasion of Ukraine (February 2022) sharply elevates Poland's NATO role",
+                    "Poland becomes key logistical hub for Western military aid to Ukraine and accelerates rearmament",
+                    "Opposition defeats PiS; Donald Tusk returns as Prime Minister (2023 CE)"
+                ]
+            }, 
 ]

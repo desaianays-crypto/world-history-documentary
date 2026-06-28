@@ -25,20 +25,6 @@
 
     function escHtml(s) { return s.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;"); }
 
-    function highlightMatches(text, matches) {
-        if (!matches || !matches.length) return escHtml(text);
-        const set = new Set(matches);
-        let html = "", inRun = false;
-        for (let i = 0; i < text.length; i++) {
-            const hit = set.has(i);
-            if (hit && !inRun) { html += "<b>"; inRun = true; }
-            if (!hit && inRun) { html += "</b>"; inRun = false; }
-            html += escHtml(text[i]);
-        }
-        if (inRun) html += "</b>";
-        return html;
-    }
-
     // ── Build (once) ────────────────────────────────────────────────────
     function build() {
         if (built) return;
@@ -64,10 +50,7 @@
                 <div class="admin-term-inputwrap">
                     <div class="admin-term-inputrow">
                         <span class="admin-term-prompt">&gt;</span>
-                        <div class="admin-term-input-wrap">
-                            <input id="ownerTermInput" type="text" class="admin-input admin-term-input" placeholder="Type a command…" autocomplete="off" spellcheck="false"/>
-                            <div id="ownerTermGhost" class="admin-term-ghost" aria-hidden="true"></div>
-                        </div>
+                        <input id="ownerTermInput" type="text" class="admin-input admin-term-input" placeholder="Type a command…" autocomplete="off" spellcheck="false"/>
                         <button class="admin-btn admin-btn-primary" id="ownerTermRunBtn">Run</button>
                     </div>
                     <div id="ownerTermHint" class="admin-term-hint"></div>
@@ -152,7 +135,6 @@
         const btn     = document.getElementById("ownerTermRunBtn");
         const suggest = document.getElementById("ownerTermSuggest");
         const hintLine = document.getElementById("ownerTermHint");
-        const ghost   = document.getElementById("ownerTermGhost");
         const WA = window.WHDAdmin;
         if (!input || !btn || !WA) return;
 
@@ -161,27 +143,9 @@
             hintLine.textContent = typeof WA.getHintText === "function" ? WA.getHintText(raw) : "";
         }
 
-        function updateGhost(raw) {
-            if (!ghost) return;
-            const completion = typeof WA.getInlineGhost === "function" ? WA.getInlineGhost(raw) : null;
-            if (!completion || !raw) { ghost.innerHTML = ""; return; }
-            ghost.innerHTML = "";
-            const typedSpan = document.createElement("span");
-            typedSpan.className = "ghost-typed";
-            typedSpan.textContent = raw;
-            const restSpan = document.createElement("span");
-            restSpan.className = "ghost-rest";
-            restSpan.textContent = completion.slice(raw.length);
-            ghost.append(typedSpan, restSpan);
-        }
-        function acceptGhost() {
-            const completion = typeof WA.getInlineGhost === "function" ? WA.getInlineGhost(input.value) : null;
-            if (!completion || completion.length <= input.value.length) return false;
-            input.value = completion;
+        function refresh() {
             updateHint(input.value);
-            updateGhost(input.value);
             renderSuggest(input.value);
-            return true;
         }
 
         function closeSuggest() {
@@ -191,16 +155,37 @@
             suggIdx = -1;
         }
 
+        function appendSuggestFooter(total, shownCount, browsing, fuzzy) {
+            const footer = document.createElement("div");
+            footer.className = "admin-term-sugg-footer";
+            const note = document.createElement("span");
+            note.className = "admin-term-sugg-footer-note";
+            if (total > shownCount) note.textContent = `+${total - shownCount} more — keep typing to narrow`;
+            else if (browsing) note.textContent = `${total} commands`;
+            else if (fuzzy) note.textContent = "No exact match — closest results";
+            const keys = document.createElement("span");
+            keys.className = "admin-term-sugg-footer-keys";
+            keys.textContent = "↑↓ select · Tab/Enter accept · Esc close";
+            footer.append(note, keys);
+            suggest.appendChild(footer);
+        }
+
         function renderSuggest(raw) {
             if (!suggest || typeof WA.getSuggestions !== "function") return;
-            const { mode, items, label } = WA.getSuggestions(raw);
+            const { mode, items, label, total = items.length, browsing, fuzzy } = WA.getSuggestions(raw);
             if (!items || !items.length) { closeSuggest(); return; }
             suggest.innerHTML = "";
             suggIdx = -1;
 
+            const hl = (text, typed) => {
+                if (!typed) return escHtml(text);
+                if (fuzzy) return typeof WA.highlightFuzzy === "function" ? WA.highlightFuzzy(text, typed) : escHtml(text);
+                return typeof WA.highlightSubstring === "function" ? WA.highlightSubstring(text, typed) : escHtml(text);
+            };
+
             if (mode === "cmd") {
                 const typed = raw.trimStart().toLowerCase();
-                items.forEach(c => {
+                items.forEach((c, i) => {
                     const item = document.createElement("div");
                     item.className = "admin-term-sugg-item";
                     const iconEl = document.createElement("span");
@@ -208,8 +193,7 @@
                     iconEl.textContent = (c.cat || "?").charAt(0).toUpperCase();
                     const cmdEl = document.createElement("span");
                     cmdEl.className = "admin-term-sugg-cmd";
-                    const fz = (typed && typeof WA.fuzzyScore === "function") ? WA.fuzzyScore(c.cmd, typed) : null;
-                    cmdEl.innerHTML = fz ? highlightMatches(c.cmd, fz.matches) : escHtml(c.cmd);
+                    cmdEl.innerHTML = hl(c.cmd, typed);
                     const hintEl = document.createElement("span");
                     hintEl.className = "admin-term-sugg-hint";
                     hintEl.textContent = c.hint;
@@ -220,11 +204,15 @@
                     catEl.className = "admin-term-sugg-cat";
                     catEl.textContent = c.cat;
                     item.append(iconEl, cmdEl, hintEl, descEl, catEl);
+                    if (i === 0 && !browsing) item.classList.add("admin-term-sugg-item-top");
                     item.addEventListener("mousedown", e => { e.preventDefault(); acceptSuggestion(mode, c); });
                     suggest.appendChild(item);
                 });
             } else {
-                items.forEach(rawItem => {
+                const endsWithSpace = /\s$/.test(raw);
+                const tokens = raw.trim().length ? raw.trim().split(/\s+/) : [];
+                const typedPartial = endsWithSpace ? "" : (tokens[tokens.length - 1] || "").toLowerCase();
+                items.forEach((rawItem, i) => {
                     const val  = (rawItem && typeof rawItem === "object") ? rawItem.value : rawItem;
                     const desc = (rawItem && typeof rawItem === "object") ? rawItem.desc  : "";
                     const item = document.createElement("div");
@@ -234,15 +222,17 @@
                     iconEl.textContent = (label || "?").charAt(0).toUpperCase();
                     const cmdEl = document.createElement("span");
                     cmdEl.className = "admin-term-sugg-cmd";
-                    cmdEl.textContent = val;
+                    cmdEl.innerHTML = hl(String(val), typedPartial);
                     const hintEl = document.createElement("span");
                     hintEl.className = "admin-term-sugg-hint" + (desc ? " admin-term-sugg-hint-desc" : "");
                     hintEl.textContent = desc || label || "";
                     item.append(iconEl, cmdEl, hintEl);
+                    if (i === 0) item.classList.add("admin-term-sugg-item-top");
                     item.addEventListener("mousedown", e => { e.preventDefault(); acceptSuggestion(mode, rawItem); });
                     suggest.appendChild(item);
                 });
             }
+            appendSuggestFooter(total, items.length, !!browsing, !!fuzzy);
             suggest.classList.add("open");
         }
 
@@ -261,9 +251,7 @@
             }
             closeSuggest();
             input.focus();
-            updateHint(input.value);
-            updateGhost(input.value);
-            renderSuggest(input.value); // immediately offer the next argument, if any
+            refresh(); // immediately offer the next argument, if any
         }
 
         function moveSuggIdx(dir) {
@@ -282,7 +270,6 @@
             if (!val) return;
             input.value = "";
             if (hintLine) hintLine.textContent = "";
-            if (ghost) ghost.innerHTML = "";
             closeSuggest();
             WA.run(val);
             histIdx = WA.history ? WA.history.length : 0;
@@ -292,10 +279,6 @@
 
         input.addEventListener("keydown", e => {
             const open_ = suggest?.classList.contains("open");
-            if (e.key === "ArrowRight" && !open_ &&
-                input.selectionStart === input.value.length && input.selectionEnd === input.value.length) {
-                if (acceptGhost()) { e.preventDefault(); return; }
-            }
             if (e.key === "Enter") {
                 if (open_ && suggIdx >= 0) {
                     const { mode, items } = WA.getSuggestions(input.value);
@@ -305,7 +288,6 @@
             }
             if (e.key === "Tab") {
                 e.preventDefault();
-                if (acceptGhost()) return;
                 const { mode, items } = WA.getSuggestions(input.value);
                 if (!items.length) return;
                 if (items.length === 1 || (open_ && suggIdx >= 0)) {
@@ -319,31 +301,29 @@
                     }, items[0].cmd);
                     if (lcp.length > input.value.trimStart().length) input.value = lcp + " ";
                 }
-                renderSuggest(input.value);
+                refresh();
                 return;
             }
             if (e.key === "Escape") { if (open_) { closeSuggest(); e.preventDefault(); } return; }
             const hist = WA.history || [];
             if (e.key === "ArrowDown") {
                 if (open_) { moveSuggIdx(1); e.preventDefault(); return; }
-                if (histIdx < hist.length) { input.value = hist[++histIdx] || ""; updateHint(input.value); updateGhost(input.value); renderSuggest(input.value); }
+                if (histIdx < hist.length) { input.value = hist[++histIdx] || ""; refresh(); }
                 e.preventDefault(); return;
             }
             if (e.key === "ArrowUp") {
                 if (open_) { moveSuggIdx(-1); e.preventDefault(); return; }
-                if (histIdx > 0) { input.value = hist[--histIdx]; updateHint(input.value); updateGhost(input.value); renderSuggest(input.value); }
+                if (histIdx > 0) { input.value = hist[--histIdx]; refresh(); }
                 e.preventDefault(); return;
             }
         });
 
         input.addEventListener("input", () => {
             histIdx = (WA.history || []).length;
-            updateHint(input.value);
-            updateGhost(input.value);
-            renderSuggest(input.value);
+            refresh();
         });
-        input.addEventListener("blur",  () => { setTimeout(closeSuggest, 120); if (hintLine) hintLine.textContent = ""; if (ghost) ghost.innerHTML = ""; });
-        input.addEventListener("focus", () => { if (input.value) { updateHint(input.value); updateGhost(input.value); renderSuggest(input.value); } });
+        input.addEventListener("blur",  () => { setTimeout(closeSuggest, 120); if (hintLine) hintLine.textContent = ""; });
+        input.addEventListener("focus", () => refresh());
 
         histIdx = (WA.history || []).length;
     }

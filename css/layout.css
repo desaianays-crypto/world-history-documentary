@@ -523,6 +523,7 @@ button,
     position: absolute;
     background: transparent;
     z-index: 200;
+    touch-action: none;
 }
 .resize-handle[data-dir="r"]  { right:0;  top:0;    width:8px;  height:100%; cursor:ew-resize;   }
 .resize-handle[data-dir="l"]  { left:0;   top:0;    width:8px;  height:100%; cursor:ew-resize;   }
@@ -598,11 +599,11 @@ button,
     flex-shrink: 0;
     border-bottom: 1px solid var(--border);
     border-radius: 14px 14px 0 0;
+    touch-action: none;
 }
 
 #infoPanelHeader:active,
-
-#infoPanelHeader.panel-dragging {
+#infoPanel.whd-panel-dragging #infoPanelHeader {
     cursor: grabbing;
     opacity: 0.92;
     background: var(--border);

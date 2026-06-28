@@ -42,13 +42,16 @@
         const onInteractionEnd = opts.onInteractionEnd || (() => {});
         const disabled = opts.disabled || (() => false);
 
-        let dragging = false, resizing = false, dir = null;
+        let mode = null; // null | "drag" | "resize"
+        let dir = null;
+        let activePointerId = null;
         let startX = 0, startY = 0, origLeft = 0, origTop = 0, origW = 0, origH = 0;
+        let raf = null, pendingEvent = null;
 
         function rect() { return panel.getBoundingClientRect(); }
 
         // The "interacting" flag stays set for a short grace period after
-        // mouseup, not just during the drag itself. This is what fixes the
+        // release, not just during the drag itself. This is what fixes the
         // bug where releasing a drag/resize right at the panel's edge fires
         // a click on whatever is now underneath the cursor (often a modal
         // backdrop) and that click gets misread as "click outside to close".
@@ -62,39 +65,56 @@
             panel.style.bottom = "auto";
         }
 
-        dragHandle.addEventListener("mousedown", e => {
+        // Text gets highlighted mid-drag in every browser unless selection
+        // is explicitly suppressed for the duration — a big part of why
+        // dragging can feel "flimsy". Suppressed at the document level
+        // (not just on the panel) since a fast drag can momentarily put
+        // the pointer over page content outside the panel entirely.
+        function suppressSelection(on) {
+            document.documentElement.classList.toggle("whd-panel-no-select", on);
+        }
+
+        function startInteraction(e, newMode, newDir) {
             if (disabled()) return;
-            if (e.target.closest("button,input,textarea,select,.resize-handle")) return;
             const r = rect();
-            dragging = true;
+            mode = newMode;
+            dir = newDir;
+            activePointerId = e.pointerId;
             beginInteraction();
             startX = e.clientX; startY = e.clientY;
             origLeft = r.left; origTop = r.top; origW = r.width; origH = r.height;
             lockToFixed();
-            panel.style.width = origW + "px";
-            panel.style.height = origH + "px";
-            panel.classList.add("whd-panel-dragging");
+            if (newMode === "drag") { panel.style.width = origW + "px"; panel.style.height = origH + "px"; }
+            panel.classList.add(newMode === "drag" ? "whd-panel-dragging" : "whd-panel-resizing");
+            suppressSelection(true);
+            // Pointer capture keeps every subsequent move/up event routed to
+            // this handle even if the cursor outruns the panel, leaves the
+            // window, or crosses an iframe boundary — mouse-event dragging
+            // (the old approach) silently drops the drag in exactly those
+            // cases, which is most of what made it feel unreliable.
+            try { e.target.setPointerCapture(e.pointerId); } catch {}
+            document.addEventListener("pointermove", onMove);
+            document.addEventListener("pointerup", onUp);
+            document.addEventListener("pointercancel", onUp);
             e.preventDefault();
+        }
+
+        dragHandle.addEventListener("pointerdown", e => {
+            if (e.button !== undefined && e.button !== 0) return; // left button / primary touch only
+            if (e.target.closest("button,input,textarea,select,.resize-handle")) return;
+            startInteraction(e, "drag", null);
         });
 
         panel.querySelectorAll(".resize-handle").forEach(handle => {
-            handle.addEventListener("mousedown", e => {
-                if (disabled()) return;
-                const r = rect();
-                resizing = true;
-                dir = handle.dataset.dir;
-                beginInteraction();
-                startX = e.clientX; startY = e.clientY;
-                origLeft = r.left; origTop = r.top; origW = r.width; origH = r.height;
-                lockToFixed();
-                panel.classList.add("whd-panel-resizing");
-                e.preventDefault();
+            handle.addEventListener("pointerdown", e => {
+                if (e.button !== undefined && e.button !== 0) return;
                 e.stopPropagation();
+                startInteraction(e, "resize", handle.dataset.dir);
             });
         });
 
-        function onMove(e) {
-            if (dragging) {
+        function applyMove(e) {
+            if (mode === "drag") {
                 const w = parseFloat(panel.style.width) || panel.offsetWidth;
                 const h = parseFloat(panel.style.height) || panel.offsetHeight;
                 let left = e.clientX - (startX - origLeft);
@@ -106,7 +126,7 @@
                 panel.style.right = "auto"; panel.style.bottom = "auto";
                 return;
             }
-            if (resizing) {
+            if (mode === "resize") {
                 const dx = e.clientX - startX, dy = e.clientY - startY;
                 let left = origLeft, top = origTop, width = origW, height = origH;
 
@@ -137,24 +157,42 @@
             }
         }
 
-        function onUp() {
-            if (!dragging && !resizing) return;
+        function onMove(e) {
+            if (!mode || e.pointerId !== activePointerId) return;
+            // Coalesce to one update per animation frame — smoother than
+            // applying every raw pointermove (which can fire far faster
+            // than the panel can usefully repaint) and avoids the slight
+            // stutter that made dragging feel imprecise.
+            pendingEvent = e;
+            if (raf) return;
+            raf = requestAnimationFrame(() => { raf = null; if (pendingEvent) applyMove(pendingEvent); });
+        }
+
+        function onUp(e) {
+            if (!mode || e.pointerId !== activePointerId) return;
+            if (raf) { cancelAnimationFrame(raf); raf = null; }
+            if (pendingEvent) { applyMove(pendingEvent); pendingEvent = null; }
             const r = rect();
             setGeom({ left: r.left, top: r.top, width: r.width, height: r.height });
-            dragging = false; resizing = false; dir = null;
             panel.classList.remove("whd-panel-dragging", "whd-panel-resizing");
+            suppressSelection(false);
+            document.removeEventListener("pointermove", onMove);
+            document.removeEventListener("pointerup", onUp);
+            document.removeEventListener("pointercancel", onUp);
+            mode = null; dir = null; activePointerId = null;
             endInteraction();
             onInteractionEnd();
         }
 
-        document.addEventListener("mousemove", onMove);
-        document.addEventListener("mouseup", onUp);
-
         // If the browser window itself is resized while the panel is
         // pinned (position:fixed), keep it from being stranded off-screen
-        // or larger than the new viewport.
+        // or larger than the new viewport — and if the panel has crossed
+        // into a disabled state (e.g. the mobile breakpoint), drop the
+        // inline geometry entirely instead of leaving it pinned somewhere
+        // a mobile layout never intended it to be.
         window.addEventListener("resize", () => {
-            if (panel.style.position !== "fixed" || disabled()) return;
+            if (panel.style.position !== "fixed") return;
+            if (disabled()) { resetGeometry(); return; }
             const r = rect();
             const width = Math.min(r.width, window.innerWidth - MARGIN * 2);
             const height = Math.min(r.height, window.innerHeight - MARGIN * 2);
@@ -163,6 +201,11 @@
             panel.style.width = width + "px"; panel.style.height = height + "px";
             panel.style.left = left + "px"; panel.style.top = top + "px";
         });
+
+        function resetGeometry() {
+            ["position","margin","left","top","width","height","right","bottom"]
+                .forEach(p => { panel.style[p] = ""; });
+        }
 
         return {
             applyGeom(g) {
@@ -174,11 +217,9 @@
                 if (g.top != null)    panel.style.top = g.top + "px";
             },
             isInteracting() { return panel.dataset.whdInteracting === "1"; },
-            reset() {
-                ["position","margin","left","top","width","height","right","bottom"]
-                    .forEach(p => { panel.style[p] = ""; });
-            },
+            reset: resetGeometry,
             restoreSaved() {
+                if (disabled()) return;
                 const g = getGeom();
                 if (!g) return;
                 const maxW = window.innerWidth - MARGIN * 2;

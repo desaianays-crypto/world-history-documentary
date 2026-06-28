@@ -399,10 +399,7 @@ function enhanceNumberInputs(ids) {
                     <div class="admin-term-inputwrap">
                         <div class="admin-term-inputrow">
                             <span class="admin-term-prompt">&gt;</span>
-                            <div class="admin-term-input-wrap">
-                                <input id="adminTermInput" type="text" class="admin-input admin-term-input" placeholder="Type a command…" autocomplete="off" spellcheck="false"/>
-                                <div id="adminTermGhost" class="admin-term-ghost" aria-hidden="true"></div>
-                            </div>
+                            <input id="adminTermInput" type="text" class="admin-input admin-term-input" placeholder="Type a command…" autocomplete="off" spellcheck="false"/>
                             <button class="admin-btn admin-btn-primary" id="adminTermRunBtn">Run</button>
                         </div>
                         <div id="adminTermHint" class="admin-term-hint"></div>
@@ -2414,18 +2411,18 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         "WHDAuth.isAdminOrAbove":  "Returns true if role is admin or owner",
         "WHDAuth.isOwner":         "Returns true if role is owner",
         "WHDAuth.workerUrl":       "Base URL of the Cloudflare Worker backend",
-        "WHDAuth.scheduleSyncPush":"Debounced push of local settings/bookmarks/playlists to the worker",
-        "WHDAuth.pushNow":         "Immediately push local data to the worker, skipping the debounce",
-        "WHDAuth.pullAndApply":    "Fetch this user's saved data from the worker and apply it locally",
+        "WHDAuth.scheduleSyncPush":"⚠ Debounces and pushes local settings/bookmarks/playlists to the worker — triggers a sync",
+        "WHDAuth.pushNow":         "⚠ Immediately push local data to the worker, skipping the debounce — triggers a sync",
+        "WHDAuth.pullAndApply":    "⚠ Fetch user data from the worker and apply it locally — overwrites local state",
         "WHDAuth.checkMaintenance":"Ask the worker whether maintenance mode is currently active",
         "WHDAuth.openModal":       "Open the login/signup modal",
-        "WHDAuth.logout":          "Clear the session token and log the current user out",
+        "WHDAuth.logout":          "⚠ Clears the session token and logs the current user out — you will be signed out",
         "WHDAuth.requireLogin":    "Run a callback once logged in, opening the auth modal first if needed",
         "WHDAdmin":                 "Owner-terminal engine — shared by the admin panel and owner panel",
-        "WHDAdmin.run":            "Execute a terminal command string exactly as if typed and run",
-        "WHDAdmin.print":          "Print a line of text into the terminal output",
-        "WHDAdmin.match":          "Resolve an array of typed tokens to the TERM_COMMANDS entry they match",
-        "WHDAdmin.confirm":        "Open the shared yes/no confirmation dialog",
+        "WHDAdmin.run":            "⚠ Execute a terminal command string exactly as if typed — can trigger any command",
+        "WHDAdmin.print":          "Print a line of text into the terminal output (safe)",
+        "WHDAdmin.match":          "Resolve an array of typed tokens to the TERM_COMMANDS entry they match (safe)",
+        "WHDAdmin.confirm":        "Open the shared yes/no confirmation dialog (safe)",
         "WHDAdmin.history":        "Array of previously run terminal commands, most-recent-last",
         "WHDAdmin.watchInterval":  "Active setInterval handle for the 'watch' command, if any",
         "WHDAdmin.commands":       "The full TERM_COMMANDS registry array",
@@ -2435,8 +2432,8 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         "WHD_FLAGS":                "Currently active feature flags, synced from the worker",
         "setMapStyle":             "Switch the Leaflet basemap style (dark/light/satellite/terrain/streets)",
         "whdMap":                  "The live Leaflet map instance",
-        "whdMap.getZoom":          "Returns the map's current zoom level",
-        "whdMap.setZoom":          "Set the map's zoom level",
+        "whdMap.getZoom":          "Returns the map's current zoom level (safe)",
+        "whdMap.setZoom":          "⚠ Set the map's zoom level — modifies the live map view",
     };
     function pathDesc(path) { return KNOWN_PATH_DESCS[path] || ""; }
 
@@ -2492,6 +2489,17 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
     function suggestUserRoles()     { return ["admin","user"]; }
     function suggestBooleans()      { return ["true","false"]; }
     function suggestMapStyles()     { return ["dark","light","satellite","terrain","streets"]; }
+
+    // Per-function, per-argument-position suggestion sources for the "call"
+    // command — e.g. KNOWN_CALL_ARG_SOURCES["setmapstyle"][0] supplies
+    // suggestions for the *first* argument to setMapStyle specifically.
+    // Keyed lowercase since the function path is matched case-insensitively.
+    // Functions not listed here (or argument positions beyond what's listed)
+    // simply get no suggestions, rather than the misleading fallback of
+    // re-suggesting function paths.
+    const KNOWN_CALL_ARG_SOURCES = {
+        "setmapstyle": [suggestMapStyles],
+    };
     function suggestSortOrders()    { return ["asc","desc"]; }
     function suggestSceneYears() {
         const years = new Set();
@@ -2543,6 +2551,7 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
 
     let _termHistory = [];
     let _watchInterval = null; // active watch() timer, cleared on next command
+    let _callUndoSnapshot = null; // { scenes: deepClone, deletedIds: Set } captured before last `call`
 
     function termAllActiveScenes() {
         let all = [];
@@ -3148,17 +3157,58 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                 return;
             }
 
+            // ── undo call ───────────────────────────────────────────────────
+            // Must be checked before the generic "call" handler so "undo call"
+            // doesn't get parsed as call("undo").
+            if (verb === "undo" && noun === "call") {
+                if (!_callUndoSnapshot) {
+                    termPrint("Nothing to undo — no call has been executed yet this session.", "term-info");
+                    return;
+                }
+                const { scenesSnap, deletedSnap, lsScenesSnap, lsDeletedSnap, fnPath: snapFn } = _callUndoSnapshot;
+                const ok = await showConfirm({
+                    icon: "↩️",
+                    title: "Undo last call?",
+                    msg: `Restore scene data to state before: call ${snapFn}\nThis rolls back any scene/deletion changes made by that function.`,
+                    okLabel: "Undo", okClass: "admin-btn-warn"
+                });
+                if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                // Restore each db array in place
+                for (const [dbKey, info] of Object.entries(DB_MAP)) {
+                    const arr = info.getArr();
+                    arr.length = 0;
+                    (scenesSnap[dbKey] || []).forEach(s => arr.push(s));
+                }
+                // Restore scenes flat array
+                scenes.length = 0;
+                for (const [dbKey, info] of Object.entries(DB_MAP)) {
+                    info.getArr().forEach(s => scenes.push({ ...s, _dbKey: dbKey }));
+                }
+                // Restore deletedIds
+                deletedIds.clear();
+                deletedSnap.forEach(id => deletedIds.add(id));
+                // Restore localStorage
+                lsSet(LS_SCENES, lsScenesSnap);
+                lsSet(LS_DELETED, lsDeletedSnap);
+                persistScenes();
+                refreshManageList();
+                _callUndoSnapshot = null;
+                termPrint(`✔ Undone: call ${snapFn} — scene state restored.`, "term-ok");
+                return;
+            }
+
             if (verb === "call") {
                 const fnPath = parts[1];
                 if (!fnPath) {
                     termPrint("Usage: call <fn.path> [arg1 arg2 …]", "term-err");
                     termPrint("", "term-info");
-                    termPrint("Calls any function reachable on window. Args are auto-typed:", "term-info");
-                    termPrint("  numbers → Number,  true/false → Boolean,  {…}/[…] → JSON,  else String", "term-info");
+                    termPrint("⚠ Calls any function reachable on window — can modify app state.", "term-info");
+                    termPrint("  A snapshot is saved before each call so you can run 'undo call' to roll back.", "term-info");
+                    termPrint("  Args are auto-typed: numbers → Number,  true/false → Boolean,  {…}/[…] → JSON,  else String", "term-info");
                     termPrint("", "term-info");
                     termPrint("  call WHDAuth.pullAndApply", "term-info");
                     termPrint("  call setMapStyle dark", "term-info");
-                    termPrint("  call WHDAuth.promote username admin", "term-info");
+                    termPrint("  call WHDAdmin.print \"hello\"", "term-info");
                     return;
                 }
                 const fnArgs = parts.slice(2).map(a => {
@@ -3175,6 +3225,22 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                 for (let i = 0; i < segs.length - 1; i++) { target = target?.[segs[i]]; }
                 const fn = target?.[segs[segs.length - 1]];
                 if (typeof fn !== "function") { termPrint(`"${fnPath}" is not a function on window.`, "term-err"); return; }
+                // Snapshot scene state before calling so "undo call" can roll back
+                try {
+                    const scenesSnap = {};
+                    for (const [dbKey, info] of Object.entries(DB_MAP)) {
+                        scenesSnap[dbKey] = info.getArr().map(s => JSON.parse(JSON.stringify(s)));
+                    }
+                    _callUndoSnapshot = {
+                        fnPath,
+                        scenesSnap,
+                        deletedSnap: new Set(deletedIds),
+                        lsScenesSnap: JSON.parse(JSON.stringify(lsGet(LS_SCENES) || [])),
+                        lsDeletedSnap: JSON.parse(JSON.stringify(lsGet(LS_DELETED) || [])),
+                    };
+                } catch (snapErr) {
+                    _callUndoSnapshot = null; // snapshot failed — undo won't be available
+                }
                 try {
                     const result = await fn.apply(target, fnArgs);
                     let resultStr;
@@ -3184,8 +3250,10 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                         try { resultStr = JSON.stringify(result); } catch { resultStr = String(result); }
                     }
                     termPrint(`✔ ${fnPath}(${fnArgs.map(a=>JSON.stringify(a)).join(", ")}) → ${resultStr}`, "term-ok");
+                    if (_callUndoSnapshot) termPrint(`  (run 'undo call' to roll back scene changes from this call)`, "term-info");
                 } catch (e) {
                     termPrint(`✗ ${fnPath} threw: ${e.message}`, "term-err");
+                    _callUndoSnapshot = null; // call failed — nothing to undo
                 }
                 return;
             }
@@ -3771,46 +3839,80 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
 
             if (verb === "set" && noun === "season") {
                 const restTokens = parts.slice(2);
-                if (restTokens.length < 2) { termPrint("Usage: set season <sceneId|countryName> <season>", "term-err"); return; }
-                const keyLen = termSplitLeadingKey(restTokens, termKnownValues("country"));
+                if (restTokens.length < 2) { termPrint("Usage: set season <sceneId|country|season> <newSeason>", "term-err"); return; }
+                // Build a combined lookup set of all known countries AND seasons so
+                // multi-word values like "Medieval Poland" resolve as a single key.
+                const knownSeasonOrCountry = new Set([
+                    ...termKnownValues("season"),
+                    ...termKnownValues("country"),
+                ]);
+                const keyLen = termSplitLeadingKey(restTokens, knownSeasonOrCountry);
                 const keyArg = restTokens.slice(0, keyLen).join(" "), val = restTokens.slice(keyLen).join(" ");
-                if (!keyArg || !val) { termPrint("Usage: set season <sceneId|countryName> <season>", "term-err"); return; }
+                if (!keyArg || !val) { termPrint("Usage: set season <sceneId|country|season> <newSeason>", "term-err"); return; }
                 const found = getSceneById(keyArg);
                 if (found) {
+                    // Single-scene mode
                     found.scene.season = val; found.scene._adminEdited = true;
                     persistScenes(); refreshManageList();
                     termPrint(`✔ ${keyArg}.season = "${val}"`, "term-ok");
                 } else {
-                    const hits = termAllActiveScenes().filter(({ scene: s }) => (s.country||"").toLowerCase() === keyArg.toLowerCase());
-                    if (!hits.length) { termPrint(`No scenes found for country "${keyArg}" (and it's not a scene ID either).`, "term-err"); return; }
-                    const ok = await showConfirm({ icon:"🏷", title:`Set season on ${hits.length} scene(s)?`, msg:`Country: "${keyArg}" → season "${val}"`, okLabel:"Set", okClass:"admin-btn-primary" });
-                    if (!ok) { termPrint("Cancelled.", "term-info"); return; }
-                    hits.forEach(({ scene: s }) => { s.season = val; s._adminEdited = true; });
-                    persistScenes(); refreshManageList();
-                    termPrint(`✔ Set season = "${val}" on ${hits.length} scene(s) in "${keyArg}".`, "term-ok");
+                    // Whole-country mode
+                    const byCountry = termAllActiveScenes().filter(({ scene: s }) => (s.country||"").toLowerCase() === keyArg.toLowerCase());
+                    // Whole-season mode
+                    const bySeason  = termAllActiveScenes().filter(({ scene: s }) => (s.season||"").toLowerCase() === keyArg.toLowerCase());
+                    if (byCountry.length) {
+                        const ok = await showConfirm({ icon:"🏷", title:`Set season on ${byCountry.length} scene(s)?`, msg:`Country "${keyArg}" → season "${val}"`, okLabel:"Set", okClass:"admin-btn-primary" });
+                        if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                        byCountry.forEach(({ scene: s }) => { s.season = val; s._adminEdited = true; });
+                        persistScenes(); refreshManageList();
+                        termPrint(`✔ Set season = "${val}" on ${byCountry.length} scene(s) in country "${keyArg}".`, "term-ok");
+                    } else if (bySeason.length) {
+                        const ok = await showConfirm({ icon:"🏷", title:`Retag season on ${bySeason.length} scene(s)?`, msg:`Season "${keyArg}" → "${val}"`, okLabel:"Set", okClass:"admin-btn-primary" });
+                        if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                        bySeason.forEach(({ scene: s }) => { s.season = val; s._adminEdited = true; });
+                        persistScenes(); refreshManageList();
+                        termPrint(`✔ Set season = "${val}" on ${bySeason.length} scene(s) in season "${keyArg}".`, "term-ok");
+                    } else {
+                        termPrint(`No scenes found for country or season "${keyArg}" (and it's not a scene ID either).`, "term-err");
+                    }
                 }
                 return;
             }
 
             if (verb === "set" && noun === "continent") {
                 const restTokens = parts.slice(2);
-                if (restTokens.length < 2) { termPrint("Usage: set continent <sceneId|countryName> <continent>", "term-err"); return; }
-                const keyLen = termSplitLeadingKey(restTokens, termKnownValues("country"));
+                if (restTokens.length < 2) { termPrint("Usage: set continent <sceneId|country|continent> <newContinent>", "term-err"); return; }
+                const knownContinentOrCountry = new Set([
+                    ...termKnownValues("continent"),
+                    ...termKnownValues("country"),
+                ]);
+                const keyLen = termSplitLeadingKey(restTokens, knownContinentOrCountry);
                 const keyArg = restTokens.slice(0, keyLen).join(" "), val = restTokens.slice(keyLen).join(" ");
-                if (!keyArg || !val) { termPrint("Usage: set continent <sceneId|countryName> <continent>", "term-err"); return; }
+                if (!keyArg || !val) { termPrint("Usage: set continent <sceneId|country|continent> <newContinent>", "term-err"); return; }
                 const found = getSceneById(keyArg);
                 if (found) {
+                    // Single-scene mode
                     found.scene.continent = val; found.scene._adminEdited = true;
                     persistScenes(); refreshManageList();
                     termPrint(`✔ ${keyArg}.continent = "${val}"`, "term-ok");
                 } else {
-                    const hits = termAllActiveScenes().filter(({ scene: s }) => (s.country||"").toLowerCase() === keyArg.toLowerCase());
-                    if (!hits.length) { termPrint(`No scenes found for country "${keyArg}" (and it's not a scene ID either).`, "term-err"); return; }
-                    const ok = await showConfirm({ icon:"🌍", title:`Set continent on ${hits.length} scene(s)?`, msg:`Country: "${keyArg}" → continent "${val}"`, okLabel:"Set", okClass:"admin-btn-primary" });
-                    if (!ok) { termPrint("Cancelled.", "term-info"); return; }
-                    hits.forEach(({ scene: s }) => { s.continent = val; s._adminEdited = true; });
-                    persistScenes(); refreshManageList();
-                    termPrint(`✔ Set continent = "${val}" on ${hits.length} scene(s) in "${keyArg}".`, "term-ok");
+                    const byCountry   = termAllActiveScenes().filter(({ scene: s }) => (s.country||"").toLowerCase() === keyArg.toLowerCase());
+                    const byContinent = termAllActiveScenes().filter(({ scene: s }) => (s.continent||"").toLowerCase() === keyArg.toLowerCase());
+                    if (byCountry.length) {
+                        const ok = await showConfirm({ icon:"🌍", title:`Set continent on ${byCountry.length} scene(s)?`, msg:`Country "${keyArg}" → continent "${val}"`, okLabel:"Set", okClass:"admin-btn-primary" });
+                        if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                        byCountry.forEach(({ scene: s }) => { s.continent = val; s._adminEdited = true; });
+                        persistScenes(); refreshManageList();
+                        termPrint(`✔ Set continent = "${val}" on ${byCountry.length} scene(s) in country "${keyArg}".`, "term-ok");
+                    } else if (byContinent.length) {
+                        const ok = await showConfirm({ icon:"🌍", title:`Set continent on ${byContinent.length} scene(s)?`, msg:`Continent "${keyArg}" → "${val}"`, okLabel:"Set", okClass:"admin-btn-primary" });
+                        if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                        byContinent.forEach(({ scene: s }) => { s.continent = val; s._adminEdited = true; });
+                        persistScenes(); refreshManageList();
+                        termPrint(`✔ Set continent = "${val}" on ${byContinent.length} scene(s) in continent "${keyArg}".`, "term-ok");
+                    } else {
+                        termPrint(`No scenes found for country or continent "${keyArg}" (and it's not a scene ID either).`, "term-err");
+                    }
                 }
                 return;
             }
@@ -4980,37 +5082,20 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         const btn     = document.getElementById("adminTermRunBtn");
         const suggest = document.getElementById("adminTermSuggest");
         const hintLine = document.getElementById("adminTermHint");
-        const ghost   = document.getElementById("adminTermGhost");
         if (!input || !btn) return;
 
         let histIdx = _termHistory.length;
         let suggIdx = -1;
 
-        // Inline ("ghost text") ahead-of-cursor completion, VS Code/Copilot-
-        // style: the part already typed is rendered invisibly (so it lines
-        // up exactly under the real input text) followed by the rest of the
-        // top suggestion in dim gray. Accepted with → (at end of input) or Tab.
-        function updateGhost(raw) {
-            if (!ghost) return;
-            const completion = getInlineGhost(raw);
-            if (!completion || !raw) { ghost.innerHTML = ""; return; }
-            ghost.innerHTML = "";
-            const typedSpan = document.createElement("span");
-            typedSpan.className = "ghost-typed";
-            typedSpan.textContent = raw;
-            const restSpan = document.createElement("span");
-            restSpan.className = "ghost-rest";
-            restSpan.textContent = completion.slice(raw.length);
-            ghost.append(typedSpan, restSpan);
-        }
-        function acceptGhost() {
-            const completion = getInlineGhost(input.value);
-            if (!completion || completion.length <= input.value.length) return false;
-            input.value = completion;
-            updateHint(input.value);
-            updateGhost(input.value);
-            renderSuggest(input.value);
-            return true;
+        // Single entry point for "the input changed — bring every dependent
+        // piece of UI back in sync": the usage hint line and the suggestion
+        // dropdown. Calling these from one place (instead of each call site
+        // remembering to invoke both, in the right order) is what keeps them
+        // from drifting out of sync with each other or with the input.
+        function refresh() {
+            const raw = input.value;
+            updateHint(raw);
+            renderSuggest(raw);
         }
 
         // Hint line: shows the command's usage under the input, e.g.
@@ -5077,70 +5162,6 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
             hintLine.textContent = "";
         }
 
-        // ── VS Code–style fuzzy matching ────────────────────────────────────
-        // Scores how well `query` matches `candidate` as an ordered (but not
-        // necessarily contiguous) subsequence of characters, the same basic
-        // approach VS Code's Quick Open / IntelliSense use. Rewards, in order
-        // of weight: an exact match, a match starting at a word boundary
-        // (after a space/-/_/.), a long unbroken run of matched characters,
-        // and matching early in the candidate. Returns null when `query`
-        // isn't a subsequence of `candidate` at all (no match), otherwise
-        // { score, matches } where `matches` are the matched char indices —
-        // used to bold exactly the matched letters, wherever they fall,
-        // instead of only ever bolding one contiguous substring.
-        function fuzzyScore(candidate, query) {
-            const c = candidate.toLowerCase();
-            const q = query.toLowerCase();
-            if (!q) return { score: 0, matches: [] };
-            if (c === q) return { score: 10000, matches: Array.from({ length: c.length }, (_, i) => i) };
-
-            let qi = 0, score = 0, run = 0, lastIdx = -2;
-            const matches = [];
-            for (let ci = 0; ci < c.length && qi < q.length; ci++) {
-                if (c[ci] !== q[qi]) continue;
-                matches.push(ci);
-                if (ci === lastIdx + 1) { run++; score += 8 + run * 4; }
-                else { run = 0; score += 2; }
-                if (ci === 0 || /[\s\-_./]/.test(c[ci - 1])) score += 12;
-                if (qi === 0) score += Math.max(0, 6 - ci);
-                lastIdx = ci;
-                qi++;
-            }
-            if (qi < q.length) return null; // query has chars not found in order
-            if (c.startsWith(q)) score += 30;
-            score -= c.length * 0.15; // mild bias toward shorter/tighter candidates
-            return { score, matches };
-        }
-
-        // Ranks a list of candidates against `query` using fuzzyScore, drops
-        // non-matches, and returns them best-first. `keyFn` extracts the
-        // string to match against from each candidate (defaults to identity).
-        function fuzzyRank(candidates, query, keyFn = (x) => x) {
-            if (!query) return candidates.map(item => ({ item, score: 0, matches: [] }));
-            const ranked = [];
-            for (const item of candidates) {
-                const res = fuzzyScore(String(keyFn(item)), query);
-                if (res) ranked.push({ item, score: res.score, matches: res.matches });
-            }
-            ranked.sort((a, b) => b.score - a.score);
-            return ranked;
-        }
-
-        // Wraps the characters at `matches` indices in <b> tags for display.
-        function highlightMatches(text, matches) {
-            if (!matches || !matches.length) return escHtml(text);
-            const set = new Set(matches);
-            let html = "", inRun = false;
-            for (let i = 0; i < text.length; i++) {
-                const hit = set.has(i);
-                if (hit && !inRun) { html += "<b>"; inRun = true; }
-                if (!hit && inRun) { html += "</b>"; inRun = false; }
-                html += escHtml(text[i]);
-            }
-            if (inRun) html += "</b>";
-            return html;
-        }
-
         function escHtml(s) { return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
 
         // Find the longest TERM_COMMANDS entry whose cmd is an exact match for
@@ -5176,9 +5197,48 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
             });
         }
 
-        // Returns either:
-        //   { mode:"cmd", items:[TERM_COMMANDS...] }              — completing the command name
-        //   { mode:"arg", items:["value1","value2",...], label }  — completing an argument value
+        // getSuggestions(raw) returns either:
+        //   { mode:"cmd", items:[TERM_COMMANDS...], total, browsing?, fuzzy? }
+        //   { mode:"arg", items:[value1,value2,...], label, fuzzy? }
+
+        // Last-resort fallback only — NOT the primary ranking. Exact/prefix/
+        // substring matching (below) covers normal typing predictably; this
+        // only kicks in when that pipeline finds literally nothing, so a
+        // typo or scrambled word (e.g. "stcty") still surfaces something
+        // close ("set country") instead of the dropdown just going empty.
+        // Returns matched character indices too, so the fallback case can
+        // be visually marked as "fuzzy" (scattered highlight) instead of
+        // looking like an ordinary substring hit.
+        function fuzzySubsequence(candidate, query) {
+            const c = candidate.toLowerCase(), q = query.toLowerCase();
+            if (!q) return null;
+            let qi = 0; const matches = [];
+            for (let ci = 0; ci < c.length && qi < q.length; ci++) {
+                if (c[ci] === q[qi]) { matches.push(ci); qi++; }
+            }
+            if (qi < q.length) return null;
+            // Prefer tighter matches (query chars closer together) and
+            // shorter candidates among equal-quality matches.
+            const span = matches[matches.length - 1] - matches[0] + 1;
+            return { matches, score: -(span * 2 + c.length * 0.1) };
+        }
+
+        // Filters `candidates` by `partial` (case-insensitive substring),
+        // capped at `cap`. If that finds nothing AND something was actually
+        // typed, falls back to fuzzySubsequence so a near-miss still shows
+        // something instead of the dropdown going silently empty. `keyFn`
+        // extracts the string to match against from each candidate.
+        function filterWithFallback(candidates, partial, cap, keyFn = String) {
+            const strict = candidates.filter(v => v != null && keyFn(v).toLowerCase().includes(partial));
+            if (strict.length || !partial) return { items: strict.slice(0, cap), fuzzy: false };
+            const ranked = candidates
+                .map(v => ({ v, fz: v != null ? fuzzySubsequence(keyFn(v), partial) : null }))
+                .filter(x => x.fz)
+                .sort((a, b) => b.fz.score - a.fz.score)
+                .map(x => x.v);
+            return { items: ranked.slice(0, cap), fuzzy: ranked.length > 0 };
+        }
+
         function getSuggestions(raw) {
             const endsWithSpace = /\s$/.test(raw);
             const tokens = raw.trim().length ? raw.trim().split(/\s+/) : [];
@@ -5196,6 +5256,35 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                 const argIdx = endsWithSpace
                     ? tokens.length - match.cmdLen
                     : Math.max(0, tokens.length - match.cmdLen - 1);
+
+                // "call <fn.path> [arg1 arg2 …]" is variadic and untyped — the
+                // generic "past the last defined slot, keep reusing the last
+                // slot's source" fallback below is wrong for it specifically,
+                // since call's only defined slot (argIdx 0) is the function
+                // path itself, and reusing that for arg1/arg2/etc. would just
+                // re-suggest function paths as if they were the values being
+                // passed to the function. Instead, look up suggestions keyed
+                // by the actual function path already typed, per argument
+                // position — e.g. "call setMapStyle " suggests style names,
+                // not more function paths.
+                if (match.cmd.cmd === "call" && argIdx >= 1) {
+                    const fnPath = tokens[match.cmdLen] || "";
+                    const specSources = KNOWN_CALL_ARG_SOURCES[fnPath.toLowerCase()];
+                    const specSource = specSources && specSources[argIdx - 1];
+                    const partial = (!endsWithSpace && tokens.length > match.cmdLen)
+                        ? tokens[tokens.length - 1].toLowerCase() : "";
+                    if (specSource) {
+                        let candidates = [];
+                        try { candidates = specSource() || []; } catch { candidates = []; }
+                        const valOf = v => String(v && typeof v === "object" ? v.value : v);
+                        const { items, fuzzy } = filterWithFallback(candidates, partial, 30, valOf);
+                        return { mode: "arg", items, label: `arg${argIdx + 1}`, fuzzy };
+                    }
+                    // No known suggestion source for this function/position —
+                    // stay quiet rather than suggesting something misleading.
+                    return { mode: "arg", items: [], label: null };
+                }
+
                 const argMeta = match.cmd.args[argIdx] || (
                     // Past the last defined slot: if the last arg looks like a
                     // repeatable value (scene IDs, db keys), keep suggesting it.
@@ -5209,11 +5298,9 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                         ? tokens[tokens.length - 1].toLowerCase() : "";
                     let candidates = [];
                     try { candidates = argMeta.source() || []; } catch { candidates = []; }
-                    candidates = candidates.filter(v => v != null);
-                    const argKey = (v) => (v && typeof v === "object" ? v.value : v);
-                    const ranked = fuzzyRank(candidates, partial, argKey).slice(0, 30);
-                    const items = ranked.map(r => r.item);
-                    return { mode: "arg", items, label: argMeta.label };
+                    const valOf = v => String(v && typeof v === "object" ? v.value : v);
+                    const { items, fuzzy } = filterWithFallback(candidates, partial, 30, valOf);
+                    return { mode: "arg", items, label: argMeta.label, fuzzy };
                 }
                 // Past the last defined argument slot (e.g. a free-text field
                 // like <name> with no suggestion source) — nothing to suggest,
@@ -5223,62 +5310,94 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
             }
 
             const typed = raw.trimStart().toLowerCase();
-            if (!typed) return { mode: "cmd", items: [] };
-            // Rank every command by fuzzy subsequence score (exact/prefix/word-
-            // boundary/contiguous-run matches all score higher), instead of the
-            // old exact-then-prefix-then-substring bucketing — this lets e.g.
-            // "stcty" surface "set country" the way VS Code's command palette
-            // would, while still always ranking exact and prefix hits highest.
-            const ranked = fuzzyRank(TERM_COMMANDS, typed, c => c.cmd);
-            return { mode: "cmd", items: ranked.map(r => r.item) };
+            const CMD_CAP = 40;
+            if (!typed) {
+                // Nothing typed yet: offer the full command list to browse,
+                // sorted by category then name, so the terminal is useful as
+                // a discovery tool and not just an autocomplete-while-typing
+                // feature. Capped + footer-noted like everything else below.
+                const browse = [...TERM_COMMANDS].sort((a, b) =>
+                    (a.cat || "").localeCompare(b.cat || "") || a.cmd.localeCompare(b.cmd));
+                return { mode: "cmd", items: browse.slice(0, CMD_CAP), total: browse.length, browsing: true };
+            }
+            // Exact match first (if any), then other prefix hits, then mid-word substring hits.
+            // NOTE: do NOT exclude the exact match — typing "set" should still show "set"
+            // itself at the top alongside "set country", "set season", etc.
+            const exact  = TERM_COMMANDS.filter(c => c.cmd.toLowerCase() === typed);
+            const prefix = TERM_COMMANDS.filter(c => c.cmd.toLowerCase().startsWith(typed) && c.cmd.toLowerCase() !== typed);
+            const substr = TERM_COMMANDS.filter(c => !c.cmd.toLowerCase().startsWith(typed) && c.cmd.toLowerCase().includes(typed));
+            let items = [...exact, ...prefix, ...substr];
+            let fuzzy = false;
+            if (!items.length) {
+                // Nothing matched at all (typo, scrambled letters, etc.) —
+                // fall back to a lenient subsequence match rather than
+                // leaving the dropdown empty. Clearly marked as fuzzy so
+                // the highlight style makes it obvious this is a looser,
+                // best-effort match rather than a normal substring hit.
+                const ranked = TERM_COMMANDS
+                    .map(c => ({ c, fz: fuzzySubsequence(c.cmd, typed) }))
+                    .filter(x => x.fz)
+                    .sort((a, b) => b.fz.score - a.fz.score)
+                    .map(x => x.c);
+                items = ranked;
+                fuzzy = ranked.length > 0;
+            }
+            return { mode: "cmd", items: items.slice(0, CMD_CAP), total: items.length, fuzzy };
         }
 
-        // Inline ("ghost text") completion: returns the full string the
-        // input would become if the top suggestion were accepted, but ONLY
-        // when that suggestion is an unambiguous prefix-completion of what's
-        // already typed (e.g. "se" -> "set"). A fuzzy/subsequence match like
-        // "stcty" -> "set country" has no clean "rest of the word" to show
-        // inline, so it's left to the dropdown instead. Returns null when
-        // there's nothing sensible to ghost.
-        function getInlineGhost(raw) {
-            if (!raw) return null;
-            const { mode, items } = getSuggestions(raw);
-            if (!items || !items.length) return null;
-
-            if (mode === "cmd") {
-                const trimmed = raw.trimStart();
-                const lead = raw.slice(0, raw.length - trimmed.length);
-                const top = items[0].cmd;
-                if (trimmed && top.toLowerCase().startsWith(trimmed.toLowerCase()) && top.length > trimmed.length) {
-                    return lead + top;
-                }
-                return null;
+        // Plain substring highlight — the normal case (exact/prefix/substring
+        // matches), so the common path never looks "fuzzy".
+        function highlightSubstring(text, typed) {
+            if (!typed) return escHtml(text);
+            const at = text.toLowerCase().indexOf(typed);
+            if (at === -1) return escHtml(text);
+            return escHtml(text.slice(0, at)) +
+                `<b>${escHtml(text.slice(at, at + typed.length))}</b>` +
+                escHtml(text.slice(at + typed.length));
+        }
+        // Scattered-character highlight — only used for the fuzzy fallback,
+        // so it's visually obvious this is a looser, best-effort match
+        // rather than an ordinary substring hit.
+        function highlightFuzzy(text, typed) {
+            const fz = fuzzySubsequence(text, typed);
+            if (!fz) return escHtml(text);
+            const set = new Set(fz.matches);
+            let html = "", inRun = false;
+            for (let i = 0; i < text.length; i++) {
+                const hit = set.has(i);
+                if (hit && !inRun) { html += "<b>"; inRun = true; }
+                if (!hit && inRun) { html += "</b>"; inRun = false; }
+                html += escHtml(text[i]);
             }
+            if (inRun) html += "</b>";
+            return html;
+        }
 
-            if (/\s$/.test(raw)) return null; // nothing typed yet for this argument
-            const tokens = raw.trim().length ? raw.trim().split(/\s+/) : [];
-            const partial = tokens[tokens.length - 1] || "";
-            if (!partial) return null;
-            const top = items[0];
-            const val = (top && typeof top === "object") ? top.value : top;
-            if (val == null) return null;
-            const valStr = String(val);
-            if (valStr.toLowerCase().startsWith(partial.toLowerCase()) && valStr.length > partial.length) {
-                return raw.slice(0, raw.length - partial.length) + valStr;
-            }
-            return null;
+        function appendSuggestFooter(total, shownCount, browsing, fuzzy) {
+            const footer = document.createElement("div");
+            footer.className = "admin-term-sugg-footer";
+            const note = document.createElement("span");
+            note.className = "admin-term-sugg-footer-note";
+            if (total > shownCount) note.textContent = `+${total - shownCount} more — keep typing to narrow`;
+            else if (browsing) note.textContent = `${total} commands`;
+            else if (fuzzy) note.textContent = "No exact match — closest results";
+            const keys = document.createElement("span");
+            keys.className = "admin-term-sugg-footer-keys";
+            keys.textContent = "↑↓ select · Tab/Enter accept · Esc close";
+            footer.append(note, keys);
+            suggest.appendChild(footer);
         }
 
         function renderSuggest(raw) {
             if (!suggest) return;
-            const { mode, items, label } = getSuggestions(raw);
+            const { mode, items, label, total = items.length, browsing, fuzzy } = getSuggestions(raw);
             if (!items.length) { closeSuggest(); return; }
             suggest.innerHTML = "";
             suggIdx = -1;
 
             if (mode === "cmd") {
                 const typed = raw.trimStart().toLowerCase();
-                items.forEach(c => {
+                items.forEach((c, i) => {
                     const item = document.createElement("div");
                     item.className = "admin-term-sugg-item";
                     const iconEl = document.createElement("span");
@@ -5286,10 +5405,9 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                     iconEl.textContent = (c.cat || "?").charAt(0).toUpperCase();
                     const cmdEl = document.createElement("span");
                     cmdEl.className = "admin-term-sugg-cmd";
-                    // Highlight every matched character (VS Code-style subsequence
-                    // highlight), not just one contiguous substring.
-                    const fz = typed ? fuzzyScore(c.cmd, typed) : null;
-                    cmdEl.innerHTML = fz ? highlightMatches(c.cmd, fz.matches) : escHtml(c.cmd);
+                    cmdEl.innerHTML = !typed ? escHtml(c.cmd)
+                        : fuzzy ? highlightFuzzy(c.cmd, typed)
+                        : highlightSubstring(c.cmd, typed);
                     const hintEl = document.createElement("span");
                     hintEl.className = "admin-term-sugg-hint";
                     hintEl.textContent = c.hint;
@@ -5300,6 +5418,11 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                     catEl.className = "admin-term-sugg-cat";
                     catEl.textContent = c.cat;
                     item.append(iconEl, cmdEl, hintEl, descEl, catEl);
+                    // Subtle visual cue for which result is "best" — purely
+                    // cosmetic, not tied to keyboard selection, so it can't
+                    // change what Enter does with a command you've already
+                    // finished typing correctly.
+                    if (i === 0 && !browsing) item.classList.add("admin-term-sugg-item-top");
                     item.addEventListener("mousedown", e => { e.preventDefault(); acceptSuggestion(mode, c); });
                     suggest.appendChild(item);
                 });
@@ -5318,14 +5441,11 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                         if (stored) _deletedNameMap[id] = stored.name;
                     });
                 }
+                const endsWithSpace = /\s$/.test(raw);
+                const tokens = raw.trim().length ? raw.trim().split(/\s+/) : [];
+                const typedPartial = endsWithSpace ? "" : (tokens[tokens.length - 1] || "").toLowerCase();
 
-                const typedPartial = (() => {
-                    const endsWithSpace = /\s$/.test(raw);
-                    const tokens = raw.trim().length ? raw.trim().split(/\s+/) : [];
-                    return endsWithSpace ? "" : (tokens[tokens.length - 1] || "").toLowerCase();
-                })();
-
-                items.forEach(rawItem => {
+                items.forEach((rawItem, i) => {
                     const val  = (rawItem && typeof rawItem === "object") ? rawItem.value : rawItem;
                     const desc = (rawItem && typeof rawItem === "object") ? rawItem.desc  : "";
                     const item = document.createElement("div");
@@ -5335,8 +5455,10 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                     iconEl.textContent = (label || "?").charAt(0).toUpperCase();
                     const cmdEl = document.createElement("span");
                     cmdEl.className = "admin-term-sugg-cmd";
-                    const fz = typedPartial ? fuzzyScore(String(val), typedPartial) : null;
-                    cmdEl.innerHTML = fz ? highlightMatches(String(val), fz.matches) : escHtml(String(val));
+                    const valStr = String(val);
+                    cmdEl.innerHTML = !typedPartial ? escHtml(valStr)
+                        : fuzzy ? highlightFuzzy(valStr, typedPartial)
+                        : highlightSubstring(valStr, typedPartial);
 
                     // Prefer a real per-item description (e.g. what a function
                     // does) over the generic scene-name/label sub-text.
@@ -5346,10 +5468,12 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                     hintEl.textContent = subLabel;
 
                     item.append(iconEl, cmdEl, hintEl);
+                    if (i === 0) item.classList.add("admin-term-sugg-item-top");
                     item.addEventListener("mousedown", e => { e.preventDefault(); acceptSuggestion(mode, rawItem); });
                     suggest.appendChild(item);
                 });
             }
+            appendSuggestFooter(total, items.length, !!browsing, !!fuzzy);
             suggest.classList.add("open");
         }
 
@@ -5375,9 +5499,7 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
             }
             closeSuggest();
             input.focus();
-            updateHint(input.value);
-            updateGhost(input.value);
-            renderSuggest(input.value); // immediately offer the next argument, if any
+            refresh(); // immediately offer the next argument, if any
         }
 
         function moveSuggIdx(dir) {
@@ -5398,7 +5520,6 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
             histIdx = _termHistory.length;
             input.value = "";
             if (hintLine) hintLine.textContent = "";
-            if (ghost) ghost.innerHTML = "";
             closeSuggest();
             runTermCommand(val);
         };
@@ -5407,10 +5528,6 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
 
         input.addEventListener("keydown", e => {
             const open = suggest?.classList.contains("open");
-            if (e.key === "ArrowRight" && !open &&
-                input.selectionStart === input.value.length && input.selectionEnd === input.value.length) {
-                if (acceptGhost()) { e.preventDefault(); return; }
-            }
             if (e.key === "Enter") {
                 if (open && suggIdx >= 0) {
                     const { mode, items } = getSuggestions(input.value);
@@ -5420,7 +5537,6 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
             }
             if (e.key === "Tab") {
                 e.preventDefault();
-                if (acceptGhost()) return;
                 const { mode, items } = getSuggestions(input.value);
                 if (!items.length) return;
                 if (items.length === 1 || (open && suggIdx >= 0)) {
@@ -5435,30 +5551,28 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                     }, items[0].cmd);
                     if (lcp.length > input.value.trimStart().length) input.value = lcp + " ";
                 }
-                renderSuggest(input.value);
+                refresh();
                 return;
             }
             if (e.key === "Escape") { if (open) { closeSuggest(); e.preventDefault(); } return; }
             if (e.key === "ArrowDown") {
                 if (open) { moveSuggIdx(1); e.preventDefault(); return; }
-                if (histIdx < _termHistory.length) { input.value = _termHistory[++histIdx] || ""; updateHint(input.value); updateGhost(input.value); renderSuggest(input.value); }
+                if (histIdx < _termHistory.length) { input.value = _termHistory[++histIdx] || ""; refresh(); }
                 e.preventDefault(); return;
             }
             if (e.key === "ArrowUp") {
                 if (open) { moveSuggIdx(-1); e.preventDefault(); return; }
-                if (histIdx > 0) { input.value = _termHistory[--histIdx]; updateHint(input.value); updateGhost(input.value); renderSuggest(input.value); }
+                if (histIdx > 0) { input.value = _termHistory[--histIdx]; refresh(); }
                 e.preventDefault(); return;
             }
         });
 
         input.addEventListener("input", () => {
             histIdx = _termHistory.length;
-            updateHint(input.value);
-            updateGhost(input.value);
-            renderSuggest(input.value);
+            refresh();
         });
-        input.addEventListener("blur",  () => { setTimeout(closeSuggest, 120); if (hintLine) hintLine.textContent = ""; if (ghost) ghost.innerHTML = ""; });
-        input.addEventListener("focus", () => { if (input.value) { updateHint(input.value); updateGhost(input.value); renderSuggest(input.value); } });
+        input.addEventListener("blur",  () => { setTimeout(closeSuggest, 120); if (hintLine) hintLine.textContent = ""; });
+        input.addEventListener("focus", () => refresh());
 
         // Expose the real engine internals on WHDAdmin so other terminal UIs
         // (owner-panel.js) share the exact same matching/suggestion logic and
@@ -5468,8 +5582,8 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         Object.assign(window.WHDAdmin, {
             match: matchCommand,
             getSuggestions,
-            getInlineGhost,
-            fuzzyScore,
+            highlightSubstring,
+            highlightFuzzy,
             getHintText: (raw) => { updateHint(raw); return hintLine ? hintLine.textContent : ""; },
             setOutput: (id) => { _termOutputId = id || "adminTermOutput"; },
             bootMessage: () => printTermBootMessage(),

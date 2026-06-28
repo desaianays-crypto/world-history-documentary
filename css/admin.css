@@ -874,13 +874,18 @@ color: white;
 .admin-term-line.term-ok{color:#7dff9e;}
 .admin-term-line.term-err{color:var(--accent);}
 .admin-term-line.term-info{color:rgba(255,255,255,0.75);}
+/* The suggestion dropdown below is position:absolute and anchors to the
+   nearest positioned ancestor — this MUST stay position:relative, or the
+   dropdown jumps up to whatever positioned ancestor is next (e.g. the
+   entire #adminPanel modal) instead of sitting snug above the input. */
+.admin-term-inputwrap{position:relative;}
 .admin-term-inputrow{display:flex;align-items:center;gap:8px;}
 .admin-term-prompt{color:var(--accent);font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;font-weight:700;flex-shrink:0;}
 .admin-term-input{
     flex:1;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
     font-size:13px;padding:7px 11px;border:1px solid rgba(255,255,255,0.12);
     box-sizing:border-box;border-radius:7px;
-    background:transparent !important; /* must win over the later .admin-input rule */
+    background:rgba(255,255,255,0.06);
     width:100%;caret-color:auto;color:inherit;
 }
 /* Usage hint line — a plain line of text below the input (not an overlay on
@@ -893,26 +898,6 @@ color: white;
     text-overflow:ellipsis;
 }
 
-.admin-term-input-wrap{position:relative;flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:7px;}
-.admin-term-input-wrap:focus-within{border-color:var(--accent-dim);}
-.admin-term-input-wrap .admin-term-input{position:relative;z-index:1;background:transparent !important;border-color:transparent;}
-/* Ghost text sits behind the input (whose own background is transparent)
-   showing: an invisible spacer matching exactly what's already typed, then
-   the rest of the top inline completion in dim gray — the same visual
-   pattern as VS Code / Copilot inline suggestions. Only ever shown when
-   the suggestion is a true prefix-completion of what's typed, so there's
-   always an unambiguous "rest of the word" to display. */
-.admin-term-ghost{
-    position:absolute;inset:0;z-index:0;pointer-events:none;
-    display:flex;align-items:center;
-    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
-    font-size:13px;padding:7px 11px;box-sizing:border-box;
-    border:1px solid transparent;
-    white-space:pre;overflow:hidden;
-}
-.admin-term-ghost .ghost-typed{color:transparent;}
-.admin-term-ghost .ghost-rest{color:rgba(255,255,255,0.32);}
-#ownerPanel .admin-term-ghost{font-size:14px;}
 /* Terminal page fills available height as flex column */
 .admin-page-terminal{
     display:none;flex-direction:column;padding:16px 20px;
@@ -956,6 +941,19 @@ color: white;
     font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
     color:var(--accent);opacity:.75;background:transparent;
     padding:0;white-space:nowrap;justify-self:end;
+}
+.admin-term-sugg-item-top{box-shadow:inset 2px 0 0 var(--accent-dim);}
+.admin-term-sugg-footer{
+    position:sticky;bottom:-3px;background:#141414;
+    display:flex;align-items:center;justify-content:space-between;gap:10px;
+    padding:5px 9px 4px;margin-top:2px;border-top:1px solid rgba(255,255,255,0.08);
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+}
+.admin-term-sugg-footer-note{
+    font-size:10.5px;color:rgba(255,255,255,0.4);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+.admin-term-sugg-footer-keys{
+    font-size:10px;color:rgba(255,255,255,0.3);white-space:nowrap;flex-shrink:0;margin-left:auto;
 }
 
 #adminAddSubtabs{
@@ -2096,7 +2094,7 @@ body.accent-is-light .admin-recipient-opt-avatar { color: #111; }
     display:flex;align-items:center;justify-content:space-between;
     padding:16px 22px;border-bottom:1px solid rgba(255,255,255,0.07);
     background:var(--accent-glow);flex-shrink:0;
-    cursor:move;user-select:none;
+    cursor:move;user-select:none;touch-action:none;
 }
 #ownerPanelHeader h2{margin:0;font-size:17px;font-weight:700;letter-spacing:.02em;}
 #ownerPanelCloseBtn {
@@ -2109,10 +2107,16 @@ body.accent-is-light .admin-recipient-opt-avatar { color: #111; }
     min-width:0;width:auto;
 }
 #ownerPanelCloseBtn:hover{background:rgba(255,255,255,0.08);color:#fff;}
-#ownerPanel.whd-panel-dragging,
-#ownerPanel.whd-panel-resizing{transition:none;}
-#ownerPanel.whd-panel-dragging *,
-#ownerPanel.whd-panel-resizing *{user-select:none;}
+.whd-panel-dragging,
+.whd-panel-resizing{transition:none !important;}
+.whd-panel-dragging *,
+.whd-panel-resizing *{user-select:none;}
+/* Set on <html> for the duration of any drag/resize via panel-drag.js —
+   prevents the browser's native text-selection/drag-ghost from kicking in
+   when the pointer crosses over page text while moving fast, which is
+   most of what made dragging feel unreliable before. */
+html.whd-panel-no-select,
+html.whd-panel-no-select *{user-select:none !important;-webkit-user-drag:none;}
 #ownerPanel .admin-term-output,
 #ownerPanel .admin-term-inputwrap {
     margin:0 22px;
