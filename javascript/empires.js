@@ -445,5 +445,100 @@ const EMPIRE_GEOJSON_MAP = {
     eth_10:                     { year: 1500, names: ["Ethiopia"] },
     eth_11:                     { year: 1700, names: ["Ethiopia"] },
     eth_14:                     { year: 1900, names: ["Ethiopia"] },
+// ── POLAND — EMPIRE_GEOJSON_MAP entries ───────────────────────────────────────
+// Add these key-value pairs inside the EMPIRE_GEOJSON_MAP object in empires.js.
+//
+// Dataset notes (aourednik/historical-basemaps):
+//   year 1000 → "Kingdom of Poland" polygon available
+//   year 1279 → "Kingdom of Poland" polygon available
+//   year 1300 → "Kingdom of Poland" polygon available
+//   year 1400 → "Kingdom of Poland" polygon available
+//   year 1500 → "Kingdom of Poland" polygon available
+//   year 1600 → "Polish-Lithuanian Commonwealth" polygon available
+//   year 1700 → "Polish-Lithuanian Commonwealth" polygon available
+//   year 1800 → "Russian Empire" + "Prussia" + "Austrian Empire" (partitioned)
+//   year 1900 → "Russia" + "Germany" + "Austria Hungary" (still partitioned)
+//                and later "Poland" polygon for post-1918 republic
 
+    // ── Ancient Poland (Piast) ────────────────────────────────────────────────
+    // Mieszko I and Bolesław I: Kingdom of Poland coalescing; year 1000 is the
+    // earliest available proxy in the dataset that covers the Piast heartland.
+    poland_1:   { year: 1000, names: ["Kingdom of Poland"] },
+
+    // Piast fragmentation (1138–1320): kingdom is divided but the core Piast
+    // lands still appear under "Kingdom of Poland" at year 1279.
+    poland_2:   { year: 1279, names: ["Kingdom of Poland"] },
+
+    // Casimir the Great (1333–1370): unified, expanded Piast kingdom at its
+    // final height. Year 1300 shows the reunified Crown of the Kingdom of Poland.
+    poland_3:   { year: 1300, names: ["Kingdom of Poland"] },
+
+    // ── Medieval Poland (Jagiellonian & Commonwealth) ─────────────────────────
+    // Jagiellonian Union (1386–1410): Poland and Lithuania linked but not yet
+    // formally merged. Year 1400 "Kingdom of Poland" is the best available proxy
+    // for the Crown of the Kingdom before the formal Commonwealth of 1569.
+    poland_4:   { year: 1400, names: ["Kingdom of Poland"] },
+
+    // Battle of Grunwald (1410): same era as scene 4 — use year 1400 to show
+    // the Polish-Lithuanian alliance territory at the time of the battle.
+    poland_5:   { year: 1400, names: ["Kingdom of Poland"] },
+
+    // Polish Golden Age under last Jagiellonians (1506–1572): Union of Lublin
+    // signed 1569. Year 1500 shows the kingdom just before the formal Commonwealth.
+    poland_6:   { year: 1500, names: ["Kingdom of Poland"] },
+
+    // Polish-Lithuanian Commonwealth at its peak (1569–1648): year 1600 gives
+    // the Commonwealth polygon at the height of its territorial extent.
+    poland_7:   { year: 1600, names: ["Polish-Lithuanian Commonwealth"] },
+
+    // The Deluge (1648–1667): Commonwealth still intact but severely damaged.
+    // Year 1600 remains the best proxy — no 1650 snapshot exists in the dataset.
+    poland_8:   { year: 1600, names: ["Polish-Lithuanian Commonwealth"] },
+
+    // Battle of Vienna (1683): Sobieski's Poland is in the Commonwealth era.
+    // Year 1700 shows the late Commonwealth, still intact before the partitions.
+    poland_9:   { year: 1700, names: ["Polish-Lithuanian Commonwealth"] },
+
+    // ── Modern Poland (Partitions → Republic → WWII → Cold War → EU) ─────────
+    // Partitions of Poland (1772–1795): by year 1800 Poland has been divided
+    // among Russia, Prussia, and Austria — show all three partitioning powers.
+    poland_10:  { year: 1800, names: ["Russian Empire", "Prussia", "Austrian Empire"] },
+
+    // Duchy of Warsaw (1807–1815): Napoleonic client state. France controlled
+    // much of Central Europe; "France" at year 1800 is the closest available
+    // proxy for the Napoleonic sphere in this dataset.
+    poland_11:  { year: 1800, names: ["France", "Russian Empire"] },
+
+    // November & January Uprisings (1830–1864): Poland still partitioned.
+    // Year 1800 proxies show the three occupying powers persisting into the
+    // 19th century (dataset has no 1830 or 1860 snapshot).
+    poland_12:  { year: 1800, names: ["Russian Empire", "Prussia", "Austrian Empire"] },
+
+    // Polish Independence / Second Republic (1918–1921): Poland re-appears on
+    // the map. Year 1900 "Poland" polygon represents the interwar republic.
+    poland_13:  { year: 1900, names: ["Poland"] },
+
+    // Nazi Invasion (1939): Poland attacked by Germany and USSR. Show Germany
+    // and Russia at year 1900 to represent the two invading powers.
+    poland_14:  { year: 1900, names: ["Germany", "Russia"] },
+
+    // Nazi Occupation & Holocaust (1939–1945): German-occupied Poland.
+    // Year 1900 "Germany" is the best available proxy for the Nazi occupation zone.
+    poland_15:  { year: 1900, names: ["Germany"] },
+
+    // Warsaw Uprising (1944): same occupation context as scene 15.
+    poland_16:  { year: 1900, names: ["Germany"] },
+
+    // People's Republic of Poland (1945–1956): Soviet-aligned communist state.
+    // Year 1900 "Poland" polygon used; no Cold War snapshot exists in the dataset.
+    poland_17:  { year: 1900, names: ["Poland"] },
+
+    // Solidarity Movement (1980–1989): communist Poland, same territory.
+    poland_18:  { year: 1900, names: ["Poland"] },
+
+    // Third Polish Republic (1989–2004): democratic Poland, same footprint.
+    poland_19:  { year: 1900, names: ["Poland"] },
+
+    // Poland in the 21st Century (2004–present): EU member, same territory.
+    poland_20:  { year: 1900, names: ["Poland"] },
 };

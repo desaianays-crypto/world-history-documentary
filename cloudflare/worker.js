@@ -1,4 +1,3 @@
-
 const KV_KEY     = "admin_data";
 const ANNOUNCEMENT_KEY = "announcement";
 const OWNER_NAME = "anay"; // always lowercase — compared against username.toLowerCase()
@@ -64,6 +63,17 @@ async function getUserFromToken(token, env) {
     const user = JSON.parse(raw);
     // Backfill key field for records created before the key field existed
     if (!user.key) user.key = key;
+
+    // ── Hardcoded owner safety net ──────────────────────────────────────
+    // The owner account (matched by OWNER_NAME) can never lose owner status
+    // through any code path — tampered KV data, a bad ban, a missed role
+    // check, etc. This is enforced at the single chokepoint every
+    // authenticated handler passes through, not just login/load.
+    if (key === OWNER_NAME && user.role !== "owner") {
+        user.role = "owner";
+        await env.WHD_USERS.put(key, JSON.stringify(user));
+    }
+
     return user;
 }
 
@@ -203,6 +213,9 @@ async function handleLogin(request, env) {
     if (!user.key) user.key = key;
     if (!await verifyPassword(password, user.hash)) return json({ ok: false, error: "Incorrect username or password." });
 
+    // Block banned users from logging in
+    if (user.role === "banned") return json({ ok: false, error: "Your account has been suspended. Contact an admin if you believe this is a mistake." }, 403);
+
     // Re-evaluate owner role each login (fixes accounts created before role logic was correct)
     const correctRole = assignRole(user.username || username);
     if (correctRole === "owner" && user.role !== "owner") {
@@ -286,14 +299,17 @@ async function handlePromote(request, env) {
     const caller = await getUserFromToken(token, env);
 
     if (!caller) return json({ ok: false, error: "Not authenticated." }, 401);
-    if (!isOwner(caller)) return json({ ok: false, error: "Only the owner can change roles." }, 403);
+    if (!isAdminOrAbove(caller)) return json({ ok: false, error: "Admin access required." }, 403);
 
     const targetKey = (targetUsername || "").toLowerCase();
     if (!targetKey) return json({ ok: false, error: "Target username required." }, 400);
     if (targetKey === OWNER_NAME) return json({ ok: false, error: "Cannot change the owner's role." }, 400);
 
-    const validRoles = ["user", "admin"];
+    // Admins can ban/unban (set role to "banned" or "user").
+    // Only the owner can promote/demote to "admin".
+    const validRoles = ["user", "admin", "banned"];
     if (!validRoles.includes(newRole)) return json({ ok: false, error: `Role must be one of: ${validRoles.join(", ")}.` }, 400);
+    if (newRole === "admin" && !isOwner(caller)) return json({ ok: false, error: "Only the owner can grant admin role." }, 403);
 
     const raw = await env.WHD_USERS.get(targetKey);
     if (!raw) return json({ ok: false, error: "User not found." }, 404);
@@ -372,8 +388,8 @@ async function handleUpdateLog(request, env) {
         return json({ ok: true, entries });
     }
 
-    // Save and delete require owner
-    if (!isOwner(caller)) return json({ ok: false, error: "Owner access required." }, 403);
+    // Save and delete require admin or above
+    if (!isAdminOrAbove(caller)) return json({ ok: false, error: "Admin access required." }, 403);
 
     if (action === "save") {
         const { id, version, title, date, changes } = body;
@@ -406,6 +422,78 @@ async function handleUpdateLog(request, env) {
     }
 
     return json({ ok: false, error: "Unknown action." }, 400);
+}
+
+// ── Remote config (synced CSS overrides + feature flags for the terminal) ──
+// Storage shape in KV under __remoteconfig__:
+//   { cssRules: [{selector, property, value}, ...], flags: { [name]: value } }
+// admin.js's remoteConfigCall() always expects {ok, cssRules, flags} back so
+// it can call applyRemoteConfigToPage(res) directly off any response here.
+
+async function loadRemoteConfig(env) {
+    const raw = await env.WHD_USERS.get("__remoteconfig__");
+    const cfg = raw ? JSON.parse(raw) : {};
+    return { cssRules: Array.isArray(cfg.cssRules) ? cfg.cssRules : [], flags: (cfg.flags && typeof cfg.flags === "object") ? cfg.flags : {} };
+}
+async function saveRemoteConfig(env, cfg) {
+    await env.WHD_USERS.put("__remoteconfig__", JSON.stringify(cfg));
+}
+
+async function handleRemoteConfigStatus(request, env) {
+    const cfg = await loadRemoteConfig(env);
+    return json({ ok: true, cssRules: cfg.cssRules, flags: cfg.flags });
+}
+
+async function handleRemoteConfig(request, env) {
+    const body = await request.json().catch(() => ({}));
+    const { token, action } = body;
+    const caller = await getUserFromToken(token, env);
+    if (!caller) return json({ ok: false, error: "Not authenticated." }, 401);
+    if (!isAdminOrAbove(caller)) return json({ ok: false, error: "Admin access required." }, 403);
+
+    const cfg = await loadRemoteConfig(env);
+
+    switch (action) {
+        case "set_css": {
+            const { selector, property, value } = body;
+            if (!selector || !property || value === undefined) return json({ ok: false, error: "selector, property and value are required." }, 400);
+            const idx = cfg.cssRules.findIndex(r => r.selector === selector && r.property === property);
+            const rule = { selector: String(selector).slice(0, 200), property: String(property).slice(0, 100), value: String(value).slice(0, 300) };
+            if (idx !== -1) cfg.cssRules[idx] = rule; else cfg.cssRules.push(rule);
+            break;
+        }
+        case "remove_css": {
+            const { selector } = body;
+            if (!selector) return json({ ok: false, error: "selector is required." }, 400);
+            cfg.cssRules = cfg.cssRules.filter(r => r.selector !== selector);
+            break;
+        }
+        case "clear_css": {
+            cfg.cssRules = [];
+            break;
+        }
+        case "set_flag": {
+            const { flag, value } = body;
+            if (!flag) return json({ ok: false, error: "flag is required." }, 400);
+            cfg.flags[flag] = value;
+            break;
+        }
+        case "clear_flag": {
+            const { flag } = body;
+            if (!flag) return json({ ok: false, error: "flag is required." }, 400);
+            delete cfg.flags[flag];
+            break;
+        }
+        case "clear_flags": {
+            cfg.flags = {};
+            break;
+        }
+        default:
+            return json({ ok: false, error: "Unknown action." }, 400);
+    }
+
+    await saveRemoteConfig(env, cfg);
+    return json({ ok: true, cssRules: cfg.cssRules, flags: cfg.flags });
 }
 
 async function handleBugReports(request, env) {
@@ -582,6 +670,8 @@ export default {
         if (url.pathname === "/auth/maintenance")     return handleMaintenance(request, env);
         if (url.pathname === "/auth/maintenance/status") return handleMaintenanceStatus(request, env);
         if (url.pathname === "/auth/updatelog")       return handleUpdateLog(request, env);
+        if (url.pathname === "/auth/remoteconfig/status") return handleRemoteConfigStatus(request, env);
+        if (url.pathname === "/auth/remoteconfig")    return handleRemoteConfig(request, env);
         if (url.pathname === "/auth/bugs")            return handleBugReports(request, env);
 
         if (url.pathname === "/auth/fixowner" && request.method === "GET") {

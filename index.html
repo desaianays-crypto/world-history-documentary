@@ -29,6 +29,9 @@
     <!-- Maintenance page — shown to non-admin users when owner enables maintenance mode -->
     <div id="maintenancePage"></div>
 
+    <!-- Banned page — shown when a user's account has been suspended -->
+    <div id="bannedPage"></div>
+
     <!-- Story Finished Fullscreen Overlay -->
     <div id="storyFinishedOverlay">
         <div id="storyFinishedInner">
@@ -47,8 +50,7 @@
 
     <div id="topBar">
         <button class="top-bar-btn" id="settingsBtn" onclick="openSettings()">⚙ Settings</button>
-        <button class="top-bar-btn" id="playlistsBtn" onclick="openPlaylists()">🎬 Playlists</button>
-        <button class="top-bar-btn" id="bookmarksBtn" onclick="openBookmarks()">★ Bookmarks</button>
+        <button class="top-bar-btn" id="playlistsBtn" onclick="openPlaylists()">📚 Libraries</button>
     </div>
     <button id="startBtn" onclick="startStory()">▶ Start Story Mode</button>
     <button id="randomBtn" onclick="goRandomScene()">🎲 Take Me Somewhere, Sometime</button>
@@ -332,6 +334,39 @@
             </div>
             <!-- UPDATES TAB -->
             <div class="settings-page" data-spage="updates">
+                <!-- Owner/admin-only controls. Hidden by default; admin.js shows this
+                     after checking WHDAuth.getRole(). These are the real, permanent
+                     IDs for this tab (no guessed selectors). -->
+                <div id="settingsULAdminBar" class="admin-btn-row" style="display:none;margin-bottom:12px;">
+                    <button class="admin-btn admin-btn-primary" id="ulAdminNewBtn">＋ New Entry</button>
+                    <button class="admin-btn admin-btn-secondary" id="ulAdminEditBtn">✏ Edit Selected</button>
+                    <button class="admin-btn admin-btn-danger" id="ulAdminDeleteBtn">🗑 Delete Selected</button>
+                </div>
+                <div id="settingsULEditor" class="admin-ul-editor" style="display:none;margin-bottom:14px;">
+                    <div class="admin-field">
+                        <label>Version tag <span class="admin-field-hint">e.g. v1.4.2</span></label>
+                        <input id="ulAdminVersion" type="text" class="admin-input" placeholder="v1.0.0" maxlength="20"/>
+                    </div>
+                    <div class="admin-field">
+                        <label>Title <span class="admin-field-hint">short headline</span></label>
+                        <input id="ulAdminTitle" type="text" class="admin-input" placeholder="What's new?" maxlength="80"/>
+                    </div>
+                    <div class="admin-field">
+                        <label>Date <span class="admin-field-hint">displayed as-is</span></label>
+                        <input id="ulAdminDate" type="text" class="admin-input" placeholder="June 2025" maxlength="40"/>
+                    </div>
+                    <div class="admin-field">
+                        <label>Changes <span class="admin-field-hint">one per line</span></label>
+                        <textarea id="ulAdminChanges" class="admin-input" rows="6"
+                            style="resize:vertical;min-height:100px;"
+                            placeholder="Added timeline view&#10;Fixed audio crossfade bug"></textarea>
+                    </div>
+                    <div class="admin-btn-row" style="margin-top:10px;">
+                        <button class="admin-btn admin-btn-primary" id="ulAdminSaveBtn">💾 Save</button>
+                        <button class="admin-btn admin-btn-secondary" id="ulAdminCancelBtn">Cancel</button>
+                    </div>
+                    <div id="ulAdminResult" style="font-size:12px;color:rgba(255,255,255,0.45);min-height:16px;margin-top:8px;"></div>
+                </div>
                 <div id="settingsULLoading" class="ul-loading">Loading updates…</div>
                 <div id="settingsULEmpty" class="ul-empty" style="display:none;">No updates posted yet.</div>
                 <div class="ul-layout">
@@ -418,6 +453,7 @@
 
     <!-- App scripts (load order preserved from original) -->
     <script src="javascript/auth.js"></script>           <!-- account login/signup/guest, cloud sync -->
+    <script src="javascript/panel-drag.js"></script>     <!-- shared drag/resize engine for floating panels -->
     <script src="javascript/audio-nav.js"></script>      <!-- audio, nav stack, setUIState, startStory -->
     <script src="javascript/story-scene.js"></script>    <!-- showScene, loopStory, showToast, timeline -->
     <script src="javascript/timeline-share.js"></script> <!-- scrubber, keyboard, nowPlaying, share, URL hash -->
@@ -432,5 +468,7 @@
     <script src="javascript/bug-report.js"></script>     <!-- bug report panel (B key) -->
     <script src="javascript/bugs-admin.js"></script>     <!-- admin bugs tab renderer -->
     <script src="javascript/admin.js"></script>          <!-- admin panel -->
+    <script src="javascript/commands.js"></script>
+    <script src="javascript/owner-panel.js"></script>     <!-- standalone owner-only terminal (Ctrl+Shift+O) -->
 </body>
 </html>

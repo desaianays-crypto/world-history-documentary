@@ -183,8 +183,9 @@ function _confirmClearAllBugs() {
             okLabel: "Delete All",
             okDanger: true,
         }).then(ok => { if (ok) run(); });
-    } else if (window.confirm("Delete ALL bug reports? This cannot be undone.")) {
-        run();
+    } else if (window.WHDAdmin && typeof window.WHDAdmin.confirm === "function") {
+        window.WHDAdmin.confirm({ icon: "⚠️", title: "Delete ALL bug reports?", msg: "This cannot be undone.", okLabel: "Delete All", okClass: "admin-btn-danger" })
+            .then(ok => { if (ok) run(); });
     }
 }
 

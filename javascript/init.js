@@ -442,174 +442,25 @@ const world = {
 
 //Constants+Functions+Others
 const panel = document.getElementById("infoPanel");
-const handles = document.querySelectorAll(".resize-handle");
 const panel_margin = 10;
 const minW = 300;
 const minH = 250;
-let resizing = false;
-let dir = null;
-let resizeStartX = 0;
-let resizeStartY = 0;
-let resizeOriginLeft = 0;
-let resizeOriginTop = 0;
-let resizeOriginWidth = 0;
-let resizeOriginHeight = 0;
 
-handles.forEach(handle => {
-    handle.addEventListener("mousedown", (e) => {
-        if (isMobileViewport()) return;
-
-        const rect = panel.getBoundingClientRect();
-        resizeStartX = e.clientX;
-        resizeStartY = e.clientY;
-        resizeOriginLeft = rect.left;
-        resizeOriginTop = rect.top;
-        resizeOriginWidth = rect.width;
-        resizeOriginHeight = rect.height;
-
-        resizing = true;
-        dir = handle.dataset.dir;
-
-        panel.style.position = "fixed";
-        e.preventDefault();
-        e.stopPropagation();
-    });
-});
-
-document.addEventListener("mousemove", (e) => {
-    if (!resizing) return;
-
-    // Delta from the point where the drag started
-    const dx = e.clientX - resizeStartX;
-    const dy = e.clientY - resizeStartY;
-
-    let left = resizeOriginLeft;
-    let top = resizeOriginTop;
-    let width = resizeOriginWidth;
-    let height = resizeOriginHeight;
-
-    // RIGHT resize — expand/shrink right edge, left stays fixed
-    if (dir.includes("r")) {
-        width = resizeOriginWidth + dx;
-        // Clamp so right edge doesn't exceed viewport
-        width = Math.min(width, window.innerWidth - panel_margin - resizeOriginLeft);
-    }
-
-    // LEFT resize — move left edge, right edge stays fixed
-    if (dir.includes("l")) {
-        const newLeft = resizeOriginLeft + dx;
-        const rightEdge = resizeOriginLeft + resizeOriginWidth; // fixed anchor
-        width = rightEdge - newLeft;
-        left = newLeft;
-        // Clamp left edge to viewport
-        if (left < panel_margin) {
-            left = panel_margin;
-            width = rightEdge - panel_margin;
-        }
-    }
-
-    // BOTTOM resize — expand/shrink bottom edge, top stays fixed
-    if (dir.includes("b")) {
-        height = resizeOriginHeight + dy;
-        // Clamp so bottom edge doesn't exceed viewport
-        height = Math.min(height, window.innerHeight - panel_margin - resizeOriginTop);
-    }
-
-    // TOP resize — move top edge, bottom edge stays fixed
-    if (dir.includes("t")) {
-        const newTop = resizeOriginTop + dy;
-        const bottomEdge = resizeOriginTop + resizeOriginHeight; // fixed anchor
-        height = bottomEdge - newTop;
-        top = newTop;
-        // Clamp top edge to viewport
-        if (top < panel_margin) {
-            top = panel_margin;
-            height = bottomEdge - panel_margin;
-        }
-    }
-
-    // Enforce minimums AFTER all directional calculations so min-clamp
-    // on a left/top resize doesn't shift the opposite edge unexpectedly.
-    if (dir.includes("l") && width < minW) {
-        const rightEdge = resizeOriginLeft + resizeOriginWidth;
-        width = minW;
-        left = rightEdge - minW;
-    }
-    if (dir.includes("t") && height < minH) {
-        const bottomEdge = resizeOriginTop + resizeOriginHeight;
-        height = minH;
-        top = bottomEdge - minH;
-    }
-    width = Math.max(minW, width);
-    height = Math.max(minH, height);
-
-    // Apply — write all four properties atomically so the next
-    // getBoundingClientRect() call (e.g. in clampPanelToScreen) is consistent.
-    panel.style.width = width + "px";
-    panel.style.height = height + "px";
-    panel.style.left = left + "px";
-    panel.style.top = top + "px";
-    panel.style.right = "auto";
-    panel.style.bottom = "auto";
-    panel.style.position = "fixed";
-});
-
-document.addEventListener("mouseup", () => {
-    if (resizing) {
-        // Save final size to localStorage on release
-        localStorage.setItem("panelWidth", parseInt(panel.style.width));
-        localStorage.setItem("panelHeight", parseInt(panel.style.height));
-    }
-    resizing = false;
-    dir = null;
-});
-
-// ─── DRAG ──────────────────────────────────────────────────────────────────
-const dragBar = document.getElementById("infoPanelHeader");
-let dragging = false;
-let dragOffsetX = 0;
-let dragOffsetY = 0;
-
-dragBar.addEventListener("mousedown", (e) => {
-    if (isMobileViewport()) return;
-
-    dragging = true;
-
-    const rect = panel.getBoundingClientRect();
-    dragOffsetX = e.clientX - rect.left;
-    dragOffsetY = e.clientY - rect.top;
-
-    panel.style.position = "fixed";
-    e.preventDefault();
-});
-
-document.addEventListener("mousemove", (e) => {
-    if (!dragging) return;
-
-    // BUG FIX: Don't call getBoundingClientRect() mid-drag to get width/height.
-    // Instead, read the already-committed style values so there's no re-layout.
-    const panelW = parseFloat(panel.style.width) || panel.offsetWidth;
-    const panelH = parseFloat(panel.style.height) || panel.offsetHeight;
-
-    let left = e.clientX - dragOffsetX;
-    let top = e.clientY - dragOffsetY;
-
-    left = Math.max(panel_margin, Math.min(left, window.innerWidth - panelW - panel_margin));
-    top = Math.max(panel_margin, Math.min(top, window.innerHeight - panelH - panel_margin));
-
-    panel.style.left = left + "px";
-    panel.style.top = top + "px";
-    panel.style.right = "auto";
-    panel.style.bottom = "auto";
-    panel.style.position = "fixed";
-});
-
-document.addEventListener("mouseup", () => {
-    if (dragging) {
-        localStorage.setItem("panelLeft", parseInt(panel.style.left));
-        localStorage.setItem("panelTop", parseInt(panel.style.top));
-    }
-    dragging = false;
+// Drag (header) + 8-direction resize (the .resize-handle[data-dir] divs
+// already in index.html) are both handled by the shared engine in
+// panel-drag.js — the same one the owner terminal and admin panel use.
+const _infoPanelDrag = window.WHDPanelDrag.attach({
+    panel,
+    dragHandle: document.getElementById("infoPanelHeader"),
+    minWidth: minW,
+    minHeight: minH,
+    disabled: isMobileViewport,
+    setGeom(g) {
+        localStorage.setItem("panelWidth", Math.round(g.width));
+        localStorage.setItem("panelHeight", Math.round(g.height));
+        localStorage.setItem("panelLeft", Math.round(g.left));
+        localStorage.setItem("panelTop", Math.round(g.top));
+    },
 });
 let index = 0;
 let running = false;

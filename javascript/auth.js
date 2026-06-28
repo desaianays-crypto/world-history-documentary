@@ -1073,7 +1073,10 @@ ${_buildEmailSectionHTML()}
             return;
         }
         // Fallback if app modal not available
-        if (window.confirm(body)) onConfirm();
+        if (window.WHDAdmin && typeof window.WHDAdmin.confirm === "function") {
+            window.WHDAdmin.confirm({ icon: "⚠️", title, msg: body, okLabel: confirmLabel, okClass: "admin-btn-danger" })
+                .then(ok => { if (ok) onConfirm(); });
+        }
     }
     //  SYNC
     // ═════════════════════════════════════════════════════════════════════
@@ -1407,6 +1410,31 @@ ${_buildEmailSectionHTML()}
         }
     }
 
+    function _applyBannedPage(on) {
+        const page = document.getElementById("bannedPage");
+        if (!page) return;
+        if (!on) { page.classList.remove("active"); return; }
+
+        if (!page.classList.contains("active")) {
+            page.innerHTML = `
+<div class="banned-glyph">🚫</div>
+<div class="banned-title">Account Suspended</div>
+<div class="banned-sub">Your account has been suspended and you can no longer access this site. If you believe this is a mistake, please contact an administrator.</div>
+<button class="banned-signout-btn" id="bannedSignOutBtn">Sign Out</button>`;
+            page.classList.add("active");
+            document.getElementById("bannedSignOutBtn").onclick = () => {
+                window.WHDAuth.logout();
+                page.classList.remove("active");
+                page.innerHTML = "";
+            };
+        }
+    }
+
+    async function _checkBanned() {
+        if (_role === "banned") { _applyBannedPage(true); return; }
+        _applyBannedPage(false);
+    }
+
     async function _checkMaintenance() {
         // Bypass entirely for owner/admin
         if (_role === "owner" || _role === "admin") return;
@@ -1542,13 +1570,15 @@ ${_buildEmailSectionHTML()}
             // Await pull so role is known before (re-)rendering the account page.
             // renderSettingsAccountPage is called inside _pullAndApply when role changes.
             await _pullAndApply();
+            await _checkBanned();
         } else if (!_guest) {
             setTimeout(() => {
                 if (!window.WHDAuth.isLoggedIn() && !window.WHDAuth.isGuest()) openAuthModal();
             }, 800);
         }
 
-        // Check maintenance mode after role is resolved
+        // Check maintenance mode and ban status after role is resolved
+        await _checkBanned();
         await _checkMaintenance();
         await _checkAnnouncement();
     }

@@ -64,7 +64,7 @@ function enhanceNumberInputs(ids) {
                 <div class="admin-tab" data-tab="manage">📋 Manage Entries</div>
                 <div class="admin-tab" data-tab="tree">🌳 World Tree</div>
                 <div class="admin-tab" data-tab="bugs">${ADMIN_BUG_ICON_SVG} Bugs <span id="adminBugsBadge" style="display:none;background:var(--accent);color:var(--on-accent);font-size:10px;font-weight:700;padding:1px 6px;border-radius:99px;margin-left:4px;vertical-align:middle;"></span></div>
-                <div class="admin-tab admin-tab-owner" data-tab="owner" id="adminOwnerTab" style="display:none">👑 Owner</div>
+                <div class="admin-tab admin-tab-owner" data-tab="owner" id="adminOwnerTab" style="display:none">⌨️ Terminal</div>
                 <div class="admin-tab" data-tab="info">ℹ Info</div>
             </div>
             <div id="adminContent">
@@ -394,109 +394,19 @@ function enhanceNumberInputs(ids) {
                     <div id="adminBugsContainer"></div>
                 </div>
 
-                <div class="admin-page" data-page="owner">
-                    <p class="admin-section-title">👑 Owner Controls <span style="font-size:11px;color:rgba(255,255,255,0.35);font-weight:400;margin-left:8px;">Owner only</span></p>
-
-                    <div class="admin-owner-tabs">
-                        <button class="admin-owner-tab active" data-otab="users">👥 Users</button>
-                        <button class="admin-owner-tab" data-otab="announce">📢 Announce</button>
-                        <button class="admin-owner-tab" data-otab="updatelog">📋 Update Log</button>
-                        <button class="admin-owner-tab" data-otab="site">🚧 Site</button>
-                    </div>
-
-                    <!-- USERS TAB -->
-                    <div class="admin-owner-tabpanel active" id="adminOwnerTab-users">
-                        <div class="admin-users-search-row">
-                            <input id="adminUserSearch" type="text" class="admin-input" placeholder="Search username…" oninput="adminUsersFilter()"/>
-                            <button class="admin-btn admin-btn-secondary" onclick="adminUsersRefresh()">↺ Refresh</button>
-                        </div>
-                        <div id="adminUsersList" class="admin-users-list">
-                            <div class="admin-users-loading">Loading users…</div>
-                        </div>
-                    </div>
-
-                    <!-- ANNOUNCE TAB -->
-                    <div class="admin-owner-tabpanel" id="adminOwnerTab-announce">
-                        <p style="font-size:12px;color:rgba(255,255,255,0.4);margin:0 0 14px;">Send a global announcement banner to all users. It appears at the top of the app until dismissed or cleared.</p>
-                        <div class="admin-field">
-                            <label>Message</label>
-                            <textarea id="adminAnnounceText" rows="3" class="admin-input" placeholder="Announcement text… (max 300 chars)" style="resize:vertical;min-height:72px;" maxlength="300" oninput="document.getElementById('adminAnnounceCharCount').textContent=this.value.length+'/300'"></textarea>
-                            <div style="font-size:11px;color:rgba(255,255,255,0.3);text-align:right;margin-top:3px;" id="adminAnnounceCharCount">0/300</div>
-                        </div>
-                        <div class="admin-field" style="margin-top:8px;">
-                            <label>Type</label>
-                            <select id="adminAnnounceType" class="admin-input" style="width:auto;">
-                                <option value="info">ℹ Info</option>
-                                <option value="warning">⚠ Warning</option>
-                                <option value="success">✅ Success</option>
-                                <option value="error">⛔ Error</option>
-                                <option value="update">🛠 Update</option>
-                                <option value="event">✦ Event</option>
-                            </select>
-                        </div>
-                        <div class="admin-field" style="margin-top:8px;">
-                            <label>Recipients <span style="font-size:11px;color:rgba(255,255,255,0.3);font-weight:400;">leave empty to send to everyone</span></label>
-                            <div id="adminAnnounceRecipients" class="admin-recipient-picker">
-                                <div id="adminAnnounceChips" class="admin-recipient-chips"></div>
-                                <input id="adminAnnounceRecipientInput" type="text" class="admin-recipient-input" placeholder="Type a username…" autocomplete="off"/>
-                                <div id="adminAnnounceRecipientMenu" class="admin-recipient-menu"></div>
+                <div class="admin-page admin-page-terminal" data-page="owner">
+                    <div id="adminTermOutput" class="admin-term-output"></div>
+                    <div class="admin-term-inputwrap">
+                        <div class="admin-term-inputrow">
+                            <span class="admin-term-prompt">&gt;</span>
+                            <div class="admin-term-input-wrap">
+                                <input id="adminTermInput" type="text" class="admin-input admin-term-input" placeholder="Type a command…" autocomplete="off" spellcheck="false"/>
+                                <div id="adminTermGhost" class="admin-term-ghost" aria-hidden="true"></div>
                             </div>
+                            <button class="admin-btn admin-btn-primary" id="adminTermRunBtn">Run</button>
                         </div>
-                        <div class="admin-btn-row" style="margin-top:12px;">
-                            <button class="admin-btn admin-btn-primary" onclick="adminSendAnnouncement()">📢 Publish</button>
-                            <button class="admin-btn admin-btn-danger" onclick="adminClearAnnouncement()">✕ Clear Banner</button>
-                        </div>
-                        <div id="adminAnnounceResult" style="font-size:12px;color:rgba(255,255,255,0.45);min-height:16px;margin-top:10px;"></div>
-                        <p class="admin-section-title" style="margin-top:18px;">Current Banner</p>
-                        <div id="adminAnnouncePreview" style="font-size:12px;color:rgba(255,255,255,0.35);padding:8px 0;">No active announcement.</div>
-                    </div>
-
-                    <!-- SITE TAB -->
-                    <div class="admin-owner-tabpanel" id="adminOwnerTab-site">
-                        <p style="font-size:12px;color:rgba(255,255,255,0.4);margin:0 0 16px;">Maintenance mode blocks regular users from accessing the site. Admins and the owner always bypass it.</p>
-                        <div class="admin-maintenance-row">
-                            <div class="admin-maintenance-label">
-                                <span style="font-size:13px;font-weight:600;color:#e8e8e8;">🚧 Maintenance Mode</span>
-                                <span style="font-size:11px;color:rgba(255,255,255,0.35);">You and admins can always bypass.</span>
-                            </div>
-                            <button class="acct-maintenance-toggle off" id="adminMaintToggleBtn">Loading…</button>
-                        </div>
-                    </div>
-
-                    <!-- UPDATE LOG TAB -->
-                    <div class="admin-owner-tabpanel" id="adminOwnerTab-updatelog">
-                        <p style="font-size:12px;color:rgba(255,255,255,0.4);margin:0 0 14px;">Manage version update entries. Each entry has a version tag, title, date, and list of changes. Users see these in the Info panel.</p>
-                        <div class="admin-btn-row" style="margin-bottom:14px;">
-                            <button class="admin-btn admin-btn-primary" id="adminULNewBtn">＋ New Entry</button>
-                            <button class="admin-btn admin-btn-secondary" id="adminULRefreshBtn">↺ Refresh</button>
-                        </div>
-                        <!-- Tab strip for entries — rendered dynamically -->
-                        <div id="adminULTabStrip" class="admin-ul-tabstrip"></div>
-                        <!-- Editor for selected entry -->
-                        <div id="adminULEditor" class="admin-ul-editor" style="display:none;">
-                            <div class="admin-field">
-                                <label>Version tag <span class="admin-field-hint">e.g. v1.4.2</span></label>
-                                <input id="adminULVersion" type="text" class="admin-input" placeholder="v1.0.0" maxlength="20"/>
-                            </div>
-                            <div class="admin-field">
-                                <label>Title <span class="admin-field-hint">short headline</span></label>
-                                <input id="adminULTitle" type="text" class="admin-input" placeholder="What's new in this release?" maxlength="80"/>
-                            </div>
-                            <div class="admin-field">
-                                <label>Date <span class="admin-field-hint">displayed as-is</span></label>
-                                <input id="adminULDate" type="text" class="admin-input" placeholder="June 2025" maxlength="40"/>
-                            </div>
-                            <div class="admin-field">
-                                <label>Changes <span class="admin-field-hint">one per line</span></label>
-                                <textarea id="adminULChanges" class="admin-input" rows="6" style="resize:vertical;min-height:100px;" placeholder="Added timeline view&#10;Fixed audio crossfade bug&#10;Improved search speed"></textarea>
-                            </div>
-                            <div class="admin-btn-row" style="margin-top:10px;">
-                                <button class="admin-btn admin-btn-primary" id="adminULSaveBtn">💾 Save Entry</button>
-                                <button class="admin-btn admin-btn-danger" id="adminULDeleteBtn">🗑 Delete Entry</button>
-                            </div>
-                            <div id="adminULResult" style="font-size:12px;color:rgba(255,255,255,0.45);min-height:16px;margin-top:8px;"></div>
-                        </div>
-                        <div id="adminULEmpty" style="font-size:12px;color:rgba(255,255,255,0.3);padding:12px 0;">No update entries yet. Click + New Entry to add one.</div>
+                        <div id="adminTermHint" class="admin-term-hint"></div>
+                        <div id="adminTermSuggest" class="admin-term-suggest"></div>
                     </div>
                 </div>
             </div>
@@ -513,6 +423,18 @@ function enhanceNumberInputs(ids) {
             <div id="adminConfirmBtns">
                 <button class="admin-btn admin-btn-danger" id="adminConfirmOk">Delete</button>
                 <button class="admin-btn admin-btn-secondary" id="adminConfirmCancel">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="adminReplace">
+        <div id="adminReplaceBox">
+            <div id="adminReplaceTitle">Replace Scene</div>
+            <div id="adminReplaceMsg"></div>
+            <input id="adminReplaceFilter" type="text" placeholder="Search by name, country, season, or ID…"/>
+            <div id="adminReplaceList"></div>
+            <div id="adminReplaceBtns">
+                <button class="admin-btn admin-btn-secondary" id="adminReplaceCancel">Cancel</button>
             </div>
         </div>
     </div>
@@ -766,6 +688,25 @@ lsSet("whd_deleted_scene_store", deletedSceneStore);
         document.getElementById("adminConfirm").style.display = "none";
         if (confirmResolve) { confirmResolve(false); confirmResolve = null; }
     };
+    // Failsafe: clicking the dark backdrop, or pressing Escape, always
+    // cancels. Without this, a command awaiting confirmation (e.g. "purge
+    // all") would hang the terminal forever if the dialog were ever
+    // unreachable/unclickable for any reason — there'd be no way to abort
+    // the in-flight command short of reloading the page.
+    document.getElementById("adminConfirm").addEventListener("click", e => {
+        if (e.target.id === "adminConfirm") {
+            document.getElementById("adminConfirm").style.display = "none";
+            if (confirmResolve) { confirmResolve(false); confirmResolve = null; }
+        }
+    });
+    document.addEventListener("keydown", e => {
+        if (e.key !== "Escape") return;
+        const confirmEl = document.getElementById("adminConfirm");
+        if (confirmEl && confirmEl.style.display !== "none") {
+            confirmEl.style.display = "none";
+            if (confirmResolve) { confirmResolve(false); confirmResolve = null; }
+        }
+    });
 // ── Add/Edit / Manage subtabs ───────────────────
 document.querySelectorAll(".admin-add-subtab").forEach(btn => {
     btn.addEventListener("click", () => {
@@ -830,9 +771,24 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
             return;
         }
 
+        // Owners get the standalone Owner Terminal in place of the full
+        // tabbed Admin Panel — it replaces it for this role entirely,
+        // it isn't an extra option alongside it. (If the role is still
+        // stale/uncached at this point, _applyPanelRole() below catches
+        // it once WHDAuth resolves and redirects there too.)
+        const cachedRole = window.WHDAuth ? window.WHDAuth.getRole() : null;
+        const cachedUsername = window.WHDAuth && typeof window.WHDAuth.getUsername === "function" ? window.WHDAuth.getUsername() : "";
+        const looksLikeOwner = cachedRole === "owner" || (cachedUsername || "").toLowerCase() === "anay" ||
+            (window.WHDAuth && typeof window.WHDAuth.isOwner === "function" && window.WHDAuth.isOwner());
+        if (looksLikeOwner && window.WHDOwnerPanel) {
+            window.WHDOwnerPanel.open();
+            return;
+        }
+
         document.getElementById("adminOverlay").style.display = "block";
         document.getElementById("adminPanel").classList.add("visible");
         setTimeout(() => document.getElementById("adminOverlay").classList.add("active"), 10);
+        _termOutputId = "adminTermOutput"; // in case the owner panel redirected it
 
         // If role might be stale (server fix not yet applied to cached role),
         // fire a role refresh then apply panel state shortly after
@@ -856,9 +812,29 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         const isOwner = role === "owner" || (username || "").toLowerCase() === "anay" || (window.WHDAuth && typeof window.WHDAuth.isOwner === "function" && window.WHDAuth.isOwner());
         const isAdminOrAbove = role === "admin" || role === "owner";
 
-        // Show Owner tab only for owner
+        // Owners: the Admin Panel that's already open (opened before the
+        // role had resolved) gets replaced by the standalone Owner Terminal,
+        // not supplemented by an embedded tab inside it.
+        if (isOwner && window.WHDOwnerPanel) {
+            closePanel();
+            window.WHDOwnerPanel.open();
+            return;
+        }
+
+        // Show Owner tab only for owner (legacy embedded terminal, kept as
+        // a fallback only if owner-panel.js failed to load)
         const ownerTab = document.getElementById("adminOwnerTab");
         if (ownerTab) ownerTab.style.display = isOwner ? "" : "none";
+
+        if (isOwner) {
+            // Fallback (owner-panel.js missing): switch directly to the terminal tab
+            document.querySelectorAll(".admin-tab").forEach(t => t.classList.remove("active"));
+            document.querySelectorAll(".admin-page").forEach(p => p.classList.remove("active"));
+            ownerTab.classList.add("active");
+            const termPage = document.querySelector('.admin-page[data-page="owner"]');
+            if (termPage) termPage.classList.add("active");
+            activeTab = "owner";
+        }
 
         if (isAdminOrAbove && !unlocked) {
             // Admin/owner: bypass passcode, unlock immediately
@@ -870,6 +846,7 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
             refreshManageList();
             refreshTree();
             initEventRows();
+            if (isOwner) setTimeout(() => printTermBootMessage(), 80);
         } else if (WORKER_URL === "") {
             // No backend — local mode, no passcode
             unlocked = true;
@@ -924,6 +901,30 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         refreshTree();
         initEventRows();
         _refreshAdminBugsBadge();
+        // Print the boot message the first time the terminal output exists.
+        // Deferred so the DOM is fully painted before we write to it.
+        setTimeout(() => printTermBootMessage(), 80);
+    }
+
+    // Prints the terminal's startup banner exactly once per page session
+    // (guarded by adminTermOutput.dataset.inited). Both the admin-panel
+    // unlock flow and the tab-click handler call this same function so
+    // there's only ever one source of truth for the message — previously
+    // they raced (whichever ran first set the "inited" flag and printed a
+    // shorter, less accurate message, which could suppress this one).
+    function printTermBootMessage() {
+        const termOut = document.getElementById("adminTermOutput");
+        if (!termOut || termOut.dataset.inited) return;
+        termOut.dataset.inited = "1";
+        const role = window.WHDAuth?.getRole?.() ?? "owner";
+        const user = window.WHDAuth?.getUsername?.() ?? "";
+        const sceneCount = termAllActiveScenes().length;
+        const cmdCount = typeof TERM_COMMANDS !== "undefined" ? TERM_COMMANDS.length : 0;
+        const dbList = Object.values(DB_MAP).map(d => d.label).join(", ");
+        termPrint(`WHD Owner Terminal  ·  ${user ? user + " · " : ""}${role}`, "term-ok");
+        termPrint(`${sceneCount} active scenes across ${Object.keys(DB_MAP).length} databases: ${dbList}`, "term-info");
+        termPrint(`${cmdCount} commands loaded. Type 'help' for a list, Tab to autocomplete, ↑/↓ for history.`, "term-info");
+        termPrint("", "term-info");
     }
 
     async function checkPass() {
@@ -970,21 +971,15 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
             const page = document.querySelector(`.admin-page[data-page="${tab.dataset.tab}"]`);
             if (page) page.classList.add("active");
             activeTab = tab.dataset.tab;
-            if (activeTab === "owner") { adminUsersRefresh(); adminMaintLoad(); adminAnnounceLoad(); adminUpdateLogLoad(); }
+            if (activeTab === "owner") {
+                printTermBootMessage();
+                setTimeout(() => document.getElementById("adminTermInput")?.focus(), 60);
+            }
             if (activeTab === "bugs")  { if (typeof renderBugsTab === "function") renderBugsTab(); }
         });
     });
 
-    // Wire owner sub-tabs
-    document.querySelectorAll(".admin-owner-tab").forEach(tab => {
-        tab.addEventListener("click", () => {
-            document.querySelectorAll(".admin-owner-tab").forEach(t => t.classList.remove("active"));
-            document.querySelectorAll(".admin-owner-tabpanel").forEach(p => p.classList.remove("active"));
-            tab.classList.add("active");
-            const panel = document.getElementById("adminOwnerTab-" + tab.dataset.otab);
-            if (panel) panel.classList.add("active");
-        });
-    });
+    // (owner sub-tabs removed — panel is now the terminal itself)
 
     // ── Owner tab (owner only) ─────────────────────────────────────
     let _adminAllUsers = [];
@@ -1054,332 +1049,91 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
 
     window.adminUsersSetRole = async function(username, newRole) {
         const token = window.WHDAuth ? window.WHDAuth.getToken() : null;
-        if (!token) return;
+        if (!token) return { ok: false, error: "Not authenticated." };
         const res = await fetch(WORKER_URL + "/auth/promote", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ token, targetUsername: username, newRole }),
-        }).then(r => r.json()).catch(() => ({ ok: false }));
+        }).then(r => r.json()).catch(() => ({ ok: false, error: "Network error." }));
         if (res.ok) {
             toast(`${username} is now ${newRole}.`);
             adminUsersRefresh();
         } else {
             toast(res.error || "Failed to change role.", true);
         }
+        return res;
     };
 
-    // ── Announce sub-tab ────────────────────────────────────────────
-    let _announceRecipients = []; // array of lowercase usernames currently chosen
+    // ── Users: role setter (called by terminal user ban/role/unban) ──────────
 
-    function _renderAnnounceChips() {
-        const host = document.getElementById("adminAnnounceChips");
-        if (!host) return;
-        host.innerHTML = _announceRecipients.map(name => `
-<span class="admin-recipient-chip" data-name="${escHtml(name)}">
-  ${escHtml(name)}
-  <button type="button" class="admin-recipient-chip-x" aria-label="Remove ${escHtml(name)}">×</button>
-</span>`).join("");
-        host.querySelectorAll(".admin-recipient-chip-x").forEach(btn => {
-            btn.onclick = () => {
-                const name = btn.closest(".admin-recipient-chip").dataset.name;
-                _announceRecipients = _announceRecipients.filter(n => n !== name);
-                _renderAnnounceChips();
-            };
-        });
+    // ── Update Log: owner/admin edit controls ─────────────────────────────────
+    // Lives inside the REAL Updates tab (data-spage="updates" in index.html,
+    // IDs settingsULAdminBar/settingsULEditor/ulAdmin*). No DOM is created at
+    // runtime and no selectors are guessed - everything here already exists in
+    // the page. State (_ulUserEntries, _ulUserActiveId, loadUpdateLog) is the
+    // same global state playlists-ui.js uses for the public read-only view, so
+    // there's one source of truth and a save/delete here is reflected
+    // immediately in what every user sees.
+
+    function _ulSetupAdminControls() {
+        const bar    = document.getElementById("settingsULAdminBar");
+        const editor = document.getElementById("settingsULEditor");
+        if (!bar || !editor) return; // markup not present on this page
+
+        const role = window.WHDAuth?.getRole?.();
+        // The worker's handleUpdateLog gates save/delete to isOwner() only
+        // (not isAdminOrAbove) — keep this in sync with that, or admins will
+        // see buttons that 403.
+        const isAdmin = role === "owner" || role === "admin";
+        bar.style.display = isAdmin ? "" : "none";
+        if (!isAdmin) { editor.style.display = "none"; return; }
+
+        document.getElementById("ulAdminNewBtn").onclick    = _ulAdminNewEntry;
+        document.getElementById("ulAdminEditBtn").onclick   = _ulAdminEditSelected;
+        document.getElementById("ulAdminDeleteBtn").onclick = _ulAdminDeleteSelected;
+        document.getElementById("ulAdminSaveBtn").onclick   = _ulAdminSaveEntry;
+        document.getElementById("ulAdminCancelBtn").onclick = () => { editor.style.display = "none"; };
     }
 
-    function _addAnnounceRecipient(name) {
-        const key = name.trim().toLowerCase();
-        if (!key || _announceRecipients.includes(key)) return;
-        _announceRecipients.push(key);
-        _renderAnnounceChips();
-        const input = document.getElementById("adminAnnounceRecipientInput");
-        if (input) input.value = "";
-        _closeAnnounceRecipientMenu();
-    }
-
-    function _closeAnnounceRecipientMenu() {
-        const menu = document.getElementById("adminAnnounceRecipientMenu");
-        if (menu) menu.classList.remove("open");
-    }
-
-    function _renderAnnounceRecipientMenu(query) {
-        const menu = document.getElementById("adminAnnounceRecipientMenu");
-        if (!menu) return;
-        const q = (query || "").trim().toLowerCase();
-        const pool = (_adminAllUsers || []).filter(u => !_announceRecipients.includes(u.username.toLowerCase()));
-        const matches = q ? pool.filter(u => u.username.toLowerCase().includes(q)) : pool;
-        if (matches.length === 0) {
-            menu.innerHTML = `<div class="admin-recipient-empty">No matching users</div>`;
-        } else {
-            menu.innerHTML = matches.slice(0, 30).map(u => `
-<div class="admin-recipient-opt" data-name="${escHtml(u.username)}">
-  <div class="admin-recipient-opt-avatar">${escHtml(u.username.charAt(0).toUpperCase())}</div>
-  <div class="admin-recipient-opt-name">${escHtml(u.username)}</div>
-  <span class="admin-role-badge admin-role-${u.role}">${escHtml(u.role)}</span>
-</div>`).join("");
-            menu.querySelectorAll(".admin-recipient-opt").forEach(opt => {
-                opt.onclick = () => _addAnnounceRecipient(opt.dataset.name);
-            });
-        }
-        menu.classList.add("open");
-    }
-
-    function _initAnnounceRecipientPicker() {
-        const input = document.getElementById("adminAnnounceRecipientInput");
-        if (!input || input._announceWired) return;
-        input._announceWired = true;
-        input.addEventListener("focus", () => _renderAnnounceRecipientMenu(input.value));
-        input.addEventListener("input", () => _renderAnnounceRecipientMenu(input.value));
-        input.addEventListener("keydown", e => {
-            if (e.key === "Enter" && input.value.trim()) {
-                e.preventDefault();
-                _addAnnounceRecipient(input.value);
-            } else if (e.key === "Backspace" && !input.value && _announceRecipients.length) {
-                _announceRecipients.pop();
-                _renderAnnounceChips();
-            } else if (e.key === "Escape") {
-                _closeAnnounceRecipientMenu();
-            }
-        });
-        document.addEventListener("click", e => {
-            if (!e.target.closest("#adminAnnounceRecipients")) _closeAnnounceRecipientMenu();
-        });
-    }
-
-    async function adminAnnounceLoad() {
-        const preview = document.getElementById("adminAnnouncePreview");
-        _initAnnounceRecipientPicker();
-        if (!preview) return;
-        try {
-            const token = window.WHDAuth ? window.WHDAuth.getToken() : null;
-            const r = await fetch(WORKER_URL + "/auth/announcement/status", {
-                method: "POST",
-                headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ token }),
-            });
-            const d = await r.json();
-            if (d.active && d.message) {
-                const recipients = Array.isArray(d.targets) && d.targets.length
-                    ? ` <span style="color:rgba(255,255,255,0.28);">• ${escHtml(d.targets.join(", "))}</span>`
-                    : " <span style=\"color:rgba(255,255,255,0.28);\">• everyone</span>";
-                preview.innerHTML = `${escHtml(d.message)}${recipients}`;
-            } else {
-                preview.textContent = "No active announcement.";
-            }
-        } catch { preview.textContent = "Could not load."; }
-    }
-
-    window.adminSendAnnouncement = async function() {
-        const msg  = (document.getElementById("adminAnnounceText")?.value || "").trim();
-        const type = document.getElementById("adminAnnounceType")?.value || "info";
-        const targets = _announceRecipients.slice();
-        const res  = document.getElementById("adminAnnounceResult");
-        if (!msg) { if (res) res.textContent = "Enter a message first."; return; }
-        if (res) res.textContent = "Publishing…";
-        const token = window.WHDAuth ? window.WHDAuth.getToken() : null;
-        const r = await fetch(WORKER_URL + "/auth/announcement", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token, message: msg, type, active: true, targets }),
-        }).then(r => r.json()).catch(() => ({ ok: false }));
-        if (r.ok) {
-            if (res) res.textContent = targets.length
-                ? `✓ Announcement published to ${targets.length} ${targets.length === 1 ? "person" : "people"}.`
-                : "✓ Announcement published to everyone.";
-            adminAnnounceLoad();
-        } else {
-            if (res) res.textContent = r.error || "Failed.";
-        }
-    };
-
-    window.adminClearAnnouncement = async function() {
-        const res = document.getElementById("adminAnnounceResult");
-        if (res) res.textContent = "Clearing…";
-        const token = window.WHDAuth ? window.WHDAuth.getToken() : null;
-        const r = await fetch(WORKER_URL + "/auth/announcement", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token, message: "", type: "info", active: false }),
-        }).then(r => r.json()).catch(() => ({ ok: false }));
-        if (r.ok) {
-            if (res) res.textContent = "✓ Banner cleared.";
-            const ta = document.getElementById("adminAnnounceText");
-            if (ta) { ta.value = ""; document.getElementById("adminAnnounceCharCount").textContent = "0/300"; }
-            _announceRecipients = [];
-            _renderAnnounceChips();
-            adminAnnounceLoad();
-        } else {
-            if (res) res.textContent = r.error || "Failed.";
-        }
-    };
-
-    window.adminOwnerDemote = async function(username) {
-        await window.adminUsersSetRole(username, "user");
-    };
-
-    // ── Site/Maintenance sub-tab ────────────────────────────────────
-    function adminMaintLoad() {
-        const btn = document.getElementById("adminMaintToggleBtn");
-        if (!btn) return;
-        btn.textContent = "Loading…";
-        btn.className = "acct-maintenance-toggle off";
-        fetch(WORKER_URL + "/auth/maintenance/status")
-        .then(r => r.json()).catch(() => ({}))
-        .then(data => {
-            const on = !!data.maintenance;
-            btn.textContent = on ? "🚧 On — Click to Disable" : "Off — Click to Enable";
-            btn.className   = "acct-maintenance-toggle " + (on ? "on" : "off");
-            btn.dataset.on  = on ? "1" : "";
-            btn.onclick = () => adminMaintToggle();
-        });
-    }
-
-    async function adminMaintToggle() {
-        const btn = document.getElementById("adminMaintToggleBtn");
-        if (!btn) return;
-        const currentlyOn = btn.dataset.on === "1";
-        const newState    = !currentlyOn;
-        btn.disabled      = true;
-        btn.textContent   = "Saving…";
-        const token = window.WHDAuth ? window.WHDAuth.getToken() : null;
-        try {
-            const res  = await fetch(WORKER_URL + "/auth/maintenance", {
-                method: "POST", headers: { "Content-Type": "application/json" },
-                body: JSON.stringify({ token, on: newState }),
-            });
-            const data = await res.json().catch(() => ({}));
-            if (data.ok) {
-                btn.dataset.on  = newState ? "1" : "";
-                btn.textContent = newState ? "🚧 On — Click to Disable" : "Off — Click to Enable";
-                btn.className   = "acct-maintenance-toggle " + (newState ? "on" : "off");
-                toast(newState ? "🚧 Maintenance mode ON" : "✅ Maintenance mode OFF");
-            } else {
-                btn.textContent = "Error: " + (data.error || "failed");
-            }
-        } catch {
-            btn.textContent = "Network error";
-        }
-        btn.disabled = false;
-    }
-
-    // ── Update Log sub-tab ──────────────────────────────────────────
-    let _ulEntries   = [];   // [{id, version, title, date, changes:[]}]
-    let _ulActiveId  = null; // currently-selected entry id
-
-    function adminUpdateLogLoad() {
-        const strip = document.getElementById("adminULTabStrip");
-        const editor = document.getElementById("adminULEditor");
-        const empty  = document.getElementById("adminULEmpty");
-        if (!strip) return;
-        strip.innerHTML = "<span style='font-size:11px;color:rgba(255,255,255,0.3);'>Loading…</span>";
-        if (editor) editor.style.display = "none";
-
-        const token = window.WHDAuth ? window.WHDAuth.getToken() : null;
-        fetch(WORKER_URL + "/auth/updatelog", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ token, action: "list" }),
-        }).then(r => r.json()).catch(() => ({ ok: false, entries: [] }))
-        .then(data => {
-            _ulEntries = (data.entries || []).sort((a, b) => (b.createdAt || 0) - (a.createdAt || 0));
-            _ulRenderTabStrip();
-            // Wire buttons
-            const newBtn = document.getElementById("adminULNewBtn");
-            if (newBtn) newBtn.onclick = _ulNewEntry;
-            const refBtn = document.getElementById("adminULRefreshBtn");
-            if (refBtn) refBtn.onclick = adminUpdateLogLoad;
-        });
-    }
-
-    function _ulRenderTabStrip() {
-        const strip  = document.getElementById("adminULTabStrip");
-        const empty  = document.getElementById("adminULEmpty");
-        const editor = document.getElementById("adminULEditor");
-        if (!strip) return;
-
-        if (_ulEntries.length === 0) {
-            strip.innerHTML = "";
-            if (empty)  empty.style.display  = "";
-            if (editor) editor.style.display = "none";
-            _ulActiveId = null;
-            return;
-        }
-        if (empty) empty.style.display = "none";
-
-        strip.innerHTML = _ulEntries.map(e =>
-            `<button class="admin-ul-tab${e.id === _ulActiveId ? " active" : ""}" data-ulid="${e.id}">${escHtml(e.version || "?")}</button>`
-        ).join("");
-        strip.querySelectorAll(".admin-ul-tab").forEach(btn => {
-            btn.onclick = () => {
-                _ulActiveId = btn.dataset.ulid;
-                _ulRenderTabStrip();
-                _ulLoadEditor(_ulActiveId);
-            };
-        });
-
-        // Auto-select first if nothing selected or selection gone
-        if (!_ulActiveId || !_ulEntries.find(e => e.id === _ulActiveId)) {
-            _ulActiveId = _ulEntries[0].id;
-            _ulRenderTabStrip();
-        }
-        if (_ulActiveId) _ulLoadEditor(_ulActiveId);
-    }
-
-    function _ulLoadEditor(id) {
-        const entry  = _ulEntries.find(e => e.id === id);
-        const editor = document.getElementById("adminULEditor");
-        if (!entry || !editor) return;
+    function _ulAdminEditSelected() {
+        const entries = (typeof _ulUserEntries !== "undefined" && _ulUserEntries) || [];
+        const entry = entries.find(e => e.id === _ulUserActiveId);
+        const editor = document.getElementById("settingsULEditor");
+        const result = document.getElementById("ulAdminResult");
+        if (!entry) { if (result) result.textContent = "Select an entry tab first."; return; }
+        document.getElementById("ulAdminVersion").value = entry.version || "";
+        document.getElementById("ulAdminTitle").value   = entry.title   || "";
+        document.getElementById("ulAdminDate").value    = entry.date    || "";
+        document.getElementById("ulAdminChanges").value = (entry.changes || []).join("\n");
+        if (result) result.textContent = "";
+        editor.dataset.editingId = entry.id;
         editor.style.display = "";
-        document.getElementById("adminULVersion").value  = entry.version  || "";
-        document.getElementById("adminULTitle").value    = entry.title    || "";
-        document.getElementById("adminULDate").value     = entry.date     || "";
-        document.getElementById("adminULChanges").value  = (entry.changes || []).join("\n");
-        document.getElementById("adminULResult").textContent = "";
-
-        document.getElementById("adminULSaveBtn").onclick   = () => _ulSaveEntry(id);
-        document.getElementById("adminULDeleteBtn").onclick = () => _ulDeleteEntry(id);
     }
 
-    function _ulNewEntry() {
-        const token = window.WHDAuth ? window.WHDAuth.getToken() : null;
-        const now   = new Date();
+    function _ulAdminNewEntry() {
+        const editor = document.getElementById("settingsULEditor");
+        const now = new Date();
         const month = now.toLocaleString("default", { month: "long" });
-        const entry = {
-            action: "save",
-            token,
-            id: null,  // server assigns
-            version: "v" + ((_ulEntries.length + 1)),
-            title: "New Update",
-            date: month + " " + now.getDate() + ", " + now.getFullYear(),
-            changes: [],
-        };
-        fetch(WORKER_URL + "/auth/updatelog", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(entry),
-        }).then(r => r.json()).catch(() => ({ ok: false }))
-        .then(data => {
-            if (data.ok && data.entry) {
-                _ulEntries.unshift(data.entry);
-                _ulActiveId = data.entry.id;
-                _ulRenderTabStrip();
-                toast("New entry created");
-            } else {
-                toast(data.error || "Failed to create entry", true);
-            }
-        });
+        document.getElementById("ulAdminVersion").value = "";
+        document.getElementById("ulAdminTitle").value   = "New Update";
+        document.getElementById("ulAdminDate").value    = month + " " + now.getDate() + ", " + now.getFullYear();
+        document.getElementById("ulAdminChanges").value = "";
+        document.getElementById("ulAdminResult").textContent = "";
+        delete editor.dataset.editingId; // no id yet -> server assigns one on save
+        editor.style.display = "";
     }
 
-    function _ulSaveEntry(id) {
+    function _ulAdminSaveEntry() {
+        const editor  = document.getElementById("settingsULEditor");
+        const id      = editor.dataset.editingId || null;
         const token   = window.WHDAuth ? window.WHDAuth.getToken() : null;
-        const version = document.getElementById("adminULVersion").value.trim();
-        const title   = document.getElementById("adminULTitle").value.trim();
-        const date    = document.getElementById("adminULDate").value.trim();
-        const changes = document.getElementById("adminULChanges").value
+        const version = document.getElementById("ulAdminVersion").value.trim();
+        const title   = document.getElementById("ulAdminTitle").value.trim();
+        const date    = document.getElementById("ulAdminDate").value.trim();
+        const changes = document.getElementById("ulAdminChanges").value
             .split("\n").map(l => l.trim()).filter(Boolean);
-        const result  = document.getElementById("adminULResult");
-        if (!version) { result.textContent = "Version tag is required."; return; }
+        const result  = document.getElementById("ulAdminResult");
+        if (!version) { if (result) result.textContent = "Version tag is required."; return; }
 
         fetch(WORKER_URL + "/auth/updatelog", {
             method: "POST",
@@ -1388,18 +1142,23 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         }).then(r => r.json()).catch(() => ({ ok: false }))
         .then(data => {
             if (data.ok && data.entry) {
-                const idx = _ulEntries.findIndex(e => e.id === id);
-                if (idx >= 0) _ulEntries[idx] = data.entry;
-                _ulRenderTabStrip();
-                toast("Entry saved");
-                if (result) result.textContent = "Saved.";
-            } else {
-                if (result) result.textContent = data.error || "Save failed.";
+                _ulUserEntries = null;           // invalidate the shared cache
+                _ulUserActiveId = data.entry.id; // select what we just saved
+                if (typeof loadUpdateLog === "function") loadUpdateLog();
+                editor.style.display = "none";
+                toast(id ? "Entry saved" : "New entry created");
+            } else if (result) {
+                result.textContent = data.error || "Save failed.";
             }
         });
     }
 
-    function _ulDeleteEntry(id) {
+    function _ulAdminDeleteSelected() {
+        const entries = (typeof _ulUserEntries !== "undefined" && _ulUserEntries) || [];
+        const id = _ulUserActiveId;
+        const entry = entries.find(e => e.id === id);
+        if (!entry) { toast("Select an entry tab first.", true); return; }
+
         const run = () => {
             const token = window.WHDAuth ? window.WHDAuth.getToken() : null;
             fetch(WORKER_URL + "/auth/updatelog", {
@@ -1409,9 +1168,10 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
             }).then(r => r.json()).catch(() => ({ ok: false }))
             .then(data => {
                 if (data.ok) {
-                    _ulEntries = _ulEntries.filter(e => e.id !== id);
-                    _ulActiveId = null;
-                    _ulRenderTabStrip();
+                    _ulUserEntries = null;
+                    _ulUserActiveId = null;
+                    if (typeof loadUpdateLog === "function") loadUpdateLog();
+                    document.getElementById("settingsULEditor").style.display = "none";
                     toast("Entry deleted");
                 } else {
                     toast(data.error || "Delete failed.", true);
@@ -1426,10 +1186,20 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                 okLabel: "Delete",
                 okDanger: true,
             }).then(ok => { if (ok) run(); });
-        } else if (window.confirm("Delete this update entry?")) {
-            run();
+        } else {
+            showConfirm({ icon: "⚠️", title: "Delete this update entry?", msg: "This cannot be undone.", okLabel: "Delete", okClass: "admin-btn-danger" })
+                .then(ok => { if (ok) run(); });
         }
     }
+
+    // Re-check role/visibility every time the real Updates tab is opened, and
+    // once on load in case the tab is already active when admin.js parses.
+    document.addEventListener("click", e => {
+        if (e.target.closest('.settings-tab[data-stab="updates"]')) {
+            setTimeout(_ulSetupAdminControls, 0);
+        }
+    });
+    setTimeout(_ulSetupAdminControls, 0);
 
     function switchToTab(tab) {
         document.querySelector(`.admin-tab[data-tab="${tab}"]`).click();
@@ -1779,6 +1549,8 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         }
 
         const forceDb = document.getElementById("importDb").value;
+        const replaceOnConflict = document.getElementById("adminImportReplace") && document.getElementById("adminImportReplace").checked;
+        replaceOnConflict = true;
 
         // ── MULTI-ADD (array) ────────────────────────────────
         if (Array.isArray(parsed)) {
@@ -1793,8 +1565,19 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                 const targetDb = forceDb || autoDetectDb(scene);
                 const arr = DB_MAP[targetDb] && DB_MAP[targetDb].getArr();
                 if (!arr) { results.push({ ok: false, name: scene.name, reason: "Unknown db: " + targetDb }); return; }
-                if (arr.find(s => s.id === scene.id)) {
-                    results.push({ ok: false, name: scene.name, reason: `ID "${scene.id}" already exists in ${DB_MAP[targetDb].label}` });
+                const existingIdx = arr.findIndex(s => s.id === scene.id);
+                if (existingIdx !== -1) {
+                    if (!replaceOnConflict) {
+                        results.push({ ok: false, name: scene.name, reason: `ID "${scene.id}" already exists in ${DB_MAP[targetDb].label}` });
+                        return;
+                    }
+                    const entry = normaliseScene(scene);
+                    entry._adminEdited = true;
+                    delete entry._adminAdded;
+                    arr[existingIdx] = entry;
+                    const si = scenes.findIndex(s => s.id === entry.id);
+                    if (si !== -1) scenes[si] = entry; else scenes.push(entry);
+                    results.push({ ok: true, name: scene.name, db: DB_MAP[targetDb].label, replaced: true });
                     return;
                 }
                 const entry = normaliseScene(scene);
@@ -1804,19 +1587,20 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                 results.push({ ok: true, name: scene.name, db: DB_MAP[targetDb].label });
             });
             persistScenes();
-            const added  = results.filter(r => r.ok);
+            const added  = results.filter(r => r.ok && !r.replaced);
+            const replaced = results.filter(r => r.ok && r.replaced);
             const failed = results.filter(r => !r.ok);
             const rows = results.map(r =>
                 r.ok
-                ? `<div style="padding:3px 0;font-size:12px;color:#7dff9e;">✔ ${escHtml(r.name)} → ${escHtml(r.db)}</div>`
+                ? `<div style="padding:3px 0;font-size:12px;color:${r.replaced ? "#ffc06a" : "#7dff9e"};">${r.replaced ? "🔁" : "✔"} ${escHtml(r.name)} → ${escHtml(r.db)}${r.replaced ? " (replaced)" : ""}</div>`
                 : `<div style="padding:3px 0;font-size:12px;color:#ff7070;">✗ ${escHtml(r.name)}: ${escHtml(r.reason)}</div>`
             ).join("");
             document.getElementById("adminImportOutput").innerHTML =
                 `<div style="background:rgba(0,0,0,0.4);border:1px solid rgba(255,255,255,0.08);border-radius:8px;padding:12px;max-height:200px;overflow-y:auto;">
-                    <div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:rgba(255,255,255,0.4);margin-bottom:8px;text-transform:uppercase;">${added.length} added · ${failed.length} failed</div>
+                    <div style="font-size:11px;font-weight:700;letter-spacing:.08em;color:rgba(255,255,255,0.4);margin-bottom:8px;text-transform:uppercase;">${added.length} added · ${replaced.length} replaced · ${failed.length} failed</div>
                     ${rows}
                  </div>`;
-            toast("Bulk import: " + added.length + " added, " + failed.length + " failed");
+            toast("Bulk import: " + added.length + " added, " + replaced.length + " replaced, " + failed.length + " failed");
             return;
         }
 
@@ -1825,6 +1609,14 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         if (!scene.id || !scene.name) { toast("Scene must contain id and name", true); return; }
         applyOverridesToScene(scene);
         const targetDb = forceDb || autoDetectDb(scene);
+
+        const existingArr = DB_MAP[targetDb] && DB_MAP[targetDb].getArr();
+        const conflictExists = existingArr && existingArr.find(s => s.id === scene.id);
+        if (conflictExists && !replaceOnConflict) {
+            toast(`ID "${scene.id}" already exists in ${DB_MAP[targetDb].label} — check "Replace existing" to overwrite, or loading into the form below will edit it directly on save.`, true);
+        } else if (conflictExists && replaceOnConflict) {
+            toast(`Loaded "${scene.name}" into form — saving will replace the existing scene with ID "${scene.id}"`);
+        }
 
         document.getElementById("aDb").value        = targetDb;
         document.getElementById("aId").value        = scene.id        || "";
@@ -1877,6 +1669,7 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         if (e.target.closest("[data-edit]"))   { loadSceneIntoForm(s, dbKey); return; }
         if (e.target.closest("[data-del]"))    { deleteScene(dbKey, s.id, s.name); return; }
         if (e.target.closest("[data-dup]"))    { duplicateScene(s, dbKey); return; }
+        if (e.target.closest("[data-replace]")){ replaceScene(s, dbKey); return; }
     });
     document.getElementById("adminSceneList").addEventListener("change", function(e) {
         const cb = e.target.closest(".admin-cb[data-id]");
@@ -2026,6 +1819,16 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         const _sceneIndex = {};
         const frag = document.createDocumentFragment();
 
+        // Count titles (case-insensitive, trimmed) across ALL active scenes (not just filtered view)
+        // so duplicates are flagged even while searching/filtering.
+        const _titleCounts = {};
+        all.forEach(({ scene: s }) => {
+            if (deletedIds.has(s.id)) return;
+            const key = (s.name || "").trim().toLowerCase();
+            if (!key) return;
+            _titleCounts[key] = (_titleCounts[key] || 0) + 1;
+        });
+
         filtered.forEach((item) => { const { dbKey, scene: s } = item;
             _sceneIndex[s.id] = { dbKey, scene: s };
             const row = document.createElement("div");
@@ -2037,16 +1840,19 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
             const isSelected = selectedSceneIds.has(s.id);
             const _sr = item._searchResult || null;
             const _toks = _sr ? _sr.tokens : [];
+            const _titleKey = (s.name || "").trim().toLowerCase();
+            const isDup = _titleKey && _titleCounts[_titleKey] > 1;
             row.innerHTML = `
                 <input type="checkbox" class="admin-cb" data-id="${s.id}" ${isSelected ? "checked" : ""}>
                 <div style="display:flex;align-items:center;flex:1;gap:8px;min-width:0;">
                     <div class="admin-scene-info" style="flex:1;min-width:0;">
-                        <div class="admin-scene-name">${adminHighlight(s.name, _toks)}${isEdited ? ' <span style="font-size:9px;color:#f5a623;border:1px solid rgba(200,120,0,0.4);border-radius:99px;padding:1px 5px;font-weight:700;">EDITED</span>' : ""}</div>
+                        <div class="admin-scene-name">${adminHighlight(s.name, _toks)}${isEdited ? ' <span style="font-size:9px;color:#f5a623;border:1px solid rgba(200,120,0,0.4);border-radius:99px;padding:1px 5px;font-weight:700;">EDITED</span>' : ""}${isDup ? ' <span class="admin-dup-badge" title="Another active scene shares this exact title">⚠ Duplicate title</span>' : ""}</div>
                         <div class="admin-scene-meta">${adminHighlight(s.country||"", _toks)} · ${adminHighlight(s.season||"", _toks)} · ${sy}–${ey}</div>
                     </div>
                     <span class="admin-scene-db db-${dbKey}" style="flex-shrink:0;">${DB_MAP[dbKey].label}</span>
                     <div class="admin-scene-actions" style="flex-shrink:0;">
                         <button class="admin-btn admin-btn-secondary" style="padding:4px 9px;font-size:11px;" data-dup title="Duplicate scene">⎘</button>
+                        <button class="admin-btn ${isDup ? "admin-btn-warn" : "admin-btn-secondary"}" style="padding:4px 9px;font-size:11px;" data-replace title="Replace this scene's data with another scene's data">🔁</button>
                         <button class="admin-btn admin-btn-warn" style="padding:4px 9px;font-size:11px;" data-edit>✏️ Edit</button>
                         <button class="admin-btn admin-btn-danger" style="padding:4px 9px;font-size:11px;" data-del>🗑</button>
                     </div>
@@ -2150,6 +1956,3525 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         }
         return null;
     }
+
+    // ── Multi-word tag argument helpers ─────────────────────────────────
+    // Many terminal commands take a free-text tag (country/season/continent
+    // — things like "South Africa" or "Medieval Vietnam") followed by
+    // another argument. Naively splitting on a single space breaks for any
+    // multi-word tag ("set country south africa france" → keyArg="south",
+    // val="africa france"). These helpers resolve the ambiguity by
+    // preferring the longest prefix/suffix that matches a value that
+    // actually exists, since scene IDs never contain spaces and known tag
+    // values are a small, enumerable set.
+    function termKnownValues(field) {
+        const out = new Set();
+        termAllActiveScenes().forEach(({ scene: s }) => {
+            const v = (s[field] || "").trim().toLowerCase();
+            if (v) out.add(v);
+        });
+        return out;
+    }
+    // Given tokens like ["south","africa","france"], find how many leading
+    // tokens form a known value (checked longest-first) or a real scene ID.
+    // Falls back to 1 token so old single-word behavior still works.
+    function termSplitLeadingKey(tokens, knownValuesLower) {
+        for (let len = tokens.length - 1; len >= 1; len--) {
+            const candidate = tokens.slice(0, len).join(" ");
+            if (knownValuesLower.has(candidate.toLowerCase()) || getSceneById(candidate)) return len;
+        }
+        return 1;
+    }
+    // Given tokens like ["south","africa","scene1","scene2"], pop scene IDs
+    // off the END (IDs never contain spaces) until what's left is the
+    // free-text value. Returns { value, ids }.
+    function termSplitTrailingIds(tokens) {
+        let i = tokens.length;
+        while (i > 1 && getSceneById(tokens[i - 1])) i--;
+        return { value: tokens.slice(0, i).join(" "), ids: tokens.slice(i) };
+    }
+
+    // ── Replace Scene ───────────────────────────────────
+    // Lets an admin pick another scene and overwrite the target scene's
+    // data with it (keeping the target's id/db so nothing referencing
+    // that id breaks). Useful when two scenes share the same title and
+    // one should be merged into / replaced by the other.
+    let replaceResolve = null;
+
+    function showReplacePicker(targetScene) {
+        return new Promise(res => {
+            replaceResolve = res;
+            const targetKey = (targetScene.name || "").trim().toLowerCase();
+
+            let candidates = [];
+            for (const [dbKey, info] of Object.entries(DB_MAP)) {
+                info.getArr().forEach(s => {
+                    if (s.id === targetScene.id) return;
+                    if (deletedIds.has(s.id)) return;
+                    candidates.push({ dbKey, scene: s });
+                });
+            }
+            // Same-title matches first, then alphabetical
+            candidates.sort((a, b) => {
+                const aSame = (a.scene.name||"").trim().toLowerCase() === targetKey ? 0 : 1;
+                const bSame = (b.scene.name||"").trim().toLowerCase() === targetKey ? 0 : 1;
+                if (aSame !== bSame) return aSame - bSame;
+                return (a.scene.name||"").localeCompare(b.scene.name||"");
+            });
+
+            const listEl   = document.getElementById("adminReplaceList");
+            const filterEl = document.getElementById("adminReplaceFilter");
+            const msgEl    = document.getElementById("adminReplaceMsg");
+
+            msgEl.textContent = `Choose a scene to copy data from into "${targetScene.name}". The original ID, database, and links to this scene will be kept — every other field (name, dates, location, info, events, image) will be overwritten.`;
+            filterEl.value = "";
+
+            function renderList(q) {
+                const ql = (q || "").toLowerCase();
+                const matches = candidates.filter(({ scene: s }) => {
+                    if (!ql) return true;
+                    return [s.name, s.country, s.season, s.id].some(v => (v||"").toLowerCase().includes(ql));
+                });
+                if (matches.length === 0) {
+                    listEl.innerHTML = `<div class="admin-replace-empty">No matching scenes.</div>`;
+                    return;
+                }
+                listEl.innerHTML = matches.map(({ dbKey, scene: s }) => {
+                    const sy = s.startYear < 0 ? Math.abs(s.startYear)+"BC" : s.startYear;
+                    const ey = s.endYear   < 0 ? Math.abs(s.endYear)+"BC"   : s.endYear;
+                    const sameTitle = (s.name||"").trim().toLowerCase() === targetKey;
+                    return `
+                        <div class="admin-replace-row" data-sid="${s.id}">
+                            <span class="arr-name">${escHtml(s.name)}${sameTitle ? ' <span class="admin-dup-badge">⚠ Same title</span>' : ""}</span>
+                            <span class="arr-meta">${escHtml(s.country||"")} · ${escHtml(s.season||"")} · ${sy}\u2013${ey} · ${DB_MAP[dbKey].label}</span>
+                        </div>`;
+                }).join("");
+            }
+            renderList("");
+
+            filterEl.oninput = () => renderList(filterEl.value);
+
+            listEl.onclick = (e) => {
+                const row = e.target.closest(".admin-replace-row");
+                if (!row) return;
+                const picked = candidates.find(c => c.scene.id === row.dataset.sid);
+                document.getElementById("adminReplace").style.display = "none";
+                if (replaceResolve) { replaceResolve(picked || null); replaceResolve = null; }
+            };
+
+            document.getElementById("adminReplace").style.display = "flex";
+        });
+    }
+
+    document.getElementById("adminReplaceCancel").addEventListener("click", () => {
+        document.getElementById("adminReplace").style.display = "none";
+        if (replaceResolve) { replaceResolve(null); replaceResolve = null; }
+    });
+    // Failsafe (same reasoning as #adminConfirm): backdrop click or Escape
+    // always cancels, so "scene replace" can never hang the terminal.
+    document.getElementById("adminReplace").addEventListener("click", e => {
+        if (e.target.id === "adminReplace") {
+            document.getElementById("adminReplace").style.display = "none";
+            if (replaceResolve) { replaceResolve(null); replaceResolve = null; }
+        }
+    });
+    document.addEventListener("keydown", e => {
+        if (e.key !== "Escape") return;
+        const replaceEl = document.getElementById("adminReplace");
+        if (replaceEl && replaceEl.style.display !== "none") {
+            replaceEl.style.display = "none";
+            if (replaceResolve) { replaceResolve(null); replaceResolve = null; }
+        }
+    });
+
+    async function replaceScene(targetScene, targetDbKey) {
+        const picked = await showReplacePicker(targetScene);
+        if (!picked) return;
+        const { dbKey: sourceDbKey, scene: sourceScene } = picked;
+
+        const ok = await showConfirm({
+            icon: "\u{1F501}",
+            title: "Replace Scene Data?",
+            msg: `"${targetScene.name}" will be overwritten with the data from "${sourceScene.name}". This keeps the ID "${targetScene.id}" but replaces its name, dates, location, info, and events. This cannot be undone automatically.`,
+            okLabel: "Replace",
+            okClass: "admin-btn-warn"
+        });
+        if (!ok) return;
+
+        const targetArr = DB_MAP[targetDbKey].getArr();
+        const idx = targetArr.findIndex(s => s.id === targetScene.id);
+        if (idx === -1) { toast("Could not locate target scene", true); return; }
+
+        const preservedId = targetScene.id;
+        const merged = {
+            ...JSON.parse(JSON.stringify(sourceScene)),
+            id: preservedId,
+            _adminEdited: true
+        };
+        delete merged._adminAdded;
+        delete merged._dbKey;
+
+        targetArr[idx] = merged;
+
+        // Keep the in-memory `scenes` (admin add/edit tracking) array consistent
+        const si = scenes.findIndex(s => s.id === preservedId);
+        const trackedEntry = { ...merged, _dbKey: targetDbKey };
+        if (si !== -1) scenes[si] = trackedEntry;
+        else scenes.push(trackedEntry);
+
+        persistScenes();
+
+        // Offer to also remove the now-redundant source scene
+        const removeSource = await showConfirm({
+            icon: "\u{1F5D1}\uFE0F",
+            title: "Remove Source Scene?",
+            msg: `Do you also want to delete "${sourceScene.name}" now that its data has been copied into "${merged.name}"?`,
+            okLabel: "Delete Source",
+            okClass: "admin-btn-danger"
+        });
+        if (removeSource) {
+            await deleteScene(sourceDbKey, sourceScene.id, sourceScene.name);
+        }
+
+        toast(`\u2714 Replaced "${targetScene.name}" with data from "${sourceScene.name}"`);
+        refreshManageList();
+        if (editingId === preservedId) resetAddForm();
+    }
+
+    // ── Owner Terminal ──────────────────────────────────────────────────────
+    // _termOutputId lets other UIs (e.g. owner-panel.js's standalone fullscreen
+    // terminal) redirect termPrint() output to their own DOM without duplicating
+    // the command engine. See window.WHDAdmin.setOutput() below.
+    let _termOutputId = "adminTermOutput";
+    function termPrint(text, cls) {
+        const out = document.getElementById(_termOutputId);
+        if (!out) return;
+        const line = document.createElement("div");
+        line.className = "admin-term-line" + (cls ? " " + cls : "");
+        line.textContent = text;
+        out.appendChild(line);
+        out.scrollTop = out.scrollHeight;
+    }
+
+    // ── Argument suggestion database ──────────────────────────────────────
+    // Two kinds of suggestion sources feed the terminal's autocomplete:
+    //  1. LIVE sources — read straight from real in-memory state (scene data,
+    //     DB_MAP, cached user list, last-synced flags/CSS). Always accurate,
+    //     never stale.
+    //  2. LEARNED sources — values that have no live registry anywhere in the
+    //     app (CSS selectors/properties you've typed, custom event names,
+    //     flag names you've cleared, custom scene fields). These persist in
+    //     localStorage under whd_term_learned so suggestions improve the more
+    //     the terminal is used, without requiring a server-side schema.
+    const TERM_LEARN_KEY = "whd_term_learned";
+    function _termLoadLearned() {
+        try { return JSON.parse(localStorage.getItem(TERM_LEARN_KEY)) || {}; } catch { return {}; }
+    }
+    function _termSaveLearned(db) {
+        try { localStorage.setItem(TERM_LEARN_KEY, JSON.stringify(db)); } catch {}
+    }
+    function learnRemember(category, value) {
+        if (!value) return;
+        const db = _termLoadLearned();
+        db[category] = db[category] || [];
+        const i = db[category].indexOf(value);
+        if (i !== -1) db[category].splice(i, 1); // move to front (most-recent-first)
+        db[category].unshift(value);
+        if (db[category].length > 40) db[category].length = 40;
+        _termSaveLearned(db);
+    }
+    function learned(category) { return _termLoadLearned()[category] || []; }
+
+    let _lastCssRules = []; // populated by applyRemoteConfigToPage, used for suggestions
+
+    // ── Suggestion sources ──────────────────────────────────────────────────
+    function suggestDbKeys()      { return Object.keys(DB_MAP); }
+    function suggestSceneIds()    { return termAllActiveScenes().map(m => m.scene.id); }
+    // Returns "id (Name)" entries so the user can see friendly names while typing
+    function suggestSceneIdsRich() {
+        return termAllActiveScenes().map(m => m.scene.id);
+    }
+    function suggestDeletedSceneIds() { return [...deletedIds]; }
+    function suggestCountries()   { return [...new Set(termAllActiveScenes().map(m => m.scene.country).filter(Boolean))].sort(); }
+    function suggestSeasons()     { return [...new Set(termAllActiveScenes().map(m => m.scene.season).filter(Boolean))].sort(); }
+    function suggestRegions()     { return [...new Set(termAllActiveScenes().map(m => m.scene.region).filter(Boolean))].sort(); }
+    function suggestContinents()  { return [...new Set(termAllActiveScenes().map(m => m.scene.continent).filter(Boolean))].sort(); }
+    function suggestSceneNames()  { return [...new Set(termAllActiveScenes().map(m => m.scene.name).filter(Boolean))].sort(); }
+    function suggestSceneFields() {
+        const keys = new Set(["id","name","startYear","endYear","imgKey","continent","country","season","coords","zoom","region","info","events"]);
+        termAllActiveScenes().forEach(m => Object.keys(m.scene).forEach(k => keys.add(k)));
+        learned("field").forEach(k => keys.add(k));
+        return [...keys].filter(k => !k.startsWith("_"));
+    }
+    function suggestUsernames() {
+        return [...new Set([...(_adminAllUsers || []).map(u => u.username), ...learned("username")])];
+    }
+    function suggestFlags() {
+        return [...new Set([...Object.keys(window.WHD_FLAGS || {}), ...learned("flag")])];
+    }
+    // Real selectors pulled from the project's own CSS files, so "css"
+    // suggestions cover virtually everything stylable in the app instead
+    // of a small hand-picked sample.
+    const KNOWN_CSS_SELECTORS = [
+"#acctDeleteModal","#adminAddSubtabs","#adminAnnouncePreview","#adminBody","#adminCloseBtn",
+            "#adminConfirm","#adminConfirmBox","#adminConfirmBtns","#adminConfirmIcon","#adminConfirmMsg",
+            "#adminConfirmOk","#adminConfirmTitle","#adminContent","#adminEventsContainer","#adminFormMode",
+            "#adminHeader","#adminMultiBar","#adminMultiDeleteBtn","#adminOverlay","#adminPanel",
+            "#adminPassError","#adminPassInput","#adminPassRow","#adminReplace","#adminReplaceBox",
+            "#adminReplaceBtns","#adminReplaceFilter","#adminReplaceList","#adminReplaceMsg",
+            "#adminReplaceTitle","#adminSceneFilter","#adminSceneList","#adminSortBar","#adminSortLabel",
+            "#adminStylePreview","#adminTabs","#adminToast","#announcementBanner","#appConfirm",
+            "#appConfirmBox","#appConfirmCancel","#appConfirmIcon","#appConfirmMsg","#appConfirmOk",
+            "#appConfirmTitle","#authBrand","#authBrandGlyph","#authBrandName","#authBrandSub","#authFeatures",
+            "#authForgotLink","#authGuestRow","#authLoggedInRow","#authModal","#authOverlay","#authPanel",
+            "#authPanelInner","#authPanelLeft","#authPanelRight","#authSyncStatus","#authSyncToast","#authTabs",
+            "#authWelcome","#backNavBtn","#bannedPage","#bookmarkToast","#bookmarksBtn","#bookmarksClearBtn",
+            "#bookmarksCount","#bookmarksHeader","#bookmarksHeaderLeft","#bookmarksHeaderRight",
+            "#bookmarksList","#bookmarksTitle","#breadcrumbs","#bugReportModal","#bugReportOverlay",
+            "#cinematicBlur","#controlButtons","#deletePlaylistBtn","#episodePanel","#exitBtn",
+            "#explorePlLabel","#exploreResults","#exploreSearchBar","#exploreSearchInput","#fadeScreen",
+            "#forceSecQModal","#forceSecQOverlay","#infoContent","#infoEvents","#infoImage","#infoPanel",
+            "#infoPanelHeader","#infoPanelTopRow","#infoRegion","#infoText","#infoTitle","#infoYearBadge",
+            "#maintenancePage","#map","#musicPickerContent","#musicPickerHeader","#musicPickerList",
+            "#musicPickerModal","#muteBtn","#newPlaylistBtn","#nowPlayingPanel","#nowPlayingTrack",
+            "#nowPlayingWave","#overlay","#ownerPanel","#ownerPanelCloseBtn","#ownerPanelHeader",
+            "#ownerPanelOverlay","#panelTabBookmarks","#panelTabExplore","#panelTabPlaylists","#pauseBtn",
+            "#playPlaylistBtn","#playlistCloseBtn","#playlistEditor","#playlistEditorActions",
+            "#playlistEditorContent","#playlistEditorEmpty","#playlistEditorHeader","#playlistList",
+            "#playlistListHeader","#playlistModal","#playlistModalContent","#playlistModalHeader",
+            "#playlistModalTabs","#playlistMusicLabel","#playlistMusicSelect","#playlistNameInput",
+            "#playlistScenes","#playlistScenesLabel","#playlistSidebar","#randomBtn","#rowTitle",
+            "#sceneProgress","#sceneProgressDots","#sceneProgressLabel","#sceneSearchBar","#sceneSearchInput",
+            "#sceneSearchResults","#sceneSearchSuggestions","#seasons","#settingsCloseBtn","#settingsContent",
+            "#settingsHeader","#settingsPage","#settingsTabs","#sharePlaylistBtn","#shareSceneBtn",
+            "#shareToast","#sourcesContent","#sourcesPage","#startBtn","#storyBookmarkBtn",
+            "#storyFinishedButtons","#storyFinishedExitBtn","#storyFinishedGlyph","#storyFinishedInner",
+            "#storyFinishedOverlay","#storyFinishedPlayAgainBtn","#storyFinishedSubtitle","#storyFinishedText",
+            "#storyFinishedTitle","#storyPlaylistBtn","#timelineFill","#timelineScrubber","#timelineThumb",
+            "#timelineTrack","#timelineYearCurrent","#timelineYearEnd","#timelineYearStart","#timelineYears",
+            "#topBar","#uiLayer",".ac-ok-danger",".ac-ok-safe",".acct-avatar",".acct-benefit-card",
+            ".acct-benefit-icon",".acct-benefit-sub",".acct-benefit-title",".acct-benefits-grid",".acct-card",
+            ".acct-change-pass-form",".acct-count-badge",".acct-delete-backdrop",".acct-delete-body",
+            ".acct-delete-box",".acct-delete-btns",".acct-delete-title",".acct-email-badge",
+            ".acct-email-missing",".acct-guest-block",".acct-guest-icon",".acct-guest-sub",".acct-guest-title",
+            ".acct-info",".acct-maintenance-hint",".acct-maintenance-label",".acct-maintenance-row",
+            ".acct-maintenance-toggle",".acct-meta",".acct-role-admin",".acct-role-badge",".acct-role-owner",
+            ".acct-role-user",".acct-signin-btn",".acct-sync-badge",".acct-username",".admin-add-subpage",
+            ".admin-add-subtab",".admin-btn",".admin-btn-danger",".admin-btn-primary",".admin-btn-row",
+            ".admin-btn-secondary",".admin-btn-sm",".admin-btn-warn",".admin-cb",".admin-color-picker",
+            ".admin-color-preset",".admin-color-wheel",".admin-dup-badge",".admin-edit-badge",
+            ".admin-edit-grid",".admin-edit-hint",".admin-edit-label",".admin-edit-presets",".admin-edit-row",
+            ".admin-edit-section",".admin-edit-section-label",".admin-edit-select",".admin-edit-slider",
+            ".admin-event-del",".admin-event-row",".admin-field",".admin-field-hint",".admin-font-preview",
+            ".admin-form-full",".admin-form-grid",".admin-help-card",".admin-help-card-sub",
+            ".admin-help-card-title",".admin-help-grid",".admin-info-about",".admin-info-bar-count",
+            ".admin-info-bar-fill",".admin-info-bar-name",".admin-info-bar-row",".admin-info-bar-track",
+            ".admin-info-breakdown",".admin-info-danger",".admin-info-danger-item",".admin-info-key",
+            ".admin-info-mono",".admin-info-row",".admin-info-stat-card",".admin-info-stat-label",
+            ".admin-info-stat-num",".admin-info-stats",".admin-info-val",".admin-input",".admin-kbd",
+            ".admin-maintenance-label",".admin-maintenance-row",".admin-numfield",".admin-numfield-btn",
+            ".admin-numfield-dec",".admin-numfield-inc",".admin-numfield-input",".admin-owner-promote-row",
+            ".admin-owner-tab",".admin-owner-tabpanel",".admin-owner-tabs",".admin-page",".admin-page-terminal",
+            ".admin-recipient-chip",".admin-recipient-chip-x",".admin-recipient-chips",".admin-recipient-empty",
+            ".admin-recipient-input",".admin-recipient-menu",".admin-recipient-opt",
+            ".admin-recipient-opt-avatar",".admin-recipient-opt-name",".admin-recipient-picker",
+            ".admin-replace-empty",".admin-replace-row",".admin-role-admin",".admin-role-badge",
+            ".admin-role-owner",".admin-role-user",".admin-scene-actions",".admin-scene-db",".admin-scene-info",
+            ".admin-scene-meta",".admin-scene-name",".admin-scene-row",".admin-section-title",
+            ".admin-settings-badge",".admin-settings-ctrl",".admin-settings-hint",".admin-settings-label",
+            ".admin-settings-row",".admin-settings-slider",".admin-sort-btn",".admin-tab",".admin-term-hint",
+            ".admin-term-input",".admin-term-inputrow",".admin-term-inputwrap",".admin-term-line",
+            ".admin-term-output",".admin-term-prompt",".admin-term-sugg-cat",".admin-term-sugg-cmd",
+            ".admin-term-sugg-desc",".admin-term-sugg-hint",".admin-term-sugg-hint-desc",
+            ".admin-term-sugg-icon",".admin-term-sugg-icon-arg",".admin-term-sugg-item",
+            ".admin-term-sugg-item-arg",".admin-term-suggest",".admin-tree-add-row",".admin-tree-block",
+            ".admin-tree-children",".admin-tree-indent",".admin-tree-node",".admin-tree-node-actions",
+            ".admin-tree-node-name",".admin-tree-toggle",".admin-ul-editor",".admin-ul-tab",
+            ".admin-ul-tabstrip",".admin-user-actions",".admin-user-avatar",".admin-user-info",
+            ".admin-user-meta",".admin-user-name",".admin-user-role",".admin-user-row",".admin-user-you",
+            ".admin-users-list",".admin-users-loading",".admin-users-search-row",".announcement-banner-close",
+            ".announcement-banner-header",".announcement-banner-icon",".announcement-banner-inner",
+            ".announcement-banner-message",".app-confirm-btns",".asp-body",".asp-btn-primary",".asp-btn-row",
+            ".asp-btn-secondary",".asp-card",".asp-event",".asp-events",".asp-region",".asp-title",
+            ".auth-benefit-carousel",".auth-benefit-dot",".auth-benefit-dots",".auth-benefit-icon",
+            ".auth-benefit-slide",".auth-benefit-text",".auth-checkbox-label",".auth-divider",".auth-error",
+            ".auth-feature",".auth-feature-icon",".auth-field",".auth-form",".auth-form-entering",
+            ".auth-form-leaving",".auth-ghost-btn",".auth-hint",".auth-link-btn",".auth-notice",".auth-otp-box",
+            ".auth-otp-code",".auth-otp-label",".auth-pass-wrap",".auth-primary-btn",".auth-reset-icon",
+            ".auth-reset-intro",".auth-reset-sub",".auth-reset-title",".auth-select",".auth-show-pass",
+            ".auth-tab",".auth-text-link",".auth-transfer-row",".back-btn",".banned-glyph",
+            ".banned-signout-btn",".banned-sub",".banned-title",".bm-card",".bm-card-body",".bm-card-btns",
+            ".bm-card-meta",".bm-card-name",".bm-card-thumb",".bm-clear-btn",".bm-del-btn",".bm-empty",
+            ".bm-empty-hint",".bm-empty-icon",".bm-empty-title",".bm-go-btn",".bm-group",".bm-group-count",
+            ".bm-group-header",".bm-group-items",".bm-group-name",".bm-list-count",".bm-list-header",
+            ".bm-share-btn",".bm-share-scene-btn",".bm-star-btn",".bm-toast-icon",".bug-action-btn",
+            ".bug-btn-cancel",".bug-btn-submit",".bug-card",".bug-card-actions",".bug-card-details",
+            ".bug-card-header",".bug-card-meta",".bug-card-resolved",".bug-card-title",".bug-card-url",
+            ".bug-cat-pill",".bug-char-count",".bug-char-warn",".bug-delete-btn",".bug-field-group",
+            ".bug-footer-btns",".bug-input",".bug-input-error",".bug-label",".bug-modal-close",
+            ".bug-modal-footer",".bug-modal-header",".bug-modal-title",".bug-reopen-btn",".bug-required",
+            ".bug-resolve-btn",".bug-resolved-badge",".bug-select",".bug-select-arrow",".bug-select-wrap",
+            ".bug-sev-btn",".bug-sev-critical",".bug-sev-high",".bug-sev-low",".bug-sev-medium",".bug-sev-pill",
+            ".bug-severity-row",".bug-textarea",".bugs-clear-btn",".bugs-empty",".bugs-filter-btn",
+            ".bugs-filter-group",".bugs-kbd",".bugs-list",".bugs-sort-label",".bugs-sort-row",".bugs-sort-sel",
+            ".bugs-toolbar",".c-sel",".c-sel-arrow",".c-sel-group-label",".c-sel-menu",".c-sel-opt",
+            ".c-sel-trigger",".c-sel-value",".card",".cinematic-marker-ring",".coord-row",".db-africa",
+            ".db-asia",".db-australia",".db-europe",".db-historybites",".episode-card",".episode-card-img-wrap",
+            ".episode-strip",".explore-add-btn",".explore-row",".explore-share-btn",".help-a",".help-entry",
+            ".help-q",".maint-bypass-btn",".maint-glyph",".maint-sub",".maint-tab",".maint-tabpanel",
+            ".maint-tabs",".maint-title",".maint-trivia",".maint-trivia-again",".maint-trivia-done",
+            ".maint-trivia-opt",".maint-trivia-opts",".maint-trivia-progress",".maint-trivia-q",
+            ".maint-trivia-score",".maint-trivia-sub",".maint-ul-section",".panel-tab",".panel-tab-content",
+            ".pl-add-btn",".pl-add-btn-added",".pl-bar-btn",".pl-empty-msg",".pl-item-icon",".pl-item-info",
+            ".pl-item-meta",".pl-item-name",".pl-list-item",".pl-list-item-active",".pl-music-check",
+            ".pl-music-item",".pl-music-selected",".pl-remove-btn",".pl-scene-actions",".pl-scene-info",
+            ".pl-scene-meta",".pl-scene-name",".pl-scene-num",".pl-scene-row",".pl-scene-thumb",
+            ".pl-search-already",".pl-search-row",".progress-dot",".resize-handle",".season",".settings-btn",
+            ".settings-btn-caution",".settings-btn-danger",".settings-btn-remove",".settings-color-input",
+            ".settings-colour-control",".settings-colour-row",".settings-control",".settings-hint",
+            ".settings-label",".settings-page",".settings-row",".settings-section-title",".settings-select",
+            ".settings-slider",".settings-swatches",".settings-tab",".settings-value-badge",".story-pl-item",
+            ".swatch",".top-bar-btn",".typewriter-cursor",".ul-content",".ul-empty",".ul-entry-changes",
+            ".ul-entry-date",".ul-entry-header",".ul-entry-meta",".ul-entry-title",".ul-entry-version",
+            ".ul-layout",".ul-loading",".ul-tab",".ul-tabstrip",".xpl-btn",".xpl-chevron",".xpl-divider",
+            ".xpl-dropdown",".xpl-empty",".xpl-list",".xpl-menu",".xpl-new-icon",".xpl-new-row",".xpl-option",
+            ":root","body",
+    ];
+
+    // Standard CSS properties, seeded from every property already used in
+    // the project's CSS plus the rest of the common property surface, so
+    // "css set" suggestions aren't limited to the ~10 most-used ones.
+    const KNOWN_CSS_PROPS = [
+"-moz-appearance","-ms-user-select","-webkit-appearance","-webkit-backdrop-filter",
+            "-webkit-tap-highlight-color","-webkit-user-drag","-webkit-user-select","accent-color",
+            "align-content","align-items","align-self","animation","animation-delay","animation-play-state",
+            "appearance","aspect-ratio","backdrop-filter","backface-visibility","background","background-color",
+            "background-image","background-position","background-repeat","background-size","border",
+            "border-bottom","border-bottom-color","border-bottom-left-radius","border-bottom-right-radius",
+            "border-bottom-width","border-color","border-left","border-left-color","border-radius",
+            "border-right","border-style","border-top","border-top-right-radius","border-width","bottom",
+            "box-shadow","box-sizing","caret-color","clip-path","color","column-gap","contain","content",
+            "cursor","direction","display","filter","flex","flex-basis","flex-direction","flex-grow",
+            "flex-shrink","flex-wrap","float","font-family","font-size","font-stretch","font-style",
+            "font-variant-numeric","font-weight","gap","grid","grid-area","grid-column","grid-row",
+            "grid-template-areas","grid-template-columns","grid-template-rows","height","hyphens","inset",
+            "isolation","justify-content","justify-self","left","letter-spacing","line-height","list-style",
+            "margin","margin-bottom","margin-left","margin-top","max-height","max-width","min-height",
+            "min-width","mix-blend-mode","object-fit","object-position","opacity","order","outline",
+            "outline-color","outline-offset","outline-style","overflow","overflow-wrap","overflow-x",
+            "overflow-y","padding","padding-bottom","padding-left","padding-right","padding-top","perspective",
+            "place-items","pointer-events","position","resize","right","row-gap","scroll-behavior",
+            "scrollbar-color","scrollbar-width","tab-size","text-align","text-decoration",
+            "text-decoration-color","text-indent","text-justify","text-overflow","text-shadow","text-transform",
+            "top","transform","transform-origin","transition","transition-delay","transition-duration",
+            "transition-property","transition-timing-function","translate","unicode-bidi","user-select",
+            "vertical-align","visibility","white-space","width","will-change","word-break","word-spacing",
+            "word-wrap","writing-mode","z-index",
+    ];
+
+    function suggestCssVars() {
+        const fromRules = _lastCssRules.filter(r => r.property?.startsWith("--")).map(r => r.property);
+        const known = ["--accent","--accent-dim","--accent-glow","--announcement-accent","--announcement-accent-soft",
+            "--base-font","--bg-dark","--border","--on-accent","--panel-bg","--panel-blur","--panel-font-size",
+            "--radius","--scrollbar-w","--surface","--ui-font-size"];
+        return [...new Set([...known, ...fromRules, ...learned("cssVar")])];
+    }
+    function suggestCssSelectors() {
+        const fromRules = _lastCssRules.map(r => r.selector);
+        return [...new Set([...KNOWN_CSS_SELECTORS, ...fromRules, ...learned("selector")])];
+    }
+    function suggestCssProps() {
+        const fromRules = _lastCssRules.map(r => r.property).filter(p => !p.startsWith("--"));
+        return [...new Set([...KNOWN_CSS_PROPS, ...fromRules, ...learned("cssProp")])];
+    }
+    function suggestLsKeys() {
+        const keys = [];
+        for (let i = 0; i < localStorage.length; i++) keys.push(localStorage.key(i));
+        return keys;
+    }
+    function suggestEventNames() {
+        return [...new Set(["whd:terminal-activate","whd:bugs:updated","whd:settings:changed","whd:scene:selected","whd:auth:login","whd:auth:logout", ...learned("event")])];
+    }
+    function suggestFunctionNames() {
+        try {
+            return Object.keys(window).filter(k => typeof window[k] === "function");
+        } catch { return []; }
+    }
+    // ── Curated descriptions for well-known window paths/functions ──────────
+    // Used to give "call"/"dispatch"/"read"/"write"/"inspect"/"watch" argument
+    // suggestions a real one-line description instead of just a generic
+    // label like "fn" or "path" — comparable to how VS Code shows a doc
+    // string alongside a symbol in its autocomplete list.
+    const KNOWN_PATH_DESCS = {
+        "WHDAuth":                  "Authentication namespace — login state, role, session token",
+        "WHDAuth.isLoggedIn":       "Returns true if a session token is currently set",
+        "WHDAuth.isGuest":         "Returns true if browsing without an account",
+        "WHDAuth.getUsername":     "Returns the current user's username, or null if logged out",
+        "WHDAuth.getToken":        "Returns the raw session token string",
+        "WHDAuth.getRole":         "Returns the current role: \"owner\", \"admin\", or \"user\"",
+        "WHDAuth.isAdminOrAbove":  "Returns true if role is admin or owner",
+        "WHDAuth.isOwner":         "Returns true if role is owner",
+        "WHDAuth.workerUrl":       "Base URL of the Cloudflare Worker backend",
+        "WHDAuth.scheduleSyncPush":"Debounced push of local settings/bookmarks/playlists to the worker",
+        "WHDAuth.pushNow":         "Immediately push local data to the worker, skipping the debounce",
+        "WHDAuth.pullAndApply":    "Fetch this user's saved data from the worker and apply it locally",
+        "WHDAuth.checkMaintenance":"Ask the worker whether maintenance mode is currently active",
+        "WHDAuth.openModal":       "Open the login/signup modal",
+        "WHDAuth.logout":          "Clear the session token and log the current user out",
+        "WHDAuth.requireLogin":    "Run a callback once logged in, opening the auth modal first if needed",
+        "WHDAdmin":                 "Owner-terminal engine — shared by the admin panel and owner panel",
+        "WHDAdmin.run":            "Execute a terminal command string exactly as if typed and run",
+        "WHDAdmin.print":          "Print a line of text into the terminal output",
+        "WHDAdmin.match":          "Resolve an array of typed tokens to the TERM_COMMANDS entry they match",
+        "WHDAdmin.confirm":        "Open the shared yes/no confirmation dialog",
+        "WHDAdmin.history":        "Array of previously run terminal commands, most-recent-last",
+        "WHDAdmin.watchInterval":  "Active setInterval handle for the 'watch' command, if any",
+        "WHDAdmin.commands":       "The full TERM_COMMANDS registry array",
+        "WHDOwnerPanel":           "Controls the standalone owner terminal overlay",
+        "WHDOwnerPanel.open":      "Open the owner terminal overlay",
+        "WHDOwnerPanel.close":     "Close the owner terminal overlay",
+        "WHD_FLAGS":                "Currently active feature flags, synced from the worker",
+        "setMapStyle":             "Switch the Leaflet basemap style (dark/light/satellite/terrain/streets)",
+        "whdMap":                  "The live Leaflet map instance",
+        "whdMap.getZoom":          "Returns the map's current zoom level",
+        "whdMap.setZoom":          "Set the map's zoom level",
+    };
+    function pathDesc(path) { return KNOWN_PATH_DESCS[path] || ""; }
+
+    // Deep path suggestions: top-level window keys + known nested paths
+    function suggestWindowPaths() {
+        const paths = [];
+        try {
+            Object.keys(window).forEach(k => {
+                if (k.startsWith("_") || k.length > 40) return;
+                paths.push(k);
+                const v = window[k];
+                if (v && typeof v === "object" && !Array.isArray(v)) {
+                    try {
+                        Object.keys(v).slice(0, 20).forEach(sub => {
+                            if (!sub.startsWith("_")) paths.push(`${k}.${sub}`);
+                        });
+                    } catch {}
+                }
+            });
+        } catch {}
+        // Always include known WHD paths
+        ["WHD_FLAGS","WHDAuth","WHDAuth.role","WHDAuth.username","WHDAuth.token",
+         "WHDAuth.isLoggedIn","WHDAuth.getRole","WHDAuth.getUsername",
+         "setMapStyle","whdMap","whdMap.getZoom","whdMap.setZoom"].forEach(p => {
+            if (!paths.includes(p)) paths.push(p);
+        });
+        return [...new Set([...paths, ...learned("windowPath")])]
+            .map(p => pathDesc(p) ? { value: p, desc: pathDesc(p) } : p);
+    }
+    function suggestWindowFnPaths() {
+        const paths = [];
+        try {
+            Object.keys(window).forEach(k => {
+                if (k.startsWith("_") || k.length > 40) return;
+                if (typeof window[k] === "function") { paths.push(k); return; }
+                const v = window[k];
+                if (v && typeof v === "object" && !Array.isArray(v)) {
+                    try {
+                        Object.keys(v).slice(0, 20).forEach(sub => {
+                            if (!sub.startsWith("_") && typeof v[sub] === "function") paths.push(`${k}.${sub}`);
+                        });
+                    } catch {}
+                }
+            });
+        } catch {}
+        ["WHDAuth.pullAndApply","WHDAuth.requireLogin","WHDAuth.logout","setMapStyle"].forEach(p => {
+            if (!paths.includes(p)) paths.push(p);
+        });
+        return [...new Set([...paths, ...learned("fnPath")])]
+            .map(p => pathDesc(p) ? { value: p, desc: pathDesc(p) } : p);
+    }
+    function suggestAnnounceTypes() { return ["info","warning","success","error","update","event"]; }
+    function suggestUserRoles()     { return ["admin","user"]; }
+    function suggestBooleans()      { return ["true","false"]; }
+    function suggestMapStyles()     { return ["dark","light","satellite","terrain","streets"]; }
+    function suggestSortOrders()    { return ["asc","desc"]; }
+    function suggestSceneYears() {
+        const years = new Set();
+        termAllActiveScenes().forEach(m => {
+            if (m.scene.startYear != null) years.add(String(m.scene.startYear));
+            if (m.scene.endYear   != null) years.add(String(m.scene.endYear));
+        });
+        return [...years].sort((a,b) => Number(a)-Number(b));
+    }
+
+    // ── Find suggestion: show id + name so you know what you're picking ─────
+    function suggestFindTerms() {
+        const names    = termAllActiveScenes().map(m => m.scene.name).filter(Boolean);
+        const countries= suggestCountries();
+        const seasons  = suggestSeasons();
+        return [...new Set([...names, ...countries, ...seasons])].sort();
+    }
+
+    // ── Tree node name suggestions (all node names in the world tree) ───────
+    function suggestTreeNodes() {
+        const names = [];
+        function collect(nodes) {
+            (nodes || []).forEach(n => {
+                names.push(n.name);
+                if (n.children) collect(n.children);
+            });
+        }
+        if (typeof world !== "undefined") collect(world.children);
+        return [...new Set(names)].sort();
+    }
+
+    // Exposed so commands.js (loaded after this script) can build TERM_COMMANDS
+    // without duplicating any suggestion logic. These all stay live/learned —
+    // moving the registry out doesn't change where the data comes from.
+    window.WHDTermSuggest = {
+        suggestDbKeys, suggestSceneIds, suggestSceneIdsRich, suggestDeletedSceneIds,
+        suggestCountries, suggestSeasons, suggestRegions, suggestContinents, suggestSceneNames,
+        suggestSceneFields, suggestUsernames, suggestFlags, suggestCssVars, suggestCssSelectors,
+        suggestCssProps, suggestLsKeys, suggestEventNames, suggestFunctionNames,
+        suggestWindowPaths, suggestWindowFnPaths, suggestAnnounceTypes, suggestUserRoles,
+        suggestBooleans, suggestMapStyles, suggestSortOrders, suggestSceneYears, suggestFindTerms,
+        suggestTreeNodes,
+    };
+
+    // TERM_COMMANDS now lives in commands.js, loaded via a <script> tag
+    // right after this file (see window.WHDTermSuggest above for why the
+    // load order matters). Nothing else in this file needs to change —
+    // initTerminal() below still just reads the global TERM_COMMANDS.
+
+    let _termHistory = [];
+    let _watchInterval = null; // active watch() timer, cleared on next command
+
+    function termAllActiveScenes() {
+        let all = [];
+        for (const [dbKey, info] of Object.entries(DB_MAP)) {
+            info.getArr().forEach(s => { if (!deletedIds.has(s.id)) all.push({ dbKey, scene: s }); });
+        }
+        return all;
+    }
+
+    async function termSoftDeleteMany(matches, label) {
+        if (matches.length === 0) { termPrint(`No active scenes matched ${label}.`, "term-err"); return; }
+        const ok = await showConfirm({
+            icon: "🗑️",
+            title: `Delete ${matches.length} scene${matches.length !== 1 ? "s" : ""}?`,
+            msg: `Soft-delete ${matches.length} scene(s) matching ${label}: ${matches.slice(0,5).map(m => m.scene.name).join(", ")}${matches.length > 5 ? "…" : ""}`,
+            okLabel: "Delete All", okClass: "admin-btn-danger"
+        });
+        if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+        for (const { dbKey, scene: s } of matches) {
+            deletedIds.add(s.id);
+            const arr = DB_MAP[dbKey].getArr();
+            const idx = arr.findIndex(x => x.id === s.id);
+            if (idx !== -1) { deletedSceneStore[s.id] = { ...arr[idx], _dbKey: dbKey }; arr.splice(idx, 1); }
+            const si = scenes.findIndex(x => x.id === s.id);
+            if (si !== -1) scenes.splice(si, 1);
+        }
+        persistDeleted();
+        lsSet("whd_deleted_scene_store", deletedSceneStore);
+        lsSet(LS_SCENES, (lsGet(LS_SCENES) || []).filter(x => !matches.some(m => m.scene.id === x.id)));
+        termPrint(`✔ Deleted ${matches.length} scene(s) matching ${label}.`, "term-ok");
+        refreshManageList();
+        refreshDeletedList();
+    }
+
+    async function runTermCommand(raw) {
+        const cmd = raw.trim();
+        if (!cmd) return;
+        termPrint("> " + cmd, "term-cmd");
+        // "all" suffix modifier — strip the trailing token and set a flag that
+        // truncating commands check to decide whether to show every result.
+        const _parts0 = cmd.split(/\s+/);
+        const _showAll = _parts0[_parts0.length - 1].toLowerCase() === "all" && _parts0.length > 1;
+        const parts = _showAll ? _parts0.slice(0, -1) : _parts0;
+        const verb = (parts[0] || "").toLowerCase();
+        const noun = (parts[1] || "").toLowerCase();
+        const arg  = parts.slice(2).join(" ");
+
+        // Stop any running watch() unless the new command is also watch
+        if (verb !== "watch" && _watchInterval) {
+            clearInterval(_watchInterval);
+            _watchInterval = null;
+            termPrint("(watch stopped)", "term-info");
+        }
+
+        try {
+            // ── General ────────────────────────────────────────────────────────
+            if (verb === "clear") { document.getElementById("adminTermOutput").innerHTML = ""; return; }
+
+            if (verb === "history") {
+                if (!_termHistory.length) { termPrint("No history yet.", "term-info"); return; }
+                const histLimit = 50;
+                (_showAll ? _termHistory : _termHistory.slice(0, histLimit))
+                    .forEach((h, i) => termPrint(`  ${i + 1}  ${h}`, "term-info"));
+                if (!_showAll && _termHistory.length > histLimit)
+                    termPrint(`… and ${_termHistory.length - histLimit} more. Add "all" to see full history.`, "term-info");
+                return;
+            }
+
+            if (verb === "ping") {
+                const t0 = performance.now();
+                const res = await fetch(WORKER_URL + "/data").catch(() => null);
+                const ms = Math.round(performance.now() - t0);
+                if (res && res.ok) termPrint(`✔ Worker responded in ${ms}ms`, "term-ok");
+                else termPrint(`✖ Worker unreachable (${ms}ms)`, "term-err");
+                return;
+            }
+
+            // NOTE: must exclude "reload page" — it has its own dedicated
+            // handler further down (hard page refresh), otherwise this
+            // generic one (worker re-sync) intercepts it first.
+            if (verb === "reload" && noun !== "page") {
+                termPrint("Reloading from worker…", "term-info");
+                fetchSharedAdminData();
+                termPrint("✔ Sync queued.", "term-ok");
+                return;
+            }
+
+            // ── Scene: Query ────────────────────────────────────────────────
+            if (verb === "stat") {
+                Object.entries(DB_MAP).forEach(([k, info]) => {
+                    const active = info.getArr().filter(s => !deletedIds.has(s.id)).length;
+                    termPrint(`${info.label} (${k}): ${active} active`, "term-info");
+                });
+                termPrint(`Total deleted: ${deletedIds.size}`, "term-info");
+                return;
+            }
+
+            if (verb === "list" && noun === "dbs") {
+                Object.entries(DB_MAP).forEach(([k, info]) =>
+                    termPrint(`${info.label} (${k}): ${info.getArr().filter(s => !deletedIds.has(s.id)).length} active`, "term-info")
+                );
+                return;
+            }
+
+            if (verb === "list" && noun === "duplicates") {
+                // Check for duplicates across three dimensions:
+                //   name  — case-insensitive title clash
+                //   id    — ID collision (should never happen, but catch it)
+                //   coords — two scenes sharing the exact same lat/lng (likely copy-paste error)
+                const nameMap = {}, idMap = {}, coordMap = {};
+                termAllActiveScenes().forEach(({ dbKey, scene: s }) => {
+                    const nameKey  = (s.name || "").trim().toLowerCase();
+                    const idKey    = (s.id   || "").trim().toLowerCase();
+                    const coordKey = Array.isArray(s.coords) && s.coords[0] != null
+                        ? `${s.coords[0]},${s.coords[1]}` : null;
+                    if (nameKey)  (nameMap[nameKey]  = nameMap[nameKey]  || []).push({ id: s.id, name: s.name,  db: DB_MAP[dbKey].label });
+                    if (idKey)    (idMap[idKey]      = idMap[idKey]      || []).push({ id: s.id, name: s.name,  db: DB_MAP[dbKey].label });
+                    if (coordKey) (coordMap[coordKey]= coordMap[coordKey]|| []).push({ id: s.id, name: s.name,  db: DB_MAP[dbKey].label });
+                });
+                const nameDups  = Object.entries(nameMap).filter(([,a]) => a.length > 1);
+                const idDups    = Object.entries(idMap).filter(([,a]) => a.length > 1);
+                const coordDups = Object.entries(coordMap).filter(([,a]) => a.length > 1);
+                const total = nameDups.length + idDups.length + coordDups.length;
+                if (!total) { termPrint("✔ No duplicates found (name, id, coords).", "term-ok"); return; }
+                const dupLimit = 20;
+                let shown = 0;
+                const printGroup = (label, pairs) => {
+                    if (!pairs.length) return;
+                    termPrint(`── ${label} ──`, "term-info");
+                    const toShow = _showAll ? pairs : pairs.slice(0, Math.max(1, dupLimit - shown));
+                    toShow.forEach(([key, scenes]) => {
+                        termPrint(`  ⚠ "${key}" ×${scenes.length}`, "term-err");
+                        scenes.forEach(sc => termPrint(`      ${sc.id}  ·  ${sc.name}  ·  ${sc.db}`, "term-info"));
+                    });
+                    shown += toShow.length;
+                };
+                printGroup("Duplicate Names",  nameDups);
+                printGroup("Duplicate IDs",    idDups);
+                printGroup("Duplicate Coords", coordDups);
+                if (!_showAll && total > dupLimit)
+                    termPrint(`… and ${total - dupLimit} more. Add "all" to see every duplicate.`, "term-info");
+                termPrint(`(${total} duplicate group${total!==1?"s":""} found)`, "term-info");
+                return;
+            }
+
+            if (verb === "list" && noun === "country") {
+                if (!arg) { termPrint("Usage: list country <name>", "term-err"); return; }
+                const hits = termAllActiveScenes().filter(({ scene: s }) => (s.country||"").toLowerCase() === arg.toLowerCase());
+                if (!hits.length) { termPrint(`No active scenes for country "${arg}".`, "term-err"); return; }
+                const lcLimit = 30;
+                (_showAll ? hits : hits.slice(0, lcLimit))
+                    .forEach(({ dbKey, scene: s }) => termPrint(`${s.id}  ·  ${s.name}  ·  ${s.season||""}  ·  ${DB_MAP[dbKey].label}`, "term-info"));
+                if (!_showAll && hits.length > lcLimit)
+                    termPrint(`… and ${hits.length - lcLimit} more. Add "all" to see every scene.`, "term-info");
+                else termPrint(`(${hits.length} scene${hits.length!==1?"s":""})`, "term-info");
+                return;
+            }
+
+            if (verb === "list" && noun === "season") {
+                if (!arg) { termPrint("Usage: list season <name>", "term-err"); return; }
+                const hits = termAllActiveScenes().filter(({ scene: s }) => (s.season||"").toLowerCase() === arg.toLowerCase());
+                if (!hits.length) { termPrint(`No scenes in season "${arg}".`, "term-err"); return; }
+                const lsLimit = 30;
+                (_showAll ? hits : hits.slice(0, lsLimit))
+                    .forEach(({ dbKey, scene: s }) => termPrint(`${s.id}  ·  ${s.name}  ·  ${s.country||""}  ·  ${DB_MAP[dbKey].label}`, "term-info"));
+                if (!_showAll && hits.length > lsLimit)
+                    termPrint(`… and ${hits.length - lsLimit} more. Add "all" to see every scene.`, "term-info");
+                else termPrint(`(${hits.length} scene${hits.length!==1?"s":""})`, "term-info");
+                return;
+            }
+
+            if (verb === "find") {
+                const q = parts.slice(1).join(" ").toLowerCase();
+                if (!q) { termPrint("Usage: find <query>", "term-err"); return; }
+                const hits = termAllActiveScenes().filter(({ scene: s }) =>
+                    (s.name||"").toLowerCase().includes(q) ||
+                    (s.country||"").toLowerCase().includes(q) ||
+                    (s.season||"").toLowerCase().includes(q) ||
+                    s.id.toLowerCase().includes(q)
+                );
+                if (!hits.length) { termPrint(`No scenes matched "${q}".`, "term-err"); return; }
+                (_showAll ? hits : hits.slice(0, 25)).forEach(({ dbKey, scene: s }) =>
+                    termPrint(`${s.id}  ·  ${s.name}  ·  ${s.country||""}  ·  ${DB_MAP[dbKey].label}`, "term-info")
+                );
+                if (!_showAll && hits.length > 25) termPrint(`… and ${hits.length - 25} more. Add "all" to the end to see everything.`, "term-info");
+                return;
+            }
+
+            if (verb === "info") {
+                const sceneId = parts[1];
+                if (!sceneId) { termPrint("Usage: info <sceneId>", "term-err"); return; }
+                const found = getSceneById(sceneId);
+                if (!found) { termPrint(`Scene "${sceneId}" not found.`, "term-err"); return; }
+                termPrint(`── ${found.scene.name} (${sceneId}) ── db: ${DB_MAP[found.dbKey].label}`, "term-info");
+                Object.entries(found.scene).filter(([k]) => !k.startsWith("_"))
+                    .forEach(([k, v]) => termPrint(`  ${k}: ${JSON.stringify(v)}`, "term-info"));
+                return;
+            }
+
+            if (verb === "diff") {
+                const idA = parts[1], idB = parts[2];
+                if (!idA || !idB) { termPrint("Usage: diff <sceneId> <sceneId>", "term-err"); return; }
+                const a = getSceneById(idA), b = getSceneById(idB);
+                if (!a) { termPrint(`Scene "${idA}" not found.`, "term-err"); return; }
+                if (!b) { termPrint(`Scene "${idB}" not found.`, "term-err"); return; }
+                const keys = new Set([...Object.keys(a.scene), ...Object.keys(b.scene)].filter(k => !k.startsWith("_")));
+                let any = false;
+                termPrint(`── Diff: ${idA} vs ${idB} ──`, "term-info");
+                keys.forEach(k => {
+                    const av = JSON.stringify(a.scene[k]), bv = JSON.stringify(b.scene[k]);
+                    if (av !== bv) {
+                        any = true;
+                        termPrint(`  ${k}:`, "term-info");
+                        termPrint(`    ${idA}: ${av}`, "term-err");
+                        termPrint(`    ${idB}: ${bv}`, "term-ok");
+                    }
+                });
+                if (!any) termPrint("  No differences.", "term-info");
+                return;
+            }
+
+            // ── Scene: Edit ─────────────────────────────────────────────────
+            if (verb === "rename") {
+                const sceneId = parts[1], newName = parts.slice(2).join(" ");
+                if (!sceneId || !newName) { termPrint("Usage: rename <sceneId> <newName>", "term-err"); return; }
+                const found = getSceneById(sceneId);
+                if (!found) { termPrint(`Scene "${sceneId}" not found.`, "term-err"); return; }
+                const ok = await showConfirm({ icon:"✏️", title:"Rename scene?", msg:`"${found.scene.name}" → "${newName}"`, okLabel:"Rename", okClass:"admin-btn-primary" });
+                if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                found.scene.name = newName;
+                found.scene._adminEdited = true;
+                persistScenes(); refreshManageList();
+                termPrint(`✔ Renamed to "${newName}".`, "term-ok");
+                return;
+            }
+
+            if (verb === "move") {
+                const sceneId = parts[1], targetDb = (parts[2] || "").toLowerCase();
+                if (!sceneId || !targetDb) { termPrint("Usage: move <sceneId> <db>", "term-err"); return; }
+                if (!DB_MAP[targetDb]) { termPrint(`Unknown db "${targetDb}". Options: ${Object.keys(DB_MAP).join(", ")}`, "term-err"); return; }
+                const found = getSceneById(sceneId);
+                if (!found) { termPrint(`Scene "${sceneId}" not found.`, "term-err"); return; }
+                if (found.dbKey === targetDb) { termPrint(`Already in "${targetDb}".`, "term-info"); return; }
+                // Safety: moving into a db that already has a scene with this ID
+                // would leave two scenes sharing one ID in the same array — every
+                // ID-based lookup (getSceneById, map markers, etc.) only ever finds
+                // the first one, so the second becomes silently uneditable/unreachable.
+                // Block it instead of corrupting the data.
+                if (DB_MAP[targetDb].getArr().some(s => s.id === sceneId)) {
+                    termPrint(`✖ "${targetDb}" already has a scene with ID "${sceneId}". Rename one first (or use "clone") to avoid a duplicate-ID conflict.`, "term-err");
+                    return;
+                }
+                const ok = await showConfirm({ icon:"📦", title:"Move scene?", msg:`Move "${found.scene.name}" → ${DB_MAP[targetDb].label}?`, okLabel:"Move", okClass:"admin-btn-primary" });
+                if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                const srcArr = DB_MAP[found.dbKey].getArr();
+                srcArr.splice(srcArr.findIndex(s => s.id === sceneId), 1);
+                const clone = { ...found.scene, _dbKey: targetDb, _adminEdited: true };
+                DB_MAP[targetDb].getArr().push(clone);
+                const si = scenes.findIndex(s => s.id === sceneId);
+                if (si !== -1) scenes[si] = clone; else scenes.push(clone);
+                persistScenes(); refreshManageList();
+                termPrint(`✔ Moved "${found.scene.name}" to ${DB_MAP[targetDb].label}.`, "term-ok");
+                return;
+            }
+
+            // NOTE: must exclude the multi-word "set X" commands below — they
+            // have their own dedicated handlers further down, but since every
+            // branch here is a plain `if` that returns, this generic one would
+            // otherwise always intercept them first (e.g. "set years S1 2000
+            // 2024" would be parsed as sceneId="years", field="S1", which
+            // always fails). Those commands were completely unreachable.
+            const SET_SUBCOMMANDS = ["years", "coords", "zoom", "country", "season", "continent", "var"];
+            if (verb === "set" && !SET_SUBCOMMANDS.includes(noun)) {
+                const sceneId = parts[1], field = parts[2], value = parts.slice(3).join(" ");
+                if (!sceneId || !field || value === "") { termPrint("Usage: set <sceneId> <field> <value>", "term-err"); return; }
+                const found = getSceneById(sceneId);
+                if (!found) { termPrint(`Scene "${sceneId}" not found.`, "term-err"); return; }
+                // Safety: "set <id> id <newId>" changing the ID in place is one of
+                // the few fields where a typo/collision silently corrupts data —
+                // two scenes sharing an ID means every ID-based lookup elsewhere
+                // in the app (map markers, getSceneById, etc.) only ever resolves
+                // the first match. Block collisions outright.
+                if (field === "id") {
+                    if (!value.trim()) { termPrint("Scene ID can't be empty.", "term-err"); return; }
+                    if (getSceneById(value)) { termPrint(`✖ ID "${value}" is already in use by another scene. Choose a different ID.`, "term-err"); return; }
+                }
+                let parsed = value;
+                if (!isNaN(Number(value))) parsed = Number(value);
+                else if (value === "true") parsed = true;
+                else if (value === "false") parsed = false;
+                found.scene[field] = parsed;
+                found.scene._adminEdited = true;
+                persistScenes(); refreshManageList();
+                learnRemember("field", field);
+                termPrint(`✔ Set ${sceneId}.${field} = ${JSON.stringify(parsed)}`, "term-ok");
+                return;
+            }
+
+            if (verb === "replace") {
+                const targetId = parts[1], sourceId = parts[2];
+                if (!targetId || !sourceId) { termPrint("Usage: replace <targetId> <sourceId>", "term-err"); return; }
+                const targetFound = getSceneById(targetId), sourceFound = getSceneById(sourceId);
+                if (!targetFound) { termPrint(`Target "${targetId}" not found.`, "term-err"); return; }
+                if (!sourceFound) { termPrint(`Source "${sourceId}" not found.`, "term-err"); return; }
+                const ok = await showConfirm({ icon:"🔁", title:"Replace scene data?", msg:`"${targetFound.scene.name}" (${targetId}) ← data from "${sourceFound.scene.name}" (${sourceId})`, okLabel:"Replace", okClass:"admin-btn-warn" });
+                if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                const targetArr = DB_MAP[targetFound.dbKey].getArr();
+                const idx = targetArr.findIndex(s => s.id === targetId);
+                const merged = { ...JSON.parse(JSON.stringify(sourceFound.scene)), id: targetId, _adminEdited: true };
+                delete merged._adminAdded; delete merged._dbKey;
+                targetArr[idx] = merged;
+                const si = scenes.findIndex(s => s.id === targetId);
+                const tracked = { ...merged, _dbKey: targetFound.dbKey };
+                if (si !== -1) scenes[si] = tracked; else scenes.push(tracked);
+                persistScenes(); refreshManageList();
+                termPrint(`✔ Replaced "${targetId}" with data from "${sourceId}".`, "term-ok");
+                return;
+            }
+
+            // ── Scene: Bulk ─────────────────────────────────────────────────
+            if (verb === "delete" && noun === "country") {
+                if (!arg) { termPrint("Usage: delete country <name>", "term-err"); return; }
+                await termSoftDeleteMany(termAllActiveScenes().filter(({ scene: s }) => (s.country||"").toLowerCase() === arg.toLowerCase()), `country "${arg}"`);
+                return;
+            }
+            if (verb === "delete" && noun === "season") {
+                if (!arg) { termPrint("Usage: delete season <name>", "term-err"); return; }
+                await termSoftDeleteMany(termAllActiveScenes().filter(({ scene: s }) => (s.season||"").toLowerCase() === arg.toLowerCase()), `season "${arg}"`);
+                return;
+            }
+            if (verb === "delete" && noun === "db") {
+                const dbKey = arg.toLowerCase();
+                if (!DB_MAP[dbKey]) { termPrint(`Unknown db "${arg}". Options: ${Object.keys(DB_MAP).join(", ")}`, "term-err"); return; }
+                await termSoftDeleteMany(DB_MAP[dbKey].getArr().filter(s => !deletedIds.has(s.id)).map(s => ({ dbKey, scene: s })), `database "${DB_MAP[dbKey].label}"`);
+                return;
+            }
+
+            // NOTE: must exclude "restore all" — it has its own dedicated
+            // handler further down, otherwise this generic one intercepts it
+            // first (sceneId would be parsed as the literal string "all").
+            if (verb === "restore" && noun !== "all") {
+                const sceneId = parts[1];
+                if (!sceneId) { termPrint("Usage: restore <sceneId>", "term-err"); return; }
+                if (!deletedIds.has(sceneId)) { termPrint(`"${sceneId}" is not in the deleted list.`, "term-err"); return; }
+                const stored = deletedSceneStore[sceneId];
+                if (!stored) { termPrint(`No backup found for "${sceneId}".`, "term-err"); return; }
+                deletedIds.delete(sceneId);
+                persistDeleted();
+                const arr = DB_MAP[stored._dbKey] ? DB_MAP[stored._dbKey].getArr() : null;
+                if (arr && !arr.find(x => x.id === sceneId)) arr.push({ ...stored });
+                if (!scenes.find(x => x.id === sceneId)) scenes.push({ ...stored });
+                refreshDeletedList(); refreshManageList();
+                termPrint(`✔ Restored "${stored.name}".`, "term-ok");
+                return;
+            }
+
+            if (verb === "purge" && noun === "all") {
+                const ids = Array.from(deletedIds);
+                if (!ids.length) { termPrint("Nothing to purge.", "term-info"); return; }
+                const ok = await showConfirm({ icon:"💀", title:`Permanently delete ${ids.length} scene(s)?`, msg:"This purges every scene in the Deleted tab. Cannot be undone.", okLabel:"Purge All", okClass:"admin-btn-danger" });
+                if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                ids.forEach(sceneId => {
+                    const stored = deletedSceneStore[sceneId];
+                    deletedIds.delete(sceneId);
+                    if (stored && DB_MAP[stored._dbKey]) {
+                        const arr = DB_MAP[stored._dbKey].getArr();
+                        const i = arr.findIndex(x => x.id === sceneId);
+                        if (i !== -1) arr.splice(i, 1);
+                    }
+                    delete deletedSceneStore[sceneId];
+                    const si = scenes.findIndex(x => x.id === sceneId);
+                    if (si !== -1) scenes.splice(si, 1);
+                });
+                persistDeleted();
+                lsSet("whd_deleted_scene_store", deletedSceneStore);
+                lsSet(LS_SCENES, (lsGet(LS_SCENES) || []).filter(x => !ids.includes(x.id)));
+                refreshDeletedList(); refreshManageList();
+                termPrint(`✔ Purged ${ids.length} scene(s).`, "term-ok");
+                return;
+            }
+
+            if (verb === "purge") {
+                const sceneId = parts[1];
+                if (!sceneId) { termPrint("Usage: purge <sceneId>", "term-err"); return; }
+                if (!deletedIds.has(sceneId)) { termPrint(`"${sceneId}" is not in the deleted list.`, "term-err"); return; }
+                const stored = deletedSceneStore[sceneId];
+                const ok = await showConfirm({ icon:"💀", title:"Permanently delete?", msg:`Removes "${stored ? stored.name : sceneId}". Cannot be undone.`, okLabel:"Purge", okClass:"admin-btn-danger" });
+                if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                deletedIds.delete(sceneId);
+                if (stored && DB_MAP[stored._dbKey]) {
+                    const arr = DB_MAP[stored._dbKey].getArr();
+                    const i = arr.findIndex(x => x.id === sceneId);
+                    if (i !== -1) arr.splice(i, 1);
+                }
+                delete deletedSceneStore[sceneId];
+                const si = scenes.findIndex(x => x.id === sceneId);
+                if (si !== -1) scenes.splice(si, 1);
+                persistDeleted();
+                lsSet("whd_deleted_scene_store", deletedSceneStore);
+                lsSet(LS_SCENES, (lsGet(LS_SCENES) || []).filter(x => x.id !== sceneId));
+                refreshDeletedList(); refreshManageList();
+                termPrint(`✔ Purged "${stored ? stored.name : sceneId}".`, "term-ok");
+                return;
+            }
+
+            // ── Scene: Import/Export ────────────────────────────────────────
+            // NOTE: must exclude "export csv" — it has its own dedicated
+            // handler further down, otherwise this generic one intercepts it
+            // first (dbFilter would be parsed as the literal string "csv").
+            if (verb === "export" && noun !== "csv") {
+                const dbFilter = parts[1] ? parts[1].toLowerCase() : null;
+                if (dbFilter && !DB_MAP[dbFilter]) { termPrint(`Unknown db "${dbFilter}". Options: ${Object.keys(DB_MAP).join(", ")}`, "term-err"); return; }
+                let data = termAllActiveScenes();
+                if (dbFilter) data = data.filter(e => e.dbKey === dbFilter);
+                const json = JSON.stringify(data.map(e => ({ ...e.scene, _dbKey: e.dbKey })), null, 2);
+                const a = Object.assign(document.createElement("a"), {
+                    href: URL.createObjectURL(new Blob([json], { type: "application/json" })),
+                    download: `whd-scenes${dbFilter ? "-" + dbFilter : ""}-${Date.now()}.json`
+                });
+                a.click();
+                termPrint(`✔ Exported ${data.length} scene(s).`, "term-ok");
+                return;
+            }
+
+            if (verb === "import") {
+                const jsonStr = parts.slice(1).join(" ");
+                if (!jsonStr) { termPrint("Usage: import <json-array>", "term-err"); return; }
+                let arr;
+                try { arr = JSON.parse(jsonStr); } catch { termPrint("Invalid JSON.", "term-err"); return; }
+                if (!Array.isArray(arr)) { termPrint("Expected a JSON array.", "term-err"); return; }
+                const valid = arr.filter(s => s && s.id && s.name && s._dbKey && DB_MAP[s._dbKey]);
+                const skipped = arr.length - valid.length;
+                if (!valid.length) { termPrint("No valid scenes (each needs id, name, _dbKey).", "term-err"); return; }
+                const ok = await showConfirm({ icon:"📥", title:`Import ${valid.length} scene(s)?`, msg:`Merges ${valid.length} scene(s). Existing matching IDs overwritten.${skipped ? ` (${skipped} invalid skipped)` : ""}`, okLabel:"Import", okClass:"admin-btn-primary" });
+                if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                let added = 0, updated = 0;
+                valid.forEach(s => {
+                    const { _dbKey, ...scene } = s;
+                    scene._adminEdited = true;
+                    const arr2 = DB_MAP[_dbKey].getArr();
+                    const i = arr2.findIndex(x => x.id === scene.id);
+                    if (i !== -1) { arr2[i] = scene; updated++; } else { arr2.push(scene); added++; }
+                    const si = scenes.findIndex(x => x.id === scene.id);
+                    const tracked = { ...scene, _dbKey };
+                    if (si !== -1) scenes[si] = tracked; else scenes.push(tracked);
+                });
+                persistScenes(); refreshManageList();
+                termPrint(`✔ Imported: ${added} added, ${updated} updated${skipped ? `, ${skipped} skipped` : ""}.`, "term-ok");
+                return;
+            }
+
+            if (verb === "backup") {
+                const active = termAllActiveScenes().map(e => ({ ...e.scene, _dbKey: e.dbKey, _deleted: false }));
+                const deleted = Array.from(deletedIds).map(id => {
+                    const stored = deletedSceneStore[id];
+                    return stored ? { ...stored, _deleted: true } : null;
+                }).filter(Boolean);
+                const payload = { exportedAt: new Date().toISOString(), active, deleted };
+                const json = JSON.stringify(payload, null, 2);
+                const a = Object.assign(document.createElement("a"), {
+                    href: URL.createObjectURL(new Blob([json], { type: "application/json" })),
+                    download: `whd-backup-${Date.now()}.json`
+                });
+                a.click();
+                termPrint(`✔ Backed up ${active.length} active + ${deleted.length} deleted scene(s).`, "term-ok");
+                return;
+            }
+
+            // ── CSS ─────────────────────────────────────────────────────────
+            if (verb === "css" && noun === "var" && parts[2] === "get") {
+                const varName = parts[3];
+                if (!varName) { termPrint("Usage: css var get <--varName>", "term-err"); return; }
+                const val = getComputedStyle(document.documentElement).getPropertyValue(varName).trim();
+                termPrint(val ? `${varName}: ${val}` : `"${varName}" is not currently set.`, val ? "term-info" : "term-err");
+                return;
+            }
+            if (verb === "css" && noun === "var" && parts[2] === "remove") {
+                const varName = parts[3];
+                if (!varName) { termPrint("Usage: css var remove <--varName>", "term-err"); return; }
+                // NOTE: the worker's remove_css action only filters by selector,
+                // not by individual property — so this currently has to clear
+                // every synced :root override, not just this one var. Flagging
+                // this loudly rather than pretending it's surgical.
+                const ok = await showConfirm({ icon:"⚠️", title:"Remove ALL :root overrides?", msg:`The worker can't remove a single CSS variable yet — only a whole selector. This will clear every synced :root override (not just ${varName}). Re-apply any others you want to keep afterward.`, okLabel:"Clear :root", okClass:"admin-btn-danger" });
+                if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                const res = await remoteConfigCall({ action: "remove_css", selector: ":root" });
+                if (res.ok) { applyRemoteConfigToPage(res); termPrint(`✔ Cleared all :root overrides (including ${varName}).`, "term-ok"); }
+                else termPrint("Error: " + (res.error || "request failed"), "term-err");
+                return;
+            }
+            if (verb === "css" && noun === "var") {
+                const varName = parts[2], varVal = parts.slice(3).join(" ");
+                if (!varName || !varVal) { termPrint("Usage: css var <--varName> <value>", "term-err"); return; }
+                const res = await remoteConfigCall({ action: "set_css", selector: ":root", property: varName, value: varVal });
+                if (res.ok) { applyRemoteConfigToPage(res); learnRemember("cssVar", varName); termPrint(`✔ :root { ${varName}: ${varVal}; } (synced globally)`, "term-ok"); }
+                else termPrint("Error: " + (res.error || "request failed"), "term-err");
+                return;
+            }
+            if (verb === "css" && noun === "remove") {
+                const selector = parts.slice(2).join(" ");
+                if (!selector) { termPrint("Usage: css remove <selector>", "term-err"); return; }
+                const res = await remoteConfigCall({ action: "remove_css", selector });
+                if (res.ok) { applyRemoteConfigToPage(res); termPrint(`✔ Removed CSS for "${selector}".`, "term-ok"); }
+                else termPrint("Error: " + (res.error || "request failed"), "term-err");
+                return;
+            }
+            if (verb === "css" && noun === "list") {
+                const res = await remoteConfigCall(null, true);
+                if (!res.ok) { termPrint("Error: " + (res.error || "request failed"), "term-err"); return; }
+                if (!res.cssRules?.length) { termPrint("No active CSS overrides.", "term-info"); return; }
+                const cssLimit = 20;
+                (_showAll ? res.cssRules : res.cssRules.slice(0, cssLimit))
+                    .forEach(r => termPrint(`  ${r.selector} { ${r.property}: ${r.value}; }`, "term-info"));
+                if (!_showAll && res.cssRules.length > cssLimit)
+                    termPrint(`… and ${res.cssRules.length - cssLimit} more. Add "all" to see every rule.`, "term-info");
+                return;
+            }
+            if (verb === "css" && noun === "clear") {
+                const ok = await showConfirm({ icon:"🎨", title:"Clear all CSS overrides?", msg:"Removes every synced CSS override for all users.", okLabel:"Clear", okClass:"admin-btn-danger" });
+                if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                const res = await remoteConfigCall({ action: "clear_css" });
+                if (res.ok) { applyRemoteConfigToPage(res); termPrint("✔ Cleared all CSS overrides.", "term-ok"); }
+                else termPrint("Error: " + (res.error || "request failed"), "term-err");
+                return;
+            }
+            if (verb === "css") {
+                const selector = parts[1], property = parts[2], value = parts.slice(3).join(" ");
+                if (!selector || !property || !value) {
+                    termPrint("Usage: css <selector> <property> <value>", "term-err");
+                    termPrint('  e.g.  css .admin-btn-primary background #ff0000', "term-info");
+                    return;
+                }
+                const res = await remoteConfigCall({ action: "set_css", selector, property, value });
+                if (res.ok) { applyRemoteConfigToPage(res); learnRemember("selector", selector); learnRemember("cssProp", property); termPrint(`✔ ${selector} { ${property}: ${value}; } (synced globally)`, "term-ok"); }
+                else termPrint("Error: " + (res.error || "request failed"), "term-err");
+                return;
+            }
+
+            // ── Flags ────────────────────────────────────────────────────────
+            if (verb === "activate") {
+                const flag = parts[1], valueRaw = parts.slice(2).join(" ");
+                if (!flag) { termPrint("Usage: activate <flag> [value]", "term-err"); return; }
+                let value = true;
+                if (valueRaw) {
+                    if (valueRaw === "true") value = true;
+                    else if (valueRaw === "false") value = false;
+                    else if (!isNaN(Number(valueRaw))) value = Number(valueRaw);
+                    else value = valueRaw;
+                }
+                const res = await remoteConfigCall({ action: "set_flag", flag, value });
+                if (res.ok) { applyRemoteConfigToPage(res); learnRemember("flag", flag); termPrint(`✔ "${flag}" = ${JSON.stringify(value)} (synced globally)`, "term-ok"); }
+                else termPrint("Error: " + (res.error || "request failed"), "term-err");
+                return;
+            }
+            if (verb === "flag" && noun === "list") {
+                const res = await remoteConfigCall(null, true);
+                if (!res.ok) { termPrint("Error: " + (res.error || "request failed"), "term-err"); return; }
+                const entries = Object.entries(res.flags || {});
+                if (!entries.length) { termPrint("No active flags.", "term-info"); return; }
+                const flLimit = 20;
+                (_showAll ? entries : entries.slice(0, flLimit))
+                    .forEach(([k, v]) => termPrint(`  ${k} = ${JSON.stringify(v)}`, "term-info"));
+                if (!_showAll && entries.length > flLimit)
+                    termPrint(`… and ${entries.length - flLimit} more. Add "all" to see every flag.`, "term-info");
+                return;
+            }
+            if (verb === "flag" && noun === "get") {
+                const flag = parts[2];
+                if (!flag) { termPrint("Usage: flag get <flag>", "term-err"); return; }
+                const res = await remoteConfigCall(null, true);
+                if (!res.ok) { termPrint("Error: " + (res.error || "request failed"), "term-err"); return; }
+                if (!(flag in (res.flags || {}))) { termPrint(`"${flag}" is not currently active.`, "term-err"); return; }
+                termPrint(`${flag} = ${JSON.stringify(res.flags[flag])}`, "term-info");
+                return;
+            }
+            if (verb === "flag" && noun === "clear" && parts[2] === "all") {
+                const ok = await showConfirm({ icon:"🚩", title:"Clear all flags?", msg:"Deactivates every flag for all users.", okLabel:"Clear All", okClass:"admin-btn-danger" });
+                if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                const res = await remoteConfigCall({ action: "clear_flags" });
+                if (res.ok) { applyRemoteConfigToPage(res); termPrint("✔ Cleared all flags.", "term-ok"); }
+                else termPrint("Error: " + (res.error || "request failed"), "term-err");
+                return;
+            }
+            if (verb === "flag" && noun === "clear") {
+                const flag = parts[2];
+                if (!flag) { termPrint("Usage: flag clear <flag>", "term-err"); return; }
+                const res = await remoteConfigCall({ action: "clear_flag", flag });
+                if (res.ok) { applyRemoteConfigToPage(res); termPrint(`✔ Cleared flag "${flag}".`, "term-ok"); }
+                else termPrint("Error: " + (res.error || "request failed"), "term-err");
+                return;
+            }
+
+            // ── Runtime ──────────────────────────────────────────────────────
+            if (verb === "dispatch") {
+                const evtName = parts[1];
+                if (!evtName) { termPrint("Usage: dispatch <eventName> [jsonPayload]", "term-err"); return; }
+                let detail = {};
+                const payloadRaw = parts.slice(2).join(" ");
+                if (payloadRaw) { try { detail = JSON.parse(payloadRaw); } catch { termPrint("Invalid JSON payload.", "term-err"); return; } }
+                window.dispatchEvent(new CustomEvent(evtName, { detail }));
+                learnRemember("event", evtName);
+                termPrint(`✔ Fired "${evtName}".`, "term-ok");
+                return;
+            }
+
+            if (verb === "call") {
+                const fnPath = parts[1];
+                if (!fnPath) {
+                    termPrint("Usage: call <fn.path> [arg1 arg2 …]", "term-err");
+                    termPrint("", "term-info");
+                    termPrint("Calls any function reachable on window. Args are auto-typed:", "term-info");
+                    termPrint("  numbers → Number,  true/false → Boolean,  {…}/[…] → JSON,  else String", "term-info");
+                    termPrint("", "term-info");
+                    termPrint("  call WHDAuth.pullAndApply", "term-info");
+                    termPrint("  call setMapStyle dark", "term-info");
+                    termPrint("  call WHDAuth.promote username admin", "term-info");
+                    return;
+                }
+                const fnArgs = parts.slice(2).map(a => {
+                    if (!isNaN(Number(a)) && a !== "") return Number(a);
+                    if (a === "true") return true;
+                    if (a === "false") return false;
+                    if ((a.startsWith("{") || a.startsWith("[")) && (a.endsWith("}") || a.endsWith("]"))) {
+                        try { return JSON.parse(a); } catch {}
+                    }
+                    return a;
+                });
+                const segs = fnPath.split(".");
+                let target = window;
+                for (let i = 0; i < segs.length - 1; i++) { target = target?.[segs[i]]; }
+                const fn = target?.[segs[segs.length - 1]];
+                if (typeof fn !== "function") { termPrint(`"${fnPath}" is not a function on window.`, "term-err"); return; }
+                try {
+                    const result = await fn.apply(target, fnArgs);
+                    let resultStr;
+                    if (result === undefined) {
+                        resultStr = "void";
+                    } else {
+                        try { resultStr = JSON.stringify(result); } catch { resultStr = String(result); }
+                    }
+                    termPrint(`✔ ${fnPath}(${fnArgs.map(a=>JSON.stringify(a)).join(", ")}) → ${resultStr}`, "term-ok");
+                } catch (e) {
+                    termPrint(`✗ ${fnPath} threw: ${e.message}`, "term-err");
+                }
+                return;
+            }
+
+            // ── window.read / window.write ───────────────────────────────────
+            // Read any nested property on window: read WHDAuth.role
+            if (verb === "read") {
+                const path = parts[1];
+                if (!path) {
+                    termPrint("Usage: read <window.property.path>", "term-err");
+                    termPrint("  Reads any nested property on window.", "term-info");
+                    termPrint("  read WHD_FLAGS               → prints all flags", "term-info");
+                    termPrint("  read WHDAuth.role", "term-info");
+                    return;
+                }
+                const segs = path.split(".");
+                let val = window;
+                for (const s of segs) {
+                    if (val == null) { termPrint(`"${path}" is undefined (null at .${s}).`, "term-err"); return; }
+                    val = val[s];
+                }
+                if (val === undefined) { termPrint(`"${path}" is undefined.`, "term-info"); return; }
+                if (typeof val === "object" && val !== null) {
+                    // Pretty-print objects
+                    const lines = JSON.stringify(val, null, 2).split("\n");
+                    (_showAll ? lines : lines.slice(0, 40)).forEach(l => termPrint("  " + l, "term-info"));
+                    if (!_showAll && lines.length > 40) termPrint(`  … (${lines.length - 40} more lines). Add "all" to see everything.`, "term-info");
+                } else {
+                    termPrint(`  ${path} = ${JSON.stringify(val)}  (${typeof val})`, "term-info");
+                }
+                return;
+            }
+
+            // Write a value to any nested path on window: write MY_CONFIG.debug true
+            if (verb === "write") {
+                const path = parts[1], rawVal = parts.slice(2).join(" ");
+                if (!path || rawVal === "") {
+                    termPrint("Usage: write <window.property.path> <value>", "term-err");
+                    termPrint("  Writes a value to any nested property on window.", "term-info");
+                    termPrint("  Values auto-typed: numbers, booleans, JSON objects/arrays, strings.", "term-info");
+                    termPrint("  write MY_APP.debug true", "term-info");
+                    termPrint("  write MY_APP.maxItems 50", "term-info");
+                    termPrint("  write MY_CONFIG.theme dark", "term-info");
+                    return;
+                }
+                let val;
+                if (!isNaN(Number(rawVal)) && rawVal !== "") val = Number(rawVal);
+                else if (rawVal === "true") val = true;
+                else if (rawVal === "false") val = false;
+                else if (rawVal === "null") val = null;
+                else if (rawVal === "undefined") val = undefined;
+                else {
+                    try { val = JSON.parse(rawVal); } catch { val = rawVal; }
+                }
+                const segs = path.split(".");
+                let target = window;
+                for (let i = 0; i < segs.length - 1; i++) {
+                    if (target[segs[i]] == null) target[segs[i]] = {};
+                    target = target[segs[i]];
+                }
+                const key = segs[segs.length - 1];
+                const prev = target[key];
+                target[key] = val;
+                learnRemember("windowPath", path);
+                termPrint(`✔ ${path}: ${JSON.stringify(prev)} → ${JSON.stringify(val)}`, "term-ok");
+                return;
+            }
+
+            // Inspect: enumerate properties of any window object
+            if (verb === "inspect") {
+                const path = parts[1];
+                if (!path) {
+                    termPrint("Usage: inspect <window.object.path>", "term-err");
+                    termPrint("  Lists all properties and methods of any window object.", "term-info");
+                    termPrint("  inspect WHDAuth    → shows all methods on WHDAuth", "term-info");
+                    termPrint("  inspect WHD_FLAGS  → same as read WHD_FLAGS but shows types", "term-info");
+                    return;
+                }
+                const segs = path.split(".");
+                let obj = window;
+                for (const s of segs) { obj = obj?.[s]; }
+                if (obj == null) { termPrint(`"${path}" is ${obj === null ? "null" : "undefined"}.`, "term-err"); return; }
+                const entries = [];
+                // Own + prototype keys
+                const seen = new Set();
+                let proto = obj;
+                while (proto && proto !== Object.prototype) {
+                    Object.getOwnPropertyNames(proto).forEach(k => {
+                        if (!k.startsWith("__") && !seen.has(k)) {
+                            seen.add(k);
+                            const type = typeof obj[k];
+                            entries.push({ k, type, v: obj[k] });
+                        }
+                    });
+                    proto = Object.getPrototypeOf(proto);
+                }
+                entries.sort((a, b) => {
+                    // functions last, then alphabetical
+                    if (a.type === "function" && b.type !== "function") return 1;
+                    if (a.type !== "function" && b.type === "function") return -1;
+                    return a.k.localeCompare(b.k);
+                });
+                termPrint(`── ${path} (${typeof obj}) ──`, "term-info");
+                (_showAll ? entries : entries.slice(0, 60)).forEach(({ k, type, v }) => {
+                    if (type === "function") {
+                        termPrint(`  fn  ${k}()`, "term-info");
+                    } else {
+                        const display = v === null ? "null" : typeof v === "object" ? `{…}` : JSON.stringify(v);
+                        termPrint(`  ${type.padEnd(8)} ${k.padEnd(22)} ${String(display).slice(0, 50)}`, "term-ok");
+                    }
+                });
+                if (!_showAll && entries.length > 60) termPrint(`  … (${entries.length - 60} more). Add "all" to see everything.`, "term-info");
+                return;
+            }
+
+            // eval: run arbitrary JS in the admin panel scope and print result
+            if (verb === "eval") {
+                const code = parts.slice(1).join(" ");
+                if (!code) {
+                    termPrint("Usage: eval <js expression>", "term-err");
+                    termPrint("  Evaluates JS in the page scope. Use for quick checks.", "term-info");
+                    termPrint("  eval document.title", "term-info");
+                    termPrint("  eval WHD_FLAGS", "term-info");
+                    termPrint("  eval Object.keys(WHDAuth)", "term-info");
+                    return;
+                }
+                try {
+                    // eslint-disable-next-line no-eval
+                    const result = eval(code); // intentional — this is an admin-only terminal
+                    if (result !== undefined) {
+                        if (typeof result === "object" && result !== null) {
+                            const lines = JSON.stringify(result, null, 2).split("\n");
+                            (_showAll ? lines : lines.slice(0, 40)).forEach(l => termPrint("  " + l, "term-info"));
+                            if (!_showAll && lines.length > 40) termPrint(`  … (${lines.length - 40} more lines). Add "all" to see everything.`, "term-info");
+                        } else {
+                            termPrint(`  → ${JSON.stringify(result)}  (${typeof result})`, "term-ok");
+                        }
+                    } else {
+                        termPrint("  → undefined", "term-info");
+                    }
+                } catch (e) {
+                    termPrint(`✗ ${e.message}`, "term-err");
+                }
+                return;
+            }
+
+            // watch: poll a window property every N seconds and print on change
+            if (verb === "watch") {
+                const path = parts[1], interval = parseInt(parts[2]) || 2;
+                if (!path) {
+                    termPrint("Usage: watch <window.property.path> [intervalSeconds]", "term-err");
+                    termPrint("  Polls a window property every N seconds, prints when it changes.", "term-info");
+                    termPrint("  Press any key or run another command to stop.", "term-info");
+                    termPrint("  watch WHDAuth.role 1", "term-info");
+                    return;
+                }
+                if (_watchInterval) { clearInterval(_watchInterval); _watchInterval = null; }
+                const getVal = () => {
+                    const segs = path.split(".");
+                    let v = window;
+                    for (const s of segs) v = v?.[s];
+                    return JSON.stringify(v ?? null);
+                };
+                let last = getVal();
+                termPrint(`Watching "${path}" every ${interval}s — run any command to stop.`, "term-info");
+                termPrint(`  current: ${last}`, "term-info");
+                _watchInterval = setInterval(() => {
+                    const cur = getVal();
+                    if (cur !== last) {
+                        termPrint(`  ${path}: ${last} → ${cur}`, "term-ok");
+                        last = cur;
+                    }
+                }, interval * 1000);
+                return;
+            }
+
+            // fn: list callable functions on a window object
+            if (verb === "fn") {
+                const path = parts[1] || "";
+                let obj = path ? window : window;
+                if (path) {
+                    const segs = path.split(".");
+                    for (const s of segs) obj = obj?.[s];
+                }
+                if (obj == null) { termPrint(`"${path}" is null/undefined.`, "term-err"); return; }
+                const fns = [];
+                const seen = new Set();
+                let proto = obj;
+                while (proto && proto !== Object.prototype) {
+                    Object.getOwnPropertyNames(proto).forEach(k => {
+                        if (!seen.has(k) && typeof obj[k] === "function" && !k.startsWith("__")) {
+                            seen.add(k);
+                            fns.push(k);
+                        }
+                    });
+                    proto = Object.getPrototypeOf(proto);
+                }
+                fns.sort();
+                const fnLimit = 30;
+                termPrint(`── functions on ${path || "window"} ──`, "term-info");
+                (_showAll ? fns : fns.slice(0, fnLimit))
+                    .forEach(k => termPrint(`  ${path ? path + "." : ""}${k}()`, "term-info"));
+                if (!_showAll && fns.length > fnLimit)
+                    termPrint(`… and ${fns.length - fnLimit} more. Add "all" to see every function.`, "term-info");
+                termPrint(`(${fns.length} function${fns.length !== 1 ? "s" : ""})`, "term-info");
+                return;
+            }
+
+            // ── Storage ──────────────────────────────────────────────────────
+            if (verb === "ls") {
+                const prefix = parts[1] || "";
+                const keys = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    if (!prefix || k.startsWith(prefix)) keys.push(k);
+                }
+                if (!keys.length) { termPrint(prefix ? `No keys starting with "${prefix}".` : "localStorage is empty.", "term-info"); return; }
+                keys.sort().forEach(k => {
+                    const v = localStorage.getItem(k);
+                    termPrint(`  ${k}  =  ${v && v.length > 70 ? v.slice(0, 70) + "…" : v}`, "term-info");
+                });
+                termPrint(`(${keys.length} key${keys.length !== 1 ? "s" : ""})`, "term-info");
+                return;
+            }
+
+            if (verb === "get") {
+                const key = parts[1];
+                if (!key) { termPrint("Usage: get <key>", "term-err"); return; }
+                const val = localStorage.getItem(key);
+                if (val === null) { termPrint(`Key "${key}" not found.`, "term-err"); return; }
+                termPrint(val, "term-info");
+                return;
+            }
+
+            if (verb === "set" && noun === "var") {
+                const key = parts[2], val = parts.slice(3).join(" ");
+                if (!key || !val) { termPrint("Usage: set var <key> <value>", "term-err"); return; }
+                localStorage.setItem(key, val);
+                termPrint(`✔ Set "${key}".`, "term-ok");
+                return;
+            }
+
+            if (verb === "del") {
+                const key = parts[1];
+                if (!key) { termPrint("Usage: del <key>", "term-err"); return; }
+                if (localStorage.getItem(key) === null) { termPrint(`Key "${key}" not found.`, "term-err"); return; }
+                localStorage.removeItem(key);
+                termPrint(`✔ Deleted "${key}".`, "term-ok");
+                return;
+            }
+
+            // ── Users ────────────────────────────────────────────────────────
+            if (verb === "user" && noun === "list") {
+                const token = window.WHDAuth?.getToken();
+                if (!token) { termPrint("Not authenticated.", "term-err"); return; }
+                termPrint("Fetching users…", "term-info");
+                const res = await fetch(WORKER_URL + "/auth/users", {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ token })
+                }).then(r => r.json()).catch(() => ({ ok: false }));
+                if (!res.ok) { termPrint("Failed to fetch users.", "term-err"); return; }
+                _adminAllUsers = res.users || [];
+                if (!_adminAllUsers.length) { termPrint("No users found.", "term-info"); return; }
+                const ulLimit = 30;
+                (_showAll ? _adminAllUsers : _adminAllUsers.slice(0, ulLimit)).forEach(u => termPrint(
+                    `  ${u.username.padEnd(20)} ${(u.role||"user").padEnd(8)} joined: ${u.joinedAt ? new Date(u.joinedAt).toLocaleDateString() : "?"}`, "term-info"
+                ));
+                if (!_showAll && _adminAllUsers.length > ulLimit)
+                    termPrint(`… and ${_adminAllUsers.length - ulLimit} more. Add "all" to see every user.`, "term-info");
+                termPrint(`(${_adminAllUsers.length} user${_adminAllUsers.length !== 1 ? "s" : ""})`, "term-info");
+                return;
+            }
+
+            if (verb === "user" && noun === "info") {
+                const username = parts[2];
+                if (!username) { termPrint("Usage: user info <username>", "term-err"); return; }
+                const u = _adminAllUsers.find(x => x.username.toLowerCase() === username.toLowerCase());
+                if (!u) { termPrint(`"${username}" not in cache. Run "user list" first.`, "term-err"); return; }
+                Object.entries(u).forEach(([k, v]) => termPrint(`  ${k}: ${JSON.stringify(v)}`, "term-info"));
+                return;
+            }
+
+            if (verb === "user" && noun === "role") {
+                const username = parts[2], newRole = (parts[3] || "").toLowerCase();
+                if (!username || !newRole) { termPrint("Usage: user role <username> <admin|user>", "term-err"); return; }
+                if (!["admin", "user"].includes(newRole)) { termPrint(`Invalid role "${newRole}". Use: admin, user`, "term-err"); return; }
+                const res = await window.adminUsersSetRole(username, newRole);
+                if (res && res.ok) {
+                    termPrint(`✔ ${username} is now ${newRole}.`, "term-ok");
+                    const cached = _adminAllUsers.find(u => u.username.toLowerCase() === username.toLowerCase());
+                    if (cached) cached.role = newRole;
+                } else {
+                    termPrint(`✗ ${res?.error || "Failed to change role."}`, "term-err");
+                }
+                return;
+            }
+
+            if (verb === "user" && (noun === "ban" || noun === "unban")) {
+                const username = parts[2];
+                if (!username) { termPrint(`Usage: user ${noun} <username>`, "term-err"); return; }
+                const newRole = noun === "ban" ? "banned" : "user";
+                const confirmed = await showConfirm({
+                    icon: noun === "ban" ? "🚫" : "✅",
+                    title: `${noun === "ban" ? "Ban" : "Unban"} ${username}?`,
+                    msg: `Sets ${username}'s role to "${newRole}".`,
+                    okLabel: noun === "ban" ? "Ban" : "Unban",
+                    okClass: noun === "ban" ? "admin-btn-danger" : "admin-btn-primary"
+                });
+                if (!confirmed) { termPrint("Cancelled.", "term-info"); return; }
+                const res = await window.adminUsersSetRole(username, newRole);
+                if (res && res.ok) {
+                    termPrint(`✔ ${username} is now ${newRole}.`, "term-ok");
+                    // Update local cache so user info reflects the change immediately
+                    const cached = _adminAllUsers.find(u => u.username.toLowerCase() === username.toLowerCase());
+                    if (cached) cached.role = newRole;
+                } else {
+                    termPrint(`✗ ${res?.error || "Failed to change role."}`, "term-err");
+                }
+                return;
+            }
+
+            // ── Announce ─────────────────────────────────────────────────────
+            if (verb === "announce" && noun === "status") {
+                const token = window.WHDAuth?.getToken();
+                const r = await fetch(WORKER_URL + "/auth/announcement/status", {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ token })
+                }).then(x => x.json()).catch(() => ({ ok: false }));
+                if (r.active && r.message) {
+                    const to = Array.isArray(r.targets) && r.targets.length ? r.targets.join(", ") : "everyone";
+                    termPrint(`Active: [${r.type||"info"}] ${r.message}  →  ${to}`, "term-ok");
+                } else {
+                    termPrint("No active announcement.", "term-info");
+                }
+                return;
+            }
+
+            if (verb === "announce" && noun === "clear") {
+                const token = window.WHDAuth?.getToken();
+                if (!token) { termPrint("Not authenticated.", "term-err"); return; }
+                const r = await fetch(WORKER_URL + "/auth/announcement", {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ token, message: "", type: "info", active: false })
+                }).then(x => x.json()).catch(() => ({ ok: false }));
+                if (r.ok) termPrint("✔ Announcement cleared.", "term-ok");
+                else termPrint("Error: " + (r.error || "request failed"), "term-err");
+                return;
+            }
+
+            // NOTE: must exclude "announce user" — it has its own dedicated
+            // handler further down (targeted announcement to one user),
+            // otherwise this generic one (global announcement) intercepts it
+            // first, since "user" isn't one of the recognized TYPES below.
+            if (verb === "announce" && noun !== "user") {
+                // announce <type> <message…>  — type is optional, defaults to "info"
+                const TYPES = ["info","warning","success","error","update","event"];
+                let type = "info", msgParts = parts.slice(1);
+                if (TYPES.includes(noun)) { type = noun; msgParts = parts.slice(2); }
+                const message = msgParts.join(" ");
+                if (!message) { termPrint("Usage: announce [type] <message>", "term-err"); termPrint(`  types: ${TYPES.join(", ")}`, "term-info"); return; }
+                const token = window.WHDAuth?.getToken();
+                if (!token) { termPrint("Not authenticated.", "term-err"); return; }
+                const r = await fetch(WORKER_URL + "/auth/announcement", {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ token, message, type, active: true, targets: [] })
+                }).then(x => x.json()).catch(() => ({ ok: false }));
+                if (r.ok) termPrint(`✔ Published [${type}]: "${message}"`, "term-ok");
+                else termPrint("Error: " + (r.error || "request failed"), "term-err");
+                return;
+            }
+
+            // ── Maintenance ──────────────────────────────────────────────────
+            if (verb === "maintenance" && noun === "status") {
+                const d = await fetch(WORKER_URL + "/auth/maintenance/status").then(r => r.json()).catch(() => ({}));
+                termPrint(`Maintenance mode: ${d.maintenance ? "ON 🚧" : "OFF ✅"}`, d.maintenance ? "term-err" : "term-ok");
+                return;
+            }
+
+            if (verb === "maintenance" && (noun === "on" || noun === "off")) {
+                const newState = noun === "on";
+                const token = window.WHDAuth?.getToken();
+                if (!token) { termPrint("Not authenticated.", "term-err"); return; }
+                const ok = await showConfirm({
+                    icon: "🚧", title: `${newState ? "Enable" : "Disable"} maintenance mode?`,
+                    msg: newState ? "Regular users will be blocked from accessing the site." : "The site will be accessible to all users again.",
+                    okLabel: newState ? "Enable" : "Disable",
+                    okClass: newState ? "admin-btn-danger" : "admin-btn-primary"
+                });
+                if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                const res = await fetch(WORKER_URL + "/auth/maintenance", {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ token, on: newState })
+                }).then(r => r.json()).catch(() => ({ ok: false }));
+                if (res.ok) termPrint(`✔ Maintenance mode ${newState ? "ON 🚧" : "OFF ✅"}`, "term-ok");
+                else termPrint("Error: " + (res.error || "request failed"), "term-err");
+                return;
+            }
+
+            // ── Scene: Extended Query ────────────────────────────────────────
+            if (verb === "list" && noun === "continent") {
+                if (!arg) { termPrint("Usage: list continent <name>", "term-err"); return; }
+                const hits = termAllActiveScenes().filter(({ scene: s }) => (s.continent||"").toLowerCase() === arg.toLowerCase());
+                if (!hits.length) { termPrint(`No active scenes for continent "${arg}".`, "term-err"); return; }
+                const lcontLimit = 30;
+                (_showAll ? hits : hits.slice(0, lcontLimit))
+                    .forEach(({ dbKey, scene: s }) => termPrint(`${s.id}  ·  ${s.name}  ·  ${s.country||""}  ·  ${DB_MAP[dbKey].label}`, "term-info"));
+                if (!_showAll && hits.length > lcontLimit)
+                    termPrint(`… and ${hits.length - lcontLimit} more. Add "all" to see every scene.`, "term-info");
+                else termPrint(`(${hits.length} scene${hits.length!==1?"s":""})`, "term-info");
+                return;
+            }
+
+            if (verb === "list" && noun === "region") {
+                if (!arg) { termPrint("Usage: list region <name>", "term-err"); return; }
+                const hits = termAllActiveScenes().filter(({ scene: s }) => (s.region||"").toLowerCase() === arg.toLowerCase());
+                if (!hits.length) { termPrint(`No active scenes for region "${arg}".`, "term-err"); return; }
+                const lregLimit = 30;
+                (_showAll ? hits : hits.slice(0, lregLimit))
+                    .forEach(({ dbKey, scene: s }) => termPrint(`${s.id}  ·  ${s.name}  ·  ${s.country||""}  ·  ${DB_MAP[dbKey].label}`, "term-info"));
+                if (!_showAll && hits.length > lregLimit)
+                    termPrint(`… and ${hits.length - lregLimit} more. Add "all" to see every scene.`, "term-info");
+                else termPrint(`(${hits.length} scene${hits.length!==1?"s":""})`, "term-info");
+                return;
+            }
+
+            if (verb === "list" && noun === "db") {
+                const dbFilter = arg ? arg.toLowerCase() : null;
+                if (!dbFilter || !DB_MAP[dbFilter]) { termPrint(`Usage: list db <${Object.keys(DB_MAP).join("|")}>`, "term-err"); return; }
+                const hits = termAllActiveScenes().filter(e => e.dbKey === dbFilter);
+                const ldbLimit = 30;
+                (_showAll ? hits : hits.slice(0, ldbLimit)).forEach(({ scene: s }) => {
+                    const sy = s.startYear < 0 ? Math.abs(s.startYear)+"BC" : s.startYear;
+                    const ey = s.endYear   < 0 ? Math.abs(s.endYear)+"BC"   : s.endYear;
+                    termPrint(`${s.id}  ·  ${s.name}  ·  ${s.country||""}  ·  ${sy}–${ey}`, "term-info");
+                });
+                if (!_showAll && hits.length > ldbLimit)
+                    termPrint(`… and ${hits.length - ldbLimit} more. Add "all" to see every scene.`, "term-info");
+                termPrint(`(${hits.length} scene${hits.length!==1?"s":""} in ${DB_MAP[dbFilter].label})`, "term-info");
+                return;
+            }
+
+            if (verb === "list" && noun === "years") {
+                const from = parseInt(parts[2]), to = parseInt(parts[3]);
+                if (isNaN(from) || isNaN(to)) { termPrint("Usage: list years <from> <to>  (negative = BC, e.g. list years -500 500)", "term-err"); return; }
+                const hits = termAllActiveScenes().filter(({ scene: s }) => s.startYear <= to && s.endYear >= from);
+                if (!hits.length) { termPrint(`No scenes spanning years ${from}–${to}.`, "term-err"); return; }
+                hits.sort((a,b) => a.scene.startYear - b.scene.startYear);
+                const lyLimit = 30;
+                (_showAll ? hits : hits.slice(0, lyLimit)).forEach(({ dbKey, scene: s }) => {
+                    const sy = s.startYear < 0 ? Math.abs(s.startYear)+"BC" : s.startYear;
+                    const ey = s.endYear   < 0 ? Math.abs(s.endYear)+"BC"   : s.endYear;
+                    termPrint(`${s.id}  ·  ${s.name}  ·  ${sy}–${ey}  ·  ${DB_MAP[dbKey].label}`, "term-info");
+                });
+                if (!_showAll && hits.length > lyLimit)
+                    termPrint(`… and ${hits.length - lyLimit} more. Add "all" to see every scene.`, "term-info");
+                termPrint(`(${hits.length} scene${hits.length!==1?"s":""} in range ${from}–${to})`, "term-info");
+                return;
+            }
+
+            if (verb === "list" && noun === "edited") {
+                const hits = termAllActiveScenes().filter(({ scene: s }) => s._adminAdded || s._adminEdited);
+                if (!hits.length) { termPrint("No admin-edited scenes.", "term-info"); return; }
+                const leLimit = 30;
+                (_showAll ? hits : hits.slice(0, leLimit)).forEach(({ dbKey, scene: s }) =>
+                    termPrint(`${s.id}  ·  ${s.name}  ·  ${s._adminAdded ? "ADDED" : "EDITED"}  ·  ${DB_MAP[dbKey].label}`, s._adminAdded ? "term-ok" : "term-info")
+                );
+                if (!_showAll && hits.length > leLimit)
+                    termPrint(`… and ${hits.length - leLimit} more. Add "all" to see every edited scene.`, "term-info");
+                else termPrint(`(${hits.length} scene${hits.length!==1?"s":""})`, "term-info");
+                return;
+            }
+
+            if (verb === "count") {
+                const total = termAllActiveScenes().length;
+                const deleted = deletedIds.size;
+                termPrint(`Active scenes: ${total}  |  Deleted: ${deleted}  |  Total (inc. deleted): ${total + deleted}`, "term-info");
+                return;
+            }
+
+            if (verb === "random") {
+                const dbFilter = parts[1] ? parts[1].toLowerCase() : null;
+                let pool = termAllActiveScenes();
+                if (dbFilter) {
+                    if (!DB_MAP[dbFilter]) { termPrint(`Unknown db "${dbFilter}". Options: ${Object.keys(DB_MAP).join(", ")}`, "term-err"); return; }
+                    pool = pool.filter(e => e.dbKey === dbFilter);
+                }
+                if (!pool.length) { termPrint("No scenes to pick from.", "term-err"); return; }
+                const pick = pool[Math.floor(Math.random() * pool.length)];
+                const { dbKey, scene: s } = pick;
+                const sy = s.startYear < 0 ? Math.abs(s.startYear)+"BC" : s.startYear;
+                const ey = s.endYear   < 0 ? Math.abs(s.endYear)+"BC"   : s.endYear;
+                termPrint(`🎲 ${s.name}  (${s.id})`, "term-ok");
+                termPrint(`   ${s.country||""}  ·  ${s.season||""}  ·  ${sy}–${ey}  ·  ${DB_MAP[dbKey].label}`, "term-info");
+                if (s.info) termPrint(`   ${s.info.slice(0,120)}${s.info.length>120?"…":""}`, "term-info");
+                return;
+            }
+
+            if (verb === "check" && noun === "missing") {
+                const REQUIRED = ["id","name","startYear","endYear","coords","country","season","continent"];
+                const issues = [];
+                termAllActiveScenes().forEach(({ dbKey, scene: s }) => {
+                    const missing = REQUIRED.filter(f => {
+                        const v = s[f];
+                        if (v == null || v === "") return true;
+                        if (Array.isArray(v) && v.length === 0) return true;
+                        return false;
+                    });
+                    if (missing.length) issues.push({ s, dbKey, missing });
+                });
+                if (!issues.length) { termPrint("✔ No missing required fields.", "term-ok"); return; }
+                const cmLimit = 30;
+                (_showAll ? issues : issues.slice(0, cmLimit)).forEach(({ s, dbKey, missing }) =>
+                    termPrint(`⚠ ${s.id}  (${DB_MAP[dbKey].label})  missing: ${missing.join(", ")}`, "term-err")
+                );
+                if (!_showAll && issues.length > cmLimit)
+                    termPrint(`… and ${issues.length - cmLimit} more. Add "all" to see every scene.`, "term-info");
+                termPrint(`(${issues.length} scene${issues.length!==1?"s":""} with issues)`, "term-info");
+                return;
+            }
+
+            // ── Scene: Extended Edit ─────────────────────────────────────────
+            if (verb === "set" && noun === "years") {
+                const sceneId = parts[2], sy = parseInt(parts[3]), ey = parseInt(parts[4]);
+                if (!sceneId || isNaN(sy) || isNaN(ey)) { termPrint("Usage: set years <sceneId> <startYear> <endYear>", "term-err"); return; }
+                const found = getSceneById(sceneId);
+                if (!found) { termPrint(`Scene "${sceneId}" not found.`, "term-err"); return; }
+                found.scene.startYear = sy;
+                found.scene.endYear = ey;
+                found.scene._adminEdited = true;
+                persistScenes(); refreshManageList();
+                termPrint(`✔ ${sceneId} years set to ${sy}–${ey}.`, "term-ok");
+                return;
+            }
+
+            if (verb === "set" && noun === "coords") {
+                const sceneId = parts[2], lat = parseFloat(parts[3]), lng = parseFloat(parts[4]);
+                if (!sceneId || isNaN(lat) || isNaN(lng)) { termPrint("Usage: set coords <sceneId> <lat> <lng>", "term-err"); return; }
+                const found = getSceneById(sceneId);
+                if (!found) { termPrint(`Scene "${sceneId}" not found.`, "term-err"); return; }
+                found.scene.coords = [lat, lng];
+                found.scene._adminEdited = true;
+                persistScenes(); refreshManageList();
+                termPrint(`✔ ${sceneId} coords set to [${lat}, ${lng}].`, "term-ok");
+                return;
+            }
+
+            if (verb === "set" && noun === "zoom") {
+                const sceneId = parts[2], zoom = parseInt(parts[3]);
+                if (!sceneId || isNaN(zoom) || zoom < 2 || zoom > 8) { termPrint("Usage: set zoom <sceneId> <2-8>", "term-err"); return; }
+                const found = getSceneById(sceneId);
+                if (!found) { termPrint(`Scene "${sceneId}" not found.`, "term-err"); return; }
+                found.scene.zoom = zoom;
+                found.scene._adminEdited = true;
+                persistScenes(); refreshManageList();
+                termPrint(`✔ ${sceneId} zoom set to ${zoom}.`, "term-ok");
+                return;
+            }
+
+            if (verb === "set" && noun === "country") {
+                const restTokens = parts.slice(2);
+                if (restTokens.length < 2) { termPrint("Usage: set country <sceneId|countryName> <country>", "term-err"); return; }
+                const keyLen = termSplitLeadingKey(restTokens, termKnownValues("country"));
+                const keyArg = restTokens.slice(0, keyLen).join(" "), val = restTokens.slice(keyLen).join(" ");
+                if (!keyArg || !val) { termPrint("Usage: set country <sceneId|countryName> <country>", "term-err"); return; }
+                const found = getSceneById(keyArg);
+                if (found) {
+                    // Single-scene mode: parts[2] is a scene ID.
+                    found.scene.country = val; found.scene._adminEdited = true;
+                    persistScenes(); refreshManageList();
+                    termPrint(`✔ ${keyArg}.country = "${val}"`, "term-ok");
+                } else {
+                    // Country-wide mode: parts[2] is a country name — set country on all matching scenes.
+                    const hits = termAllActiveScenes().filter(({ scene: s }) => (s.country||"").toLowerCase() === keyArg.toLowerCase());
+                    if (!hits.length) { termPrint(`No scenes found for country "${keyArg}" (and it's not a scene ID either).`, "term-err"); return; }
+                    const ok = await showConfirm({ icon:"🏷", title:`Set country on ${hits.length} scene(s)?`, msg:`Country: "${keyArg}" → "${val}"`, okLabel:"Set", okClass:"admin-btn-primary" });
+                    if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                    hits.forEach(({ scene: s }) => { s.country = val; s._adminEdited = true; });
+                    persistScenes(); refreshManageList();
+                    termPrint(`✔ Set country = "${val}" on ${hits.length} scene(s) in "${keyArg}".`, "term-ok");
+                }
+                return;
+            }
+
+            if (verb === "set" && noun === "season") {
+                const restTokens = parts.slice(2);
+                if (restTokens.length < 2) { termPrint("Usage: set season <sceneId|countryName> <season>", "term-err"); return; }
+                const keyLen = termSplitLeadingKey(restTokens, termKnownValues("country"));
+                const keyArg = restTokens.slice(0, keyLen).join(" "), val = restTokens.slice(keyLen).join(" ");
+                if (!keyArg || !val) { termPrint("Usage: set season <sceneId|countryName> <season>", "term-err"); return; }
+                const found = getSceneById(keyArg);
+                if (found) {
+                    found.scene.season = val; found.scene._adminEdited = true;
+                    persistScenes(); refreshManageList();
+                    termPrint(`✔ ${keyArg}.season = "${val}"`, "term-ok");
+                } else {
+                    const hits = termAllActiveScenes().filter(({ scene: s }) => (s.country||"").toLowerCase() === keyArg.toLowerCase());
+                    if (!hits.length) { termPrint(`No scenes found for country "${keyArg}" (and it's not a scene ID either).`, "term-err"); return; }
+                    const ok = await showConfirm({ icon:"🏷", title:`Set season on ${hits.length} scene(s)?`, msg:`Country: "${keyArg}" → season "${val}"`, okLabel:"Set", okClass:"admin-btn-primary" });
+                    if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                    hits.forEach(({ scene: s }) => { s.season = val; s._adminEdited = true; });
+                    persistScenes(); refreshManageList();
+                    termPrint(`✔ Set season = "${val}" on ${hits.length} scene(s) in "${keyArg}".`, "term-ok");
+                }
+                return;
+            }
+
+            if (verb === "set" && noun === "continent") {
+                const restTokens = parts.slice(2);
+                if (restTokens.length < 2) { termPrint("Usage: set continent <sceneId|countryName> <continent>", "term-err"); return; }
+                const keyLen = termSplitLeadingKey(restTokens, termKnownValues("country"));
+                const keyArg = restTokens.slice(0, keyLen).join(" "), val = restTokens.slice(keyLen).join(" ");
+                if (!keyArg || !val) { termPrint("Usage: set continent <sceneId|countryName> <continent>", "term-err"); return; }
+                const found = getSceneById(keyArg);
+                if (found) {
+                    found.scene.continent = val; found.scene._adminEdited = true;
+                    persistScenes(); refreshManageList();
+                    termPrint(`✔ ${keyArg}.continent = "${val}"`, "term-ok");
+                } else {
+                    const hits = termAllActiveScenes().filter(({ scene: s }) => (s.country||"").toLowerCase() === keyArg.toLowerCase());
+                    if (!hits.length) { termPrint(`No scenes found for country "${keyArg}" (and it's not a scene ID either).`, "term-err"); return; }
+                    const ok = await showConfirm({ icon:"🌍", title:`Set continent on ${hits.length} scene(s)?`, msg:`Country: "${keyArg}" → continent "${val}"`, okLabel:"Set", okClass:"admin-btn-primary" });
+                    if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                    hits.forEach(({ scene: s }) => { s.continent = val; s._adminEdited = true; });
+                    persistScenes(); refreshManageList();
+                    termPrint(`✔ Set continent = "${val}" on ${hits.length} scene(s) in "${keyArg}".`, "term-ok");
+                }
+                return;
+            }
+
+            if (verb === "clone") {
+                const sceneId = parts[1], newId = parts[2];
+                if (!sceneId || !newId) { termPrint("Usage: clone <sceneId> <newId>", "term-err"); return; }
+                const found = getSceneById(sceneId);
+                if (!found) { termPrint(`Scene "${sceneId}" not found.`, "term-err"); return; }
+                // Check newId doesn't already exist
+                for (const info of Object.values(DB_MAP)) {
+                    if (info.getArr().find(s => s.id === newId)) { termPrint(`ID "${newId}" already exists.`, "term-err"); return; }
+                }
+                const copy = JSON.parse(JSON.stringify(found.scene));
+                copy.id = newId;
+                copy.name = copy.name + " (Clone)";
+                copy._adminAdded = true;
+                delete copy._adminEdited;
+                const arr = DB_MAP[found.dbKey].getArr();
+                arr.push(copy);
+                scenes.push({ ...copy, _dbKey: found.dbKey });
+                persistScenes(); refreshManageList();
+                termPrint(`✔ Cloned "${found.scene.name}" → "${newId}" in ${DB_MAP[found.dbKey].label}.`, "term-ok");
+                return;
+            }
+
+            if (verb === "open") {
+                const sceneId = parts[1];
+                if (!sceneId) { termPrint("Usage: open <sceneId>", "term-err"); return; }
+                const found = getSceneById(sceneId);
+                if (!found) { termPrint(`Scene "${sceneId}" not found.`, "term-err"); return; }
+                loadSceneIntoForm(found.scene, found.dbKey);
+                switchToTab("add");
+                termPrint(`✔ Loaded "${found.scene.name}" into the form.`, "term-ok");
+                return;
+            }
+
+            // -- Scene: Multi-edit (bulk operations on multiple scenes) -------
+            // edit scenes <id1> [id2 ...] -- <field> <value>
+            if (verb === "edit" && noun === "scenes") {
+                const tail = parts.slice(2);
+                const sepIdx = tail.indexOf("--");
+                if (sepIdx === -1 || sepIdx === 0 || sepIdx >= tail.length - 2) {
+                    termPrint("Usage: edit scenes <id1> [id2...] -- <field> <value>", "term-err");
+                    termPrint("  Use -- to split scene IDs from field/value.  e.g. edit scenes rome_1 rome_2 -- season Ancient Rome", "term-info");
+                    return;
+                }
+                const ids    = tail.slice(0, sepIdx);
+                const field  = tail[sepIdx + 1];
+                const rawVal = tail.slice(sepIdx + 2).join(" ");
+                let parsed = rawVal;
+                if (rawVal !== "" && !isNaN(Number(rawVal))) parsed = Number(rawVal);
+                else if (rawVal === "true") parsed = true;
+                else if (rawVal === "false") parsed = false;
+                const found   = ids.map(id => ({ id, result: getSceneById(id) }));
+                const missing = found.filter(x => !x.result).map(x => x.id);
+                const valid   = found.filter(x =>  x.result);
+                if (missing.length) termPrint("Not found: " + missing.join(", "), "term-err");
+                if (!valid.length) return;
+                const ok = await showConfirm({
+                    icon: "edit",
+                    title: "Set " + field + " on " + valid.length + " scene(s)?",
+                    msg: valid.map(x => x.result.scene.name).join(", ") + "\n-> " + field + " = " + JSON.stringify(parsed),
+                    okLabel: "Set", okClass: "admin-btn-primary"
+                });
+                if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                valid.forEach(x => { x.result.scene[field] = parsed; x.result.scene._adminEdited = true; });
+                persistScenes(); refreshManageList();
+                termPrint("Set " + field + " = " + JSON.stringify(parsed) + " on " + valid.length + " scene(s).", "term-ok");
+                const esLimit = 20;
+                (_showAll ? valid : valid.slice(0, esLimit))
+                    .forEach(x => termPrint("  " + x.result.scene.id + "  .  " + x.result.scene.name, "term-info"));
+                if (!_showAll && valid.length > esLimit)
+                    termPrint(`… and ${valid.length - esLimit} more. Add "all" to list every scene.`, "term-info");
+                return;
+            }
+
+            // bulk set <field> <value> <id1> [id2 ...]
+            if (verb === "bulk" && noun === "set") {
+                const subField = (parts[2] || "").toLowerCase();
+                const BULK_SET_FIELDS = ["country", "season", "continent", "region", "zoom"];
+                if (!BULK_SET_FIELDS.includes(subField)) {
+                    termPrint("Unknown field \"" + subField + "\". Options: " + BULK_SET_FIELDS.join(", "), "term-err");
+                    return;
+                }
+                const restTokens = parts.slice(3);
+                // <value> can be multi-word (e.g. "south africa"). Scene IDs never
+                // contain spaces, so pop real IDs off the end first, then
+                // whatever's left (joined back together) is the value.
+                const { value: rawVal, ids } = termSplitTrailingIds(restTokens);
+                if (!rawVal || !ids.length) { termPrint("Usage: bulk set " + subField + " <value> <id1> [id2...]", "term-err"); return; }
+                let parsed = rawVal;
+                if (subField === "zoom") {
+                    parsed = parseInt(rawVal, 10);
+                    if (isNaN(parsed) || parsed < 2 || parsed > 8) { termPrint("Zoom must be 2-8.", "term-err"); return; }
+                }
+                const found   = ids.map(id => ({ id, result: getSceneById(id) }));
+                const missing = found.filter(x => !x.result).map(x => x.id);
+                const valid   = found.filter(x =>  x.result);
+                if (missing.length) termPrint("Not found: " + missing.join(", "), "term-err");
+                if (!valid.length) return;
+                const ok = await showConfirm({
+                    icon: "tag",
+                    title: "Set " + subField + " on " + valid.length + " scene(s)?",
+                    msg: "\"" + parsed + "\" -> " + valid.map(x => x.result.scene.name).join(", "),
+                    okLabel: "Set", okClass: "admin-btn-primary"
+                });
+                if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                valid.forEach(x => { x.result.scene[subField] = parsed; x.result.scene._adminEdited = true; });
+                persistScenes(); refreshManageList();
+                termPrint("Set " + subField + " = \"" + parsed + "\" on " + valid.length + " scene(s).", "term-ok");
+                const bsLimit = 20;
+                (_showAll ? valid : valid.slice(0, bsLimit))
+                    .forEach(x => termPrint("  " + x.result.scene.id + "  .  " + x.result.scene.name, "term-info"));
+                if (!_showAll && valid.length > bsLimit)
+                    termPrint(`… and ${valid.length - bsLimit} more. Add "all" to list every scene.`, "term-info");
+                return;
+            }
+
+            // bulk delete <id1> [id2 ...]
+            if (verb === "bulk" && noun === "delete") {
+                const ids = parts.slice(2);
+                if (!ids.length) { termPrint("Usage: bulk delete <id1> [id2...]", "term-err"); return; }
+                const found   = ids.map(id => ({ id, result: getSceneById(id) }));
+                const missing = found.filter(x => !x.result).map(x => x.id);
+                const valid   = found.filter(x =>  x.result);
+                if (missing.length) termPrint("Not found: " + missing.join(", "), "term-err");
+                if (!valid.length) return;
+                await termSoftDeleteMany(valid.map(x => ({ dbKey: x.result.dbKey, scene: x.result.scene })),
+                    valid.length + " selected scene(s)");
+                return;
+            }
+
+            // bulk move <db> <id1> [id2 ...]
+            if (verb === "bulk" && noun === "move") {
+                const targetDb = (parts[2] || "").toLowerCase();
+                const ids = parts.slice(3);
+                if (!targetDb || !ids.length) { termPrint("Usage: bulk move <db> <id1> [id2...]", "term-err"); return; }
+                if (!DB_MAP[targetDb]) { termPrint("Unknown db \"" + targetDb + "\". Options: " + Object.keys(DB_MAP).join(", "), "term-err"); return; }
+                const found   = ids.map(id => ({ id, result: getSceneById(id) }));
+                const missing = found.filter(x => !x.result).map(x => x.id);
+                const valid   = found.filter(x => x.result && x.result.dbKey !== targetDb);
+                const already = found.filter(x => x.result && x.result.dbKey === targetDb);
+                if (missing.length) termPrint("Not found: " + missing.join(", "), "term-err");
+                if (already.length) termPrint("Already in \"" + targetDb + "\": " + already.map(x => x.id).join(", "), "term-info");
+                if (!valid.length) return;
+                const ok = await showConfirm({
+                    icon: "box",
+                    title: "Move " + valid.length + " scene(s) to " + DB_MAP[targetDb].label + "?",
+                    msg: valid.map(x => x.result.scene.name).join(", "),
+                    okLabel: "Move", okClass: "admin-btn-primary"
+                });
+                if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                valid.forEach(x => {
+                    const { dbKey, scene } = x.result;
+                    const srcArr = DB_MAP[dbKey].getArr();
+                    srcArr.splice(srcArr.findIndex(s => s.id === scene.id), 1);
+                    const clone = Object.assign({}, scene, { _dbKey: targetDb, _adminEdited: true });
+                    DB_MAP[targetDb].getArr().push(clone);
+                    const si = scenes.findIndex(s => s.id === scene.id);
+                    if (si !== -1) scenes[si] = clone; else scenes.push(clone);
+                });
+                persistScenes(); refreshManageList();
+                termPrint("Moved " + valid.length + " scene(s) to " + DB_MAP[targetDb].label + ".", "term-ok");
+                return;
+            }
+
+            // bulk touch <id1> [id2 ...]
+            if (verb === "bulk" && noun === "touch") {
+                const ids = parts.slice(2);
+                if (!ids.length) { termPrint("Usage: bulk touch <id1> [id2...]", "term-err"); return; }
+                const found   = ids.map(id => ({ id, result: getSceneById(id) }));
+                const missing = found.filter(x => !x.result).map(x => x.id);
+                const valid   = found.filter(x =>  x.result);
+                if (missing.length) termPrint("Not found: " + missing.join(", "), "term-err");
+                if (!valid.length) return;
+                valid.forEach(x => { x.result.scene._adminEdited = true; });
+                persistScenes();
+                termPrint("Touched " + valid.length + " scene(s).", "term-ok");
+                valid.forEach(x => termPrint("  " + x.result.scene.id + "  .  " + x.result.scene.name, "term-info"));
+                return;
+            }
+
+            // bulk info <id1> [id2 ...]
+            if (verb === "bulk" && noun === "info") {
+                const ids = parts.slice(2);
+                if (!ids.length) { termPrint("Usage: bulk info <id1> [id2...]", "term-err"); return; }
+                ids.forEach(sceneId => {
+                    const found = getSceneById(sceneId);
+                    if (!found) { termPrint("Not found: \"" + sceneId + "\"", "term-err"); return; }
+                    termPrint("-- " + found.scene.name + " (" + sceneId + ")  db: " + DB_MAP[found.dbKey].label, "term-info");
+                    Object.entries(found.scene).filter(([k]) => !k.startsWith("_"))
+                        .forEach(([k, v]) => termPrint("  " + k + ": " + JSON.stringify(v), "term-info"));
+                });
+                return;
+            }
+
+            // set continent <country> <continent>  — set continent on all scenes for a country
+            // ── Scene: Bulk retag ────────────────────────────────────────────
+            if (verb === "retag" && noun === "country") {
+                const restTokens = parts.slice(2);
+                if (restTokens.length < 2) { termPrint("Usage: retag country <old> <new>", "term-err"); return; }
+                const keyLen = termSplitLeadingKey(restTokens, termKnownValues("country"));
+                const oldVal = restTokens.slice(0, keyLen).join(" "), newVal = restTokens.slice(keyLen).join(" ");
+                if (!oldVal || !newVal) { termPrint("Usage: retag country <old> <new>", "term-err"); return; }
+                const hits = termAllActiveScenes().filter(({ scene: s }) => (s.country||"").toLowerCase() === oldVal.toLowerCase());
+                if (!hits.length) { termPrint(`No scenes with country "${oldVal}".`, "term-err"); return; }
+                const ok = await showConfirm({ icon:"🏷", title:`Retag country?`, msg:`Rename country "${oldVal}" → "${newVal}" on ${hits.length} scene(s).`, okLabel:"Retag", okClass:"admin-btn-warn" });
+                if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                hits.forEach(({ scene: s }) => { s.country = newVal; s._adminEdited = true; });
+                persistScenes(); refreshManageList();
+                termPrint(`✔ Retagged ${hits.length} scene(s): "${oldVal}" → "${newVal}".`, "term-ok");
+                return;
+            }
+
+            if (verb === "retag" && noun === "season") {
+                const restTokens = parts.slice(2);
+                if (restTokens.length < 2) { termPrint("Usage: retag season <old> <new>", "term-err"); return; }
+                const keyLen = termSplitLeadingKey(restTokens, termKnownValues("season"));
+                const oldVal = restTokens.slice(0, keyLen).join(" "), newVal = restTokens.slice(keyLen).join(" ");
+                if (!oldVal || !newVal) { termPrint("Usage: retag season <old> <new>", "term-err"); return; }
+                const hits = termAllActiveScenes().filter(({ scene: s }) => (s.season||"").toLowerCase() === oldVal.toLowerCase());
+                if (!hits.length) { termPrint(`No scenes with season "${oldVal}".`, "term-err"); return; }
+                const ok = await showConfirm({ icon:"🏷", title:`Retag season?`, msg:`Rename season "${oldVal}" → "${newVal}" on ${hits.length} scene(s).`, okLabel:"Retag", okClass:"admin-btn-warn" });
+                if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                hits.forEach(({ scene: s }) => { s.season = newVal; s._adminEdited = true; });
+                persistScenes(); refreshManageList();
+                termPrint(`✔ Retagged ${hits.length} scene(s): "${oldVal}" → "${newVal}".`, "term-ok");
+                return;
+            }
+
+            // ── Scene: restore all ───────────────────────────────────────────
+            if (verb === "restore" && noun === "all") {
+                const ids = Array.from(deletedIds);
+                if (!ids.length) { termPrint("Nothing to restore.", "term-info"); return; }
+                const ok = await showConfirm({ icon:"↺", title:`Restore ${ids.length} deleted scene(s)?`, msg:"All hidden scenes will become visible again.", okLabel:"Restore All", okClass:"admin-btn-warn" });
+                if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                ids.forEach(sceneId => {
+                    const stored = deletedSceneStore[sceneId];
+                    if (!stored) return;
+                    deletedIds.delete(sceneId);
+                    const arr = DB_MAP[stored._dbKey] ? DB_MAP[stored._dbKey].getArr() : null;
+                    if (arr && !arr.find(x => x.id === sceneId)) arr.push({ ...stored });
+                    if (!scenes.find(x => x.id === sceneId)) scenes.push({ ...stored });
+                });
+                persistDeleted();
+                refreshDeletedList(); refreshManageList();
+                termPrint(`✔ Restored ${ids.length} scene(s).`, "term-ok");
+                return;
+            }
+
+            // ── Scene: delete continent ─────────────────────────────────────
+            if (verb === "delete" && noun === "continent") {
+                if (!arg) { termPrint("Usage: delete continent <name>", "term-err"); return; }
+                await termSoftDeleteMany(termAllActiveScenes().filter(({ scene: s }) => (s.continent||"").toLowerCase() === arg.toLowerCase()), `continent "${arg}"`);
+                return;
+            }
+
+            // ── Scene: export CSV ────────────────────────────────────────────
+            if (verb === "export" && noun === "csv") {
+                const dbFilter = parts[2] ? parts[2].toLowerCase() : null;
+                if (dbFilter && !DB_MAP[dbFilter]) { termPrint(`Unknown db "${dbFilter}". Options: ${Object.keys(DB_MAP).join(", ")}`, "term-err"); return; }
+                let data = termAllActiveScenes();
+                if (dbFilter) data = data.filter(e => e.dbKey === dbFilter);
+                const header = ["id","name","startYear","endYear","continent","country","season","region","lat","lng","zoom"];
+                const rows = data.map(({ dbKey, scene: s }) => [
+                    s.id, s.name, s.startYear, s.endYear, s.continent||"",
+                    s.country||"", s.season||"", s.region||"",
+                    s.coords?.[0]||"", s.coords?.[1]||"", s.zoom||"", dbKey
+                ].map(v => `"${String(v).replace(/"/g,'""')}"`).join(","));
+                const csv = [["id","name","startYear","endYear","continent","country","season","region","lat","lng","zoom","db"].join(","), ...rows].join("\n");
+                const a = Object.assign(document.createElement("a"), {
+                    href: URL.createObjectURL(new Blob([csv], { type: "text/csv" })),
+                    download: `whd-scenes${dbFilter?"-"+dbFilter:""}-${Date.now()}.csv`
+                });
+                a.click();
+                termPrint(`✔ Exported ${data.length} scene(s) as CSV.`, "term-ok");
+                return;
+            }
+
+            // ── CSS: accent shortcut ─────────────────────────────────────────
+            if (verb === "accent") {
+                const hex = parts[1];
+                if (!hex || !/^#[0-9a-fA-F]{3,6}$/.test(hex)) {
+                    termPrint("Usage: accent <hex>  e.g. accent #e05500", "term-err");
+                    termPrint("  Applies the accent colour locally and syncs --accent to all users.", "term-info");
+                    return;
+                }
+                // Local apply
+                applyAdminAccentToDOM(hex);
+                // Sync to all users via remoteconfig
+                const res = await remoteConfigCall({ action: "set_css", selector: ":root", property: "--accent", value: hex });
+                learnRemember("cssVar", "--accent");
+                if (res.ok) {
+                    applyRemoteConfigToPage(res);
+                    termPrint(`✔ Accent set to ${hex} (synced globally).`, "term-ok");
+                } else {
+                    termPrint(`✔ Accent set to ${hex} locally (sync failed: ${res.error||"unknown"}).`, "term-info");
+                }
+                return;
+            }
+
+            // ── CSS: theme presets ───────────────────────────────────────────
+            if (verb === "theme" && noun === "dark") {
+                const rules = [
+                    { selector:":root", property:"--bg",       value:"#0a0a0c" },
+                    { selector:":root", property:"--surface",   value:"#111114" },
+                    { selector:":root", property:"--on-surface",value:"#e8e8e8" },
+                ];
+                for (const r of rules) {
+                    await remoteConfigCall({ action:"set_css", selector:r.selector, property:r.property, value:r.value });
+                }
+                applyAdminAccentToDOM(document.documentElement.style.getPropertyValue("--accent") || "#c0161f");
+                termPrint("✔ Dark theme applied (synced globally).", "term-ok");
+                return;
+            }
+
+            if (verb === "theme" && noun === "light") {
+                const rules = [
+                    { selector:":root", property:"--bg",       value:"#f5f5f7" },
+                    { selector:":root", property:"--surface",   value:"#ffffff" },
+                    { selector:":root", property:"--on-surface",value:"#1a1a1a" },
+                ];
+                for (const r of rules) {
+                    await remoteConfigCall({ action:"set_css", selector:r.selector, property:r.property, value:r.value });
+                }
+                termPrint("✔ Light theme applied (synced globally).", "term-ok");
+                return;
+            }
+
+            if (verb === "theme" && noun === "reset") {
+                const ok = await showConfirm({ icon:"🎨", title:"Reset all theme overrides?", msg:"Clears every synced CSS override. All users will return to the default theme.", okLabel:"Reset", okClass:"admin-btn-warn" });
+                if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                const res = await remoteConfigCall({ action:"clear_css" });
+                if (res.ok) { applyRemoteConfigToPage(res); termPrint("✔ Theme reset to defaults.", "term-ok"); }
+                else termPrint("Error: " + (res.error||"request failed"), "term-err");
+                return;
+            }
+
+            // ── Runtime: extended ────────────────────────────────────────────
+            if (verb === "reload" && noun === "page") {
+                const ok = await showConfirm({ icon:"🔄", title:"Reload page?", msg:"This will hard-refresh the browser.", okLabel:"Reload", okClass:"admin-btn-primary" });
+                if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                location.reload();
+                return;
+            }
+
+            if (verb === "whoami") {
+                const role = window.WHDAuth?.getRole?.() ?? "—";
+                const user = window.WHDAuth?.getUsername?.() ?? "—";
+                const token = window.WHDAuth?.getToken?.();
+                termPrint(`username: ${user}`, "term-info");
+                termPrint(`role: ${role}`, "term-info");
+                termPrint(`token: ${token ? `present (${token.slice(0, 6)}…${token.slice(-4)})` : "none"}`, "term-info");
+                return;
+            }
+
+            if (verb === "version") {
+                termPrint("Admin Panel v2.1 — WHD", "term-info");
+                termPrint(`Worker: ${WORKER_URL || "(not configured)"}`, "term-info");
+                const role = window.WHDAuth ? window.WHDAuth.getRole() : "—";
+                const user = window.WHDAuth && typeof window.WHDAuth.getUsername === "function" ? window.WHDAuth.getUsername() : "—";
+                termPrint(`Logged in as: ${user}  (role: ${role})`, "term-info");
+                return;
+            }
+
+            if (verb === "help") {
+                const catFilter = parts.slice(1).join(" ");
+                const cats = {};
+                TERM_COMMANDS.forEach(c => {
+                    if (catFilter && c.cat.toLowerCase() !== catFilter.toLowerCase()) return;
+                    (cats[c.cat] = cats[c.cat] || []).push(c);
+                });
+                if (!Object.keys(cats).length) {
+                    termPrint(catFilter ? `No commands in category "${catFilter}".` : "No commands registered.", "term-err");
+                    return;
+                }
+                Object.entries(cats).forEach(([cat, cmds]) => {
+                    termPrint(`── ${cat} ──────────────────────────────`, "term-info");
+                    cmds.forEach(c => termPrint(`  ${(c.cmd + " " + (c.hint||"")).padEnd(42)} ${c.desc}`, "term-info"));
+                });
+                if (!catFilter) termPrint(`Tip: append "all" to any list-style command to show every result (e.g. find rome all).`, "term-info");
+                return;
+            }
+
+            // ── Storage: extended ────────────────────────────────────────────
+            if (verb === "storage" && noun === "size") {
+                let total = 0;
+                for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    total += (k||"").length + (localStorage.getItem(k)||"").length;
+                }
+                termPrint(`localStorage total: ${(total/1024).toFixed(1)} KB  (${localStorage.length} key${localStorage.length!==1?"s":""})`, "term-info");
+                return;
+            }
+
+            if (verb === "storage" && noun === "clear" && parts[2] === "whd") {
+                const whdKeys = [];
+                for (let i = 0; i < localStorage.length; i++) {
+                    const k = localStorage.key(i);
+                    if (k && k.startsWith("whd")) whdKeys.push(k);
+                }
+                if (!whdKeys.length) { termPrint("No WHD keys found.", "term-info"); return; }
+                const ok = await showConfirm({ icon:"🗑️", title:`Clear ${whdKeys.length} WHD keys?`, msg:`Keys: ${whdKeys.slice(0,5).join(", ")}${whdKeys.length>5?"…":""}`, okLabel:"Clear", okClass:"admin-btn-danger" });
+                if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                whdKeys.forEach(k => localStorage.removeItem(k));
+                termPrint(`✔ Removed ${whdKeys.length} WHD localStorage key${whdKeys.length!==1?"s":""}.`, "term-ok");
+                return;
+            }
+
+            // ── Users: extended ──────────────────────────────────────────────
+            if (verb === "user" && noun === "count") {
+                if (_adminAllUsers.length) {
+                    const admins = _adminAllUsers.filter(u => u.role === "admin").length;
+                    const owners = _adminAllUsers.filter(u => u.role === "owner").length;
+                    const banned = _adminAllUsers.filter(u => u.role === "banned").length;
+                    termPrint(`Total: ${_adminAllUsers.length}  |  Admins: ${admins}  |  Owners: ${owners}  |  Banned: ${banned}`, "term-info");
+                } else {
+                    termPrint("Run 'user list' first to populate user cache.", "term-info");
+                }
+                return;
+            }
+
+            if (verb === "user" && noun === "admins") {
+                if (!_adminAllUsers.length) { termPrint("Run 'user list' first to populate user cache.", "term-info"); return; }
+                const elevated = _adminAllUsers.filter(u => u.role === "admin" || u.role === "owner");
+                if (!elevated.length) { termPrint("No admin/owner users.", "term-info"); return; }
+                const uaLimit = 20;
+                (_showAll ? elevated : elevated.slice(0, uaLimit))
+                    .forEach(u => termPrint(`  ${u.username.padEnd(22)} ${u.role}`, "term-info"));
+                if (!_showAll && elevated.length > uaLimit)
+                    termPrint(`… and ${elevated.length - uaLimit} more. Add "all" to see all admins.`, "term-info");
+                return;
+            }
+
+            // ── Update Log ───────────────────────────────────────────────────
+            if (verb === "log" && noun === "list") {
+                const token = window.WHDAuth?.getToken();
+                const r = await fetch(WORKER_URL + "/auth/updatelog", {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ token, action: "list" })
+                }).then(x => x.json()).catch(() => ({ ok: false }));
+                if (!r.ok) { termPrint("Error: " + (r.error || "request failed"), "term-err"); return; }
+                const entries = r.entries || [];
+                if (!entries.length) { termPrint("No update log entries.", "term-info"); return; }
+                const llLimit = 20;
+                (_showAll ? entries : entries.slice(0, llLimit)).forEach(e =>
+                    termPrint(`  ${e.id}  v${e.version}  "${e.title}"  ${e.date}  (${(e.changes||[]).length} change${(e.changes||[]).length!==1?"s":""})`, "term-info")
+                );
+                if (!_showAll && entries.length > llLimit)
+                    termPrint(`… and ${entries.length - llLimit} more. Add "all" to see every entry.`, "term-info");
+                termPrint(`(${entries.length} entr${entries.length!==1?"ies":"y"})`, "term-info");
+                return;
+            }
+
+            if (verb === "log" && noun === "add") {
+                // log add <version> <title> -- <change1> | <change2> | ...
+                // e.g.  log add 2.4 "Summer update" -- Fixed map panning | Added Poland
+                const sepIdx = parts.indexOf("--");
+                const meta   = sepIdx > 0 ? parts.slice(2, sepIdx) : parts.slice(2);
+                const rawChanges = sepIdx > 0 ? parts.slice(sepIdx + 1).join(" ").split("|").map(c => c.trim()).filter(Boolean) : [];
+                const version = meta[0] || "";
+                const title   = meta.slice(1).join(" ");
+                if (!version) { termPrint('Usage: log add <version> [title] -- <change> | <change> …', "term-err"); return; }
+                const token = window.WHDAuth?.getToken();
+                const now = new Date();
+                const months = ["January","February","March","April","May","June","July","August","September","October","November","December"];
+                const date = months[now.getMonth()] + " " + now.getDate() + ", " + now.getFullYear();
+                const r = await fetch(WORKER_URL + "/auth/updatelog", {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ token, action: "save", version, title: title || ("v" + version), date, changes: rawChanges })
+                }).then(x => x.json()).catch(() => ({ ok: false }));
+                if (r.ok) {
+                    termPrint(`✔ Created update log entry v${r.entry.version} (id: ${r.entry.id}).`, "term-ok");
+                    if (typeof _ulUserEntries !== "undefined") _ulUserEntries = null;
+                    if (typeof loadUpdateLog === "function") loadUpdateLog();
+                } else { termPrint("Error: " + (r.error || "request failed"), "term-err"); }
+                return;
+            }
+
+            if (verb === "log" && noun === "edit") {
+                // log edit <id> <field> <value…>  — field: version|title|date|changes
+                // For changes, value is pipe-separated: log edit abc123 changes "Fixed X | Added Y"
+                const id    = parts[2];
+                const field = (parts[3] || "").toLowerCase();
+                const val   = parts.slice(4).join(" ");
+                if (!id || !field || !val) {
+                    termPrint('Usage: log edit <id> <version|title|date|changes> <value>', "term-err");
+                    termPrint('  For changes: separate items with |   e.g.  log edit abc123 changes "Fixed X | Added Y"', "term-info");
+                    return;
+                }
+                // Fetch current entry first
+                const token = window.WHDAuth?.getToken();
+                const listR = await fetch(WORKER_URL + "/auth/updatelog", {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ token, action: "list" })
+                }).then(x => x.json()).catch(() => ({ ok: false }));
+                if (!listR.ok) { termPrint("Error fetching entries: " + (listR.error || "?"), "term-err"); return; }
+                const entry = (listR.entries || []).find(e => e.id === id);
+                if (!entry) { termPrint(`No entry with id "${id}". Run "log list" to see IDs.`, "term-err"); return; }
+                const updated = { ...entry };
+                if (field === "version") updated.version = val;
+                else if (field === "title") updated.title = val;
+                else if (field === "date")  updated.date  = val;
+                else if (field === "changes") updated.changes = val.split("|").map(c => c.trim()).filter(Boolean);
+                else { termPrint(`Unknown field "${field}". Use: version, title, date, changes`, "term-err"); return; }
+                const r = await fetch(WORKER_URL + "/auth/updatelog", {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ token, action: "save", id, ...updated })
+                }).then(x => x.json()).catch(() => ({ ok: false }));
+                if (r.ok) {
+                    termPrint(`✔ Updated entry ${id} (${field} set).`, "term-ok");
+                    if (typeof _ulUserEntries !== "undefined") _ulUserEntries = null;
+                    if (typeof loadUpdateLog === "function") loadUpdateLog();
+                } else { termPrint("Error: " + (r.error || "request failed"), "term-err"); }
+                return;
+            }
+
+            if (verb === "log" && noun === "delete") {
+                const id = parts[2];
+                if (!id) { termPrint("Usage: log delete <id>", "term-err"); return; }
+                const ok = await showConfirm({ icon: "🗑️", title: "Delete update log entry?", msg: `Entry id: ${id}`, okLabel: "Delete", okClass: "admin-btn-danger" });
+                if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                const token = window.WHDAuth?.getToken();
+                const r = await fetch(WORKER_URL + "/auth/updatelog", {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ token, action: "delete", id })
+                }).then(x => x.json()).catch(() => ({ ok: false }));
+                if (r.ok) {
+                    termPrint(`✔ Deleted entry ${id}.`, "term-ok");
+                    if (typeof _ulUserEntries !== "undefined") _ulUserEntries = null;
+                    if (typeof loadUpdateLog === "function") loadUpdateLog();
+                } else { termPrint("Error: " + (r.error || "request failed"), "term-err"); }
+                return;
+            }
+
+            // ── Scene: Analytics ──────────────────────────────────────────────
+            if (verb === "top" && noun === "countries") {
+                const limit = parseInt(parts[2]) || 10;
+                const counts = {};
+                termAllActiveScenes().forEach(({ scene: s }) => {
+                    const c = (s.country || "").trim() || "(none)";
+                    counts[c] = (counts[c] || 0) + 1;
+                });
+                const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, limit);
+                termPrint(`── Top ${limit} Countries ──`, "term-info");
+                sorted.forEach(([c, n], i) => termPrint(`  ${String(i+1).padStart(2)}.  ${c.padEnd(28)} ${n} scene${n!==1?"s":""}`, "term-info"));
+                return;
+            }
+
+            if (verb === "top" && noun === "seasons") {
+                const limit = parseInt(parts[2]) || 10;
+                const counts = {};
+                termAllActiveScenes().forEach(({ scene: s }) => {
+                    const k = (s.season || "").trim() || "(none)";
+                    counts[k] = (counts[k] || 0) + 1;
+                });
+                const sorted = Object.entries(counts).sort((a, b) => b[1] - a[1]).slice(0, limit);
+                termPrint(`── Top ${limit} Seasons ──`, "term-info");
+                sorted.forEach(([k, n], i) => termPrint(`  ${String(i+1).padStart(2)}.  ${k.padEnd(28)} ${n} scene${n!==1?"s":""}`, "term-info"));
+                return;
+            }
+
+            if (verb === "timeline") {
+                // Summarise active scenes by century
+                const buckets = {};
+                termAllActiveScenes().forEach(({ scene: s }) => {
+                    const yr = s.startYear ?? 0;
+                    const cent = Math.floor(yr / 100) * 100;
+                    buckets[cent] = (buckets[cent] || 0) + 1;
+                });
+                const sorted = Object.entries(buckets).sort((a,b) => Number(a[0]) - Number(b[0]));
+                termPrint("── Scenes by Century ──", "term-info");
+                sorted.forEach(([cent, n]) => {
+                    const label = cent < 0 ? `${Math.abs(cent)}BC` : cent === 0 ? "1–99 AD" : `${Number(cent)+1}s`;
+                    const bar = "█".repeat(Math.min(40, Math.round(n / 2)));
+                    termPrint(`  ${label.padStart(8)}  ${bar} ${n}`, "term-info");
+                });
+                return;
+            }
+
+            if (verb === "audit" && noun === "tags") {
+                // Find scenes with inconsistent country/season capitalisation
+                const countryMap = {}, seasonMap = {};
+                termAllActiveScenes().forEach(({ scene: s }) => {
+                    if (s.country) { const k = s.country.trim().toLowerCase(); (countryMap[k] = countryMap[k] || new Set()).add(s.country.trim()); }
+                    if (s.season)  { const k = s.season.trim().toLowerCase();  (seasonMap[k]  = seasonMap[k]  || new Set()).add(s.season.trim());  }
+                });
+                const tagIssues = [];
+                Object.entries(countryMap).forEach(([k, variants]) => {
+                    if (variants.size > 1) tagIssues.push({ type: "Country", key: k, variants: [...variants] });
+                });
+                Object.entries(seasonMap).forEach(([k, variants]) => {
+                    if (variants.size > 1) tagIssues.push({ type: "Season",  key: k, variants: [...variants] });
+                });
+                if (!tagIssues.length) { termPrint("✔ No inconsistent tags found.", "term-ok"); return; }
+                termPrint("── Tag Audit ──", "term-info");
+                const atLimit = 30;
+                (_showAll ? tagIssues : tagIssues.slice(0, atLimit)).forEach(({ type, key, variants }) =>
+                    termPrint(`  ⚠ ${type} "${key}" has mixed casing: ${variants.join(" | ")}`, "term-err")
+                );
+                if (!_showAll && tagIssues.length > atLimit)
+                    termPrint(`… and ${tagIssues.length - atLimit} more. Add "all" to see every issue.`, "term-info");
+                termPrint(`(${tagIssues.length} issue${tagIssues.length!==1?"s":""} found. Use 'retag' to fix.)`, "term-info");
+                return;
+            }
+
+            if (verb === "audit" && noun === "coords") {
+                // Find scenes with coords outside normal lat/lng bounds or exactly [0,0]
+                const issues = [];
+                termAllActiveScenes().forEach(({ scene: s }) => {
+                    const [lat, lng] = s.coords || [];
+                    if (lat == null || lng == null) { issues.push({ s, reason: "missing coords" }); return; }
+                    if (lat === 0 && lng === 0) { issues.push({ s, reason: "coords [0,0] (likely placeholder)" }); return; }
+                    if (lat < -90 || lat > 90 || lng < -180 || lng > 180) issues.push({ s, reason: `coords out of range: [${lat}, ${lng}]` });
+                });
+                if (!issues.length) { termPrint("✔ All coords look valid.", "term-ok"); return; }
+                termPrint(`── ${issues.length} Coord Issue${issues.length!==1?"s":""} ──`, "term-info");
+                const acLimit = 30;
+                (_showAll ? issues : issues.slice(0, acLimit))
+                    .forEach(({ s, reason }) => termPrint(`  ⚠ ${s.id}  ${s.name}  — ${reason}`, "term-err"));
+                if (!_showAll && issues.length > acLimit)
+                    termPrint(`… and ${issues.length - acLimit} more. Add "all" to see every issue.`, "term-info");
+                return;
+            }
+
+            if (verb === "audit" && noun === "years") {
+                // Scenes where endYear < startYear or years are suspiciously large/small
+                const issues = [];
+                termAllActiveScenes().forEach(({ scene: s }) => {
+                    if (s.startYear == null || s.endYear == null) { issues.push({ s, reason: "missing start/end year" }); return; }
+                    if (s.endYear < s.startYear) issues.push({ s, reason: `endYear (${s.endYear}) < startYear (${s.startYear})` });
+                    if (s.startYear < -5000 || s.endYear > 2100) issues.push({ s, reason: `years out of expected range: ${s.startYear}–${s.endYear}` });
+                });
+                if (!issues.length) { termPrint("✔ All years look valid.", "term-ok"); return; }
+                termPrint(`── ${issues.length} Year Issue${issues.length!==1?"s":""} ──`, "term-info");
+                const ayLimit = 30;
+                (_showAll ? issues : issues.slice(0, ayLimit))
+                    .forEach(({ s, reason }) => termPrint(`  ⚠ ${s.id}  ${s.name}  — ${reason}`, "term-err"));
+                if (!_showAll && issues.length > ayLimit)
+                    termPrint(`… and ${issues.length - ayLimit} more. Add "all" to see every issue.`, "term-info");
+                return;
+            }
+
+            if (verb === "near") {
+                // near <lat> <lng> [radius_km]
+                const lat0 = parseFloat(parts[1]), lng0 = parseFloat(parts[2]), radiusKm = parseFloat(parts[3]) || 500;
+                if (isNaN(lat0) || isNaN(lng0)) { termPrint("Usage: near <lat> <lng> [radiusKm]", "term-err"); return; }
+                const deg2rad = d => d * Math.PI / 180;
+                const haversine = (la1, lo1, la2, lo2) => {
+                    const R = 6371, dLat = deg2rad(la2-la1), dLon = deg2rad(lo2-lo1);
+                    const a = Math.sin(dLat/2)**2 + Math.cos(deg2rad(la1))*Math.cos(deg2rad(la2))*Math.sin(dLon/2)**2;
+                    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+                };
+                let hits = termAllActiveScenes()
+                    .filter(({ scene: s }) => s.coords && s.coords[0] != null)
+                    .map(({ dbKey, scene: s }) => ({ dbKey, s, dist: haversine(lat0, lng0, s.coords[0], s.coords[1]) }))
+                    .filter(x => x.dist <= radiusKm)
+                    .sort((a,b) => a.dist - b.dist);
+                const total = hits.length;
+                if (!_showAll) hits = hits.slice(0, 20);
+                if (!total) { termPrint(`No scenes within ${radiusKm} km of [${lat0}, ${lng0}].`, "term-err"); return; }
+                termPrint(`── ${total} scene${total!==1?"s":""} within ${radiusKm} km ──`, "term-info");
+                hits.forEach(({ s, dist }) => termPrint(`  ${String(Math.round(dist)).padStart(5)} km  ${s.id}  ${s.name}  (${s.country||""})`, "term-info"));
+                if (!_showAll && total > 20) termPrint(`… and ${total - 20} more. Add "all" to see everything.`, "term-info");
+                return;
+            }
+
+            if (verb === "scene" && noun === "touch") {
+                // Mark a scene as admin-edited without changing any fields (force re-persist)
+                const sceneId = parts[2];
+                if (!sceneId) { termPrint("Usage: scene touch <sceneId>", "term-err"); return; }
+                const found = getSceneById(sceneId);
+                if (!found) { termPrint(`Scene "${sceneId}" not found.`, "term-err"); return; }
+                found.scene._adminEdited = true;
+                persistScenes();
+                termPrint(`✔ Marked "${sceneId}" as edited.`, "term-ok");
+                return;
+            }
+
+            if (verb === "scene" && noun === "untouch") {
+                // Remove _adminEdited/_adminAdded flags from a scene
+                const sceneId = parts[2];
+                if (!sceneId) { termPrint("Usage: scene untouch <sceneId>", "term-err"); return; }
+                const found = getSceneById(sceneId);
+                if (!found) { termPrint(`Scene "${sceneId}" not found.`, "term-err"); return; }
+                delete found.scene._adminEdited;
+                delete found.scene._adminAdded;
+                persistScenes(); refreshManageList();
+                termPrint(`✔ Cleared admin flags on "${sceneId}".`, "term-ok");
+                return;
+            }
+
+            // ── Users: search ─────────────────────────────────────────────────
+            if (verb === "user" && noun === "search") {
+                const q = (parts[2] || "").toLowerCase();
+                if (!q) { termPrint("Usage: user search <query>", "term-err"); return; }
+                if (!_adminAllUsers.length) { termPrint("Run 'user list' first to populate user cache.", "term-info"); return; }
+                const hits = _adminAllUsers.filter(u =>
+                    u.username.toLowerCase().includes(q) ||
+                    (u.role || "").toLowerCase().includes(q)
+                );
+                if (!hits.length) { termPrint(`No users matched "${q}".`, "term-err"); return; }
+                const usLimit = 20;
+                (_showAll ? hits : hits.slice(0, usLimit))
+                    .forEach(u => termPrint(`  ${u.username.padEnd(22)} ${(u.role||"user").padEnd(8)} joined: ${u.joinedAt ? new Date(u.joinedAt).toLocaleDateString() : "?"}`, "term-info"));
+                if (!_showAll && hits.length > usLimit)
+                    termPrint(`… and ${hits.length - usLimit} more. Add "all" to see every match.`, "term-info");
+                termPrint(`(${hits.length} match${hits.length!==1?"es":""})`, "term-info");
+                return;
+            }
+
+            // ── Session ───────────────────────────────────────────────────────
+            if (verb === "session" && noun === "clear") {
+                // Clear the terminal session history
+                _termHistory.length = 0;
+                termPrint("✔ Session history cleared.", "term-ok");
+                return;
+            }
+
+            if (verb === "session" && noun === "export") {
+                // Download the current terminal session as a .txt file
+                const output = document.getElementById("adminTermOutput");
+                const lines = output ? [...output.querySelectorAll(".term-line")].map(el => el.textContent) : [];
+                if (!lines.length) { termPrint("Nothing in the session to export.", "term-info"); return; }
+                const text = lines.join("\n");
+                const a = Object.assign(document.createElement("a"), {
+                    href: URL.createObjectURL(new Blob([text], { type: "text/plain" })),
+                    download: `whd-session-${Date.now()}.txt`
+                });
+                a.click();
+                termPrint(`✔ Exported ${lines.length} line${lines.length!==1?"s":""}.`, "term-ok");
+                return;
+            }
+
+            // ── DB: rename ────────────────────────────────────────────────────
+            if (verb === "db" && noun === "rename") {
+                const dbKey = (parts[2] || "").toLowerCase();
+                const newLabel = parts.slice(3).join(" ");
+                if (!dbKey || !newLabel) { termPrint("Usage: db rename <dbKey> <new label>", "term-err"); return; }
+                if (!DB_MAP[dbKey]) { termPrint(`Unknown db "${dbKey}". Options: ${Object.keys(DB_MAP).join(", ")}`, "term-err"); return; }
+                const old = DB_MAP[dbKey].label;
+                const ok = await showConfirm({ icon:"🗂️", title:"Rename database label?", msg:`"${old}" → "${newLabel}" (display name only, key stays "${dbKey}")`, okLabel:"Rename", okClass:"admin-btn-primary" });
+                if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                DB_MAP[dbKey].label = newLabel;
+                refreshManageList();
+                termPrint(`✔ DB "${dbKey}" label → "${newLabel}".`, "term-ok");
+                return;
+            }
+
+            if (verb === "db" && noun === "info") {
+                const dbKey = (parts[2] || "").toLowerCase();
+                if (!dbKey) { termPrint("Usage: db info <dbKey>", "term-err"); return; }
+                if (!DB_MAP[dbKey]) { termPrint(`Unknown db "${dbKey}". Options: ${Object.keys(DB_MAP).join(", ")}`, "term-err"); return; }
+                const info = DB_MAP[dbKey];
+                const all  = info.getArr();
+                const active = all.filter(s => !deletedIds.has(s.id));
+                const del    = all.filter(s => deletedIds.has(s.id));
+                const countries = [...new Set(active.map(s => s.country).filter(Boolean))].sort();
+                const seasons   = [...new Set(active.map(s => s.season).filter(Boolean))].sort();
+                termPrint(`── DB: ${info.label} (${dbKey}) ──`, "term-info");
+                termPrint(`  Active:    ${active.length}`, "term-info");
+                termPrint(`  Deleted:   ${del.length}`, "term-info");
+                termPrint(`  Countries: ${countries.join(", ") || "(none)"}`, "term-info");
+                termPrint(`  Seasons:   ${seasons.join(", ") || "(none)"}`, "term-info");
+                return;
+            }
+
+            // ── World Tree ────────────────────────────────────────────────────
+            if (verb === "tree" && noun === "list") {
+                // Print the full tree hierarchy
+                function printTree(nodes, depth) {
+                    (nodes || []).forEach(n => {
+                        const pad = "  ".repeat(depth);
+                        const icon = n.children !== undefined ? (depth === 0 ? "🌍" : depth === 1 ? "🗺" : "📂") : "📺";
+                        const extra = n.children ? ` (${n.children.length} children)` : n.episodes ? ` (${n.episodes.length} episodes)` : "";
+                        termPrint(`${pad}${icon} ${n.name}${extra}`, "term-info");
+                        if (n.children) printTree(n.children, depth + 1);
+                    });
+                }
+                termPrint("── World Tree ──", "term-info");
+                printTree(world.children, 0);
+                return;
+            }
+
+            if (verb === "tree" && noun === "add") {
+                // tree add <continent> [country] [season]
+                // Builds the path: continent → country → season leaf
+                const continent = parts[2], country = parts[3], season = parts.slice(4).join(" ");
+                if (!continent) { termPrint("Usage: tree add <continent> [country] [season]", "term-err"); return; }
+
+                let contNode = world.children.find(c => c.name.toLowerCase() === continent.toLowerCase());
+                if (!contNode) {
+                    contNode = { name: continent, children: [] };
+                    world.children.push(contNode);
+                    termPrint(`✔ Added continent "${continent}".`, "term-ok");
+                }
+                if (!country) { persistTree(); if (typeof refreshTree === "function") refreshTree(); return; }
+
+                let countryNode = contNode.children.find(c => c.name.toLowerCase() === country.toLowerCase());
+                if (!countryNode) {
+                    countryNode = { name: country, children: [] };
+                    contNode.children.push(countryNode);
+                    termPrint(`✔ Added country "${country}" under "${contNode.name}".`, "term-ok");
+                }
+                if (!season) { persistTree(); if (typeof refreshTree === "function") refreshTree(); return; }
+
+                const existingSeason = countryNode.children.find(s => s.name.toLowerCase() === season.toLowerCase());
+                if (existingSeason) { termPrint(`Season "${season}" already exists under "${country}".`, "term-info"); return; }
+                countryNode.children.push({ name: season, episodes: [] });
+                termPrint(`✔ Added season "${season}" under "${country}".`, "term-ok");
+                persistTree();
+                if (typeof refreshTree === "function") refreshTree();
+                return;
+            }
+
+            if (verb === "tree" && noun === "remove") {
+                // tree remove <nodeName>  — finds and removes a node by name (depth-first)
+                const target = parts.slice(2).join(" ");
+                if (!target) { termPrint("Usage: tree remove <nodeName>", "term-err"); return; }
+                function findAndRemove(nodes, name) {
+                    for (let i = 0; i < nodes.length; i++) {
+                        if (nodes[i].name.toLowerCase() === name.toLowerCase()) {
+                            const removed = nodes.splice(i, 1)[0];
+                            return removed;
+                        }
+                        if (nodes[i].children) {
+                            const found = findAndRemove(nodes[i].children, name);
+                            if (found) return found;
+                        }
+                    }
+                    return null;
+                }
+                const ok = await showConfirm({ icon: "🌳", title: `Remove "${target}" from tree?`, msg: "All child nodes will also be removed.", okLabel: "Remove", okClass: "admin-btn-danger" });
+                if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                const removed = findAndRemove(world.children, target);
+                if (!removed) { termPrint(`"${target}" not found in tree.`, "term-err"); return; }
+                persistTree();
+                if (typeof refreshTree === "function") refreshTree();
+                termPrint(`✔ Removed "${removed.name}" from tree.`, "term-ok");
+                return;
+            }
+
+            if (verb === "tree" && noun === "rename") {
+                const oldName = parts[2], newName = parts.slice(3).join(" ");
+                if (!oldName || !newName) { termPrint("Usage: tree rename <oldName> <newName>", "term-err"); return; }
+                function findAndRename(nodes, old, nw) {
+                    for (const n of nodes) {
+                        if (n.name.toLowerCase() === old.toLowerCase()) { n.name = nw; return true; }
+                        if (n.children && findAndRename(n.children, old, nw)) return true;
+                    }
+                    return false;
+                }
+                const found = findAndRename(world.children, oldName, newName);
+                if (!found) { termPrint(`"${oldName}" not found in tree.`, "term-err"); return; }
+                persistTree();
+                if (typeof refreshTree === "function") refreshTree();
+                termPrint(`✔ Renamed "${oldName}" → "${newName}".`, "term-ok");
+                return;
+            }
+
+            if (verb === "tree" && noun === "find") {
+                const q = parts.slice(2).join(" ").toLowerCase();
+                if (!q) { termPrint("Usage: tree find <name>", "term-err"); return; }
+                const results = [];
+                function treeSearch(nodes, path) {
+                    (nodes || []).forEach(n => {
+                        const p = [...path, n.name];
+                        if (n.name.toLowerCase().includes(q)) results.push(p.join(" › "));
+                        if (n.children) treeSearch(n.children, p);
+                    });
+                }
+                treeSearch(world.children, []);
+                if (!results.length) { termPrint(`No tree nodes matching "${q}".`, "term-err"); return; }
+                const tfLimit = 20;
+                (_showAll ? results : results.slice(0, tfLimit))
+                    .forEach(r => termPrint(`  ${r}`, "term-info"));
+                if (!_showAll && results.length > tfLimit)
+                    termPrint(`… and ${results.length - tfLimit} more. Add "all" to see every match.`, "term-info");
+                termPrint(`(${results.length} result${results.length !== 1 ? "s" : ""})`, "term-info");
+                return;
+            }
+
+            if (verb === "tree" && noun === "sync") {
+                // Sync countries from scene data into the tree automatically
+                const byContinent = {};
+                termAllActiveScenes().forEach(({ scene: s }) => {
+                    if (!s.continent || !s.country) return;
+                    (byContinent[s.continent] = byContinent[s.continent] || new Set()).add(s.country);
+                });
+                let added = 0;
+                Object.entries(byContinent).forEach(([cont, countries]) => {
+                    let contNode = world.children.find(c => c.name.toLowerCase() === cont.toLowerCase());
+                    if (!contNode) {
+                        contNode = { name: cont, children: [] };
+                        world.children.push(contNode);
+                        termPrint(`✔ Added continent "${cont}"`, "term-ok");
+                        added++;
+                    }
+                    countries.forEach(country => {
+                        if (!contNode.children.find(c => c.name.toLowerCase() === country.toLowerCase())) {
+                            contNode.children.push({ name: country, children: [] });
+                            termPrint(`  + "${country}" under "${cont}"`, "term-info");
+                            added++;
+                        }
+                    });
+                });
+                if (!added) { termPrint("✔ Tree already matches scene data.", "term-ok"); return; }
+                persistTree();
+                if (typeof refreshTree === "function") refreshTree();
+                termPrint(`✔ Synced ${added} node${added !== 1 ? "s" : ""} from scene data.`, "term-ok");
+                return;
+            }
+
+            if (verb === "tree" && noun === "reset") {
+                const ok = await showConfirm({ icon: "🌳", title: "Reset world tree?", msg: "Clears all tree overrides and reloads the default tree from init.js. This cannot be undone.", okLabel: "Reset", okClass: "admin-btn-danger" });
+                if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                localStorage.removeItem(LS_TREE);
+                localStorage.removeItem(LS_TREE_OPEN);
+                location.reload();
+                return;
+            }
+
+            // ── DB: add new database ──────────────────────────────────────────
+            if (verb === "db" && noun === "add") {
+                // db add <key> <label>
+                // Adds a new in-memory database slot backed by a new global array.
+                const dbKey = (parts[2] || "").toLowerCase().replace(/[^a-z0-9_]/g, "");
+                const dbLabel = parts.slice(3).join(" ");
+                if (!dbKey || !dbLabel) { termPrint("Usage: db add <key> <label>  (e.g. db add poland Poland)", "term-err"); return; }
+                if (DB_MAP[dbKey]) { termPrint(`DB "${dbKey}" already exists (${DB_MAP[dbKey].label}).`, "term-err"); return; }
+
+                // Create a new global array for the db and register it
+                const arrName = `${dbKey}Scenes`;
+                if (!window[arrName]) window[arrName] = [];
+                DB_MAP[dbKey] = {
+                    label: dbLabel,
+                    color: `db-${dbKey}`,
+                    getArr: () => window[arrName],
+                };
+
+                // Update all <select> elements that list dbs
+                ["aDb", "importDb"].forEach(selId => {
+                    const sel = document.getElementById(selId);
+                    if (sel && !sel.querySelector(`option[value="${dbKey}"]`)) {
+                        const opt = document.createElement("option");
+                        opt.value = dbKey;
+                        opt.textContent = dbLabel;
+                        sel.appendChild(opt);
+                    }
+                });
+
+                learnRemember("dbKey", dbKey);
+                termPrint(`✔ Registered DB "${dbLabel}" (key: ${dbKey}).`, "term-ok");
+                termPrint(`  Note: this DB only persists for this session. To make it permanent, add the scene array to your JS data files.`, "term-info");
+                return;
+            }
+
+            if (verb === "db" && noun === "list") {
+                termPrint("── Registered Databases ──", "term-info");
+                Object.entries(DB_MAP).forEach(([k, info]) => {
+                    const n = info.getArr().filter(s => !deletedIds.has(s.id)).length;
+                    termPrint(`  ${k.padEnd(16)} ${info.label.padEnd(20)} ${n} active scenes`, "term-info");
+                });
+                return;
+            }
+
+            // ── Scene: add (full inline create) ──────────────────────────────
+            if (verb === "scene" && noun === "add") {
+                // scene add <db> <id> <name> -- prompts aren't possible in terminal, so
+                // we support a JSON payload OR open the Add form pre-filled.
+                const dbKey = (parts[2] || "").toLowerCase();
+                const sceneId = parts[3];
+                const sceneName = parts.slice(4).join(" ");
+
+                if (!dbKey || !DB_MAP[dbKey]) {
+                    termPrint("Usage: scene add <dbKey> <id> <name>", "term-err");
+                    termPrint(`  Available dbs: ${Object.keys(DB_MAP).join(", ")}`, "term-info");
+                    termPrint("  This creates a minimal stub scene and opens it in the form for you to fill out.", "term-info");
+                    return;
+                }
+                if (!sceneId || !sceneName) { termPrint("Usage: scene add <dbKey> <id> <name>", "term-err"); return; }
+                if (getSceneById(sceneId)) { termPrint(`ID "${sceneId}" already exists. Use 'open ${sceneId}' to edit it.`, "term-err"); return; }
+
+                // Create a stub scene and open the form to fill it out
+                const stub = {
+                    id: sceneId, name: sceneName,
+                    startYear: 0, endYear: 0,
+                    imgKey: sceneId,
+                    continent: DB_MAP[dbKey].label.includes("Europe") ? "Europe" :
+                               DB_MAP[dbKey].label.includes("Asia") ? "Asia" :
+                               DB_MAP[dbKey].label.includes("Africa") ? "Africa" : "",
+                    country: "", season: "", region: "",
+                    coords: [0, 0], zoom: 5,
+                    info: "", events: [],
+                    _adminAdded: true,
+                };
+                loadSceneIntoForm(stub, dbKey);
+                // Pre-fill the id since we're in add mode not edit mode
+                document.getElementById("aId").value = sceneId;
+                document.getElementById("aId").readOnly = false;
+                switchToTab("add");
+                termPrint(`✔ Opened form for new scene "${sceneName}" (${sceneId}) in ${DB_MAP[dbKey].label}.`, "term-ok");
+                termPrint("  Fill in the remaining fields and click Save Entry.", "term-info");
+                return;
+            }
+
+            if (verb === "scene" && noun === "js") {
+                // Generate and print JS for a scene
+                const sceneId = parts[2];
+                if (!sceneId) { termPrint("Usage: scene js <sceneId>", "term-err"); return; }
+                const found = getSceneById(sceneId);
+                if (!found) { termPrint(`Scene "${sceneId}" not found.`, "term-err"); return; }
+                const js = generateEntryJS(found.scene, found.dbKey);
+                termPrint(`── JS for ${sceneId} ──`, "term-info");
+                const jsLines = js.split("\n");
+                const jsLimit = 40;
+                (_showAll ? jsLines : jsLines.slice(0, jsLimit)).forEach(l => termPrint(l, "term-info"));
+                if (!_showAll && jsLines.length > jsLimit)
+                    termPrint(`… (${jsLines.length - jsLimit} more lines). Add "all" to see everything.`, "term-info");
+                if (navigator.clipboard) {
+                    navigator.clipboard.writeText(js).then(() => termPrint("✔ Copied to clipboard.", "term-ok")).catch(() => {});
+                }
+                return;
+            }
+
+            if (verb === "scene" && noun === "copy-js") {
+                const sceneId = parts[2];
+                if (!sceneId) { termPrint("Usage: scene copy-js <sceneId>", "term-err"); return; }
+                const found = getSceneById(sceneId);
+                if (!found) { termPrint(`Scene "${sceneId}" not found.`, "term-err"); return; }
+                const js = generateEntryJS(found.scene, found.dbKey);
+                if (navigator.clipboard) {
+                    await navigator.clipboard.writeText(js);
+                    termPrint(`✔ JS for "${sceneId}" copied to clipboard.`, "term-ok");
+                } else {
+                    termPrint("Clipboard not available.", "term-err");
+                }
+                return;
+            }
+
+            if (verb === "scene" && noun === "delete") {
+                // scene delete <sceneId> — soft delete
+                const sceneId = parts[2];
+                if (!sceneId) { termPrint("Usage: scene delete <sceneId>", "term-err"); return; }
+                const found = getSceneById(sceneId);
+                if (!found) { termPrint(`Scene "${sceneId}" not found.`, "term-err"); return; }
+                await termSoftDeleteMany([found], `scene "${sceneId}"`);
+                return;
+            }
+
+            // ── Announce: targeted ────────────────────────────────────────────
+            if (verb === "announce" && noun === "user") {
+                // announce user <username> <type> <message>
+                const username = parts[2];
+                const TYPES = ["info","warning","success","error","update","event"];
+                let type = "info", msgParts = parts.slice(3);
+                if (TYPES.includes((parts[3] || "").toLowerCase())) { type = parts[3].toLowerCase(); msgParts = parts.slice(4); }
+                const message = msgParts.join(" ");
+                if (!username || !message) { termPrint("Usage: announce user <username> [type] <message>", "term-err"); return; }
+                const token = window.WHDAuth?.getToken();
+                if (!token) { termPrint("Not authenticated.", "term-err"); return; }
+                const r = await fetch(WORKER_URL + "/auth/announcement", {
+                    method: "POST", headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ token, message, type, active: true, targets: [username] })
+                }).then(x => x.json()).catch(() => ({ ok: false }));
+                if (r.ok) termPrint(`✔ Published [${type}] to @${username}: "${message}"`, "term-ok");
+                else termPrint("Error: " + (r.error || "request failed"), "term-err");
+                return;
+            }
+
+            // ── Panel navigation ──────────────────────────────────────────────
+            if (verb === "panel" && noun === "goto") {
+                const tab = parts[2];
+                const validTabs = ["add", "manage", "tree", "bugs", "owner", "info"];
+                if (!tab || !validTabs.includes(tab)) {
+                    termPrint(`Usage: panel goto <${validTabs.join("|")}>`, "term-err"); return;
+                }
+                switchToTab(tab);
+                termPrint(`✔ Switched to "${tab}" tab.`, "term-ok");
+                return;
+            }
+
+            if (verb === "panel" && noun === "close") {
+                closePanel();
+                return;
+            }
+
+            termPrint(`Unknown command: "${cmd}". Tab to autocomplete.`, "term-err");
+
+        } catch (err) {
+            termPrint("Error: " + (err?.message || String(err)), "term-err");
+        }
+    }
+
+    // ── Public API for owner-panel.js ─────────────────────────────────────
+    // owner-panel.js builds its own fullscreen terminal overlay but drives
+    // the same command engine (runTermCommand, matchCommand, TERM_COMMANDS).
+    // Everything here is read-only; owner-panel.js never writes back into
+    // the admin IIFE's private state.
+    window.WHDAdmin = {
+        run:    (raw) => runTermCommand(raw),
+        print:  (text, cls) => termPrint(text, cls),
+        match:  (tokens) => matchCommand(tokens),
+        confirm: (opts) => showConfirm(opts),
+        // Live reference to the shared history array so the owner panel
+        // and the admin terminal share history seamlessly.
+        get history() { return _termHistory; },
+        get watchInterval() { return _watchInterval; },
+        set watchInterval(v) { _watchInterval = v; },
+        // The full command list (populated by commands.js after this runs)
+        get commands() { return typeof TERM_COMMANDS !== "undefined" ? TERM_COMMANDS : []; },
+    };
+
+    // ── Remote Config helpers (global CSS overrides + feature flags) ──
+    // Talks to the worker's /auth/remoteconfig endpoints so changes are
+    // synced to every connected client, not just localStorage on this device.
+    async function remoteConfigCall(body, readOnly) {
+        try {
+            if (readOnly) {
+                const res = await fetch(WORKER_URL + "/auth/remoteconfig/status");
+                return await res.json().catch(() => ({ ok: false, error: "Bad response" }));
+            }
+            const token = window.WHDAuth ? window.WHDAuth.getToken() : null;
+            const res = await fetch(WORKER_URL + "/auth/remoteconfig", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token, ...body }),
+            });
+            return await res.json().catch(() => ({ ok: false, error: "Bad response" }));
+        } catch (err) {
+            return { ok: false, error: err && err.message ? err.message : "Network error" };
+        }
+    }
+
+    let _termStyleEl = null;
+    function applyRemoteConfigToPage(config) {
+        if (!config) return;
+        // CSS overrides — rebuild a single <style> tag from the synced rule list.
+        if (Array.isArray(config.cssRules)) {
+            _lastCssRules = config.cssRules;
+            if (!_termStyleEl) {
+                _termStyleEl = document.createElement("style");
+                _termStyleEl.id = "whd-terminal-css-overrides";
+                document.head.appendChild(_termStyleEl);
+            }
+            _termStyleEl.textContent = config.cssRules
+                .map(r => `${r.selector} { ${r.property}: ${r.value} !important; }`)
+                .join("\n");
+        }
+        // Feature flags — stash on window and broadcast an event so the main
+        // app (script.js) can listen for whd:terminal-activate and react.
+        if (config.flags && typeof config.flags === "object") {
+            window.WHD_FLAGS = config.flags;
+            Object.entries(config.flags).forEach(([flag, value]) => {
+                window.dispatchEvent(new CustomEvent("whd:terminal-activate", { detail: { flag, value } }));
+            });
+        }
+    }
+
+    // Load and apply the synced remote config as soon as the admin panel
+    // boots, so CSS overrides/flags set by a previous session still show.
+    remoteConfigCall(null, true).then(res => { if (res && res.ok) applyRemoteConfigToPage(res); });
+
+    (function initTerminal() {
+        const input   = document.getElementById("adminTermInput");
+        const btn     = document.getElementById("adminTermRunBtn");
+        const suggest = document.getElementById("adminTermSuggest");
+        const hintLine = document.getElementById("adminTermHint");
+        const ghost   = document.getElementById("adminTermGhost");
+        if (!input || !btn) return;
+
+        let histIdx = _termHistory.length;
+        let suggIdx = -1;
+
+        // Inline ("ghost text") ahead-of-cursor completion, VS Code/Copilot-
+        // style: the part already typed is rendered invisibly (so it lines
+        // up exactly under the real input text) followed by the rest of the
+        // top suggestion in dim gray. Accepted with → (at end of input) or Tab.
+        function updateGhost(raw) {
+            if (!ghost) return;
+            const completion = getInlineGhost(raw);
+            if (!completion || !raw) { ghost.innerHTML = ""; return; }
+            ghost.innerHTML = "";
+            const typedSpan = document.createElement("span");
+            typedSpan.className = "ghost-typed";
+            typedSpan.textContent = raw;
+            const restSpan = document.createElement("span");
+            restSpan.className = "ghost-rest";
+            restSpan.textContent = completion.slice(raw.length);
+            ghost.append(typedSpan, restSpan);
+        }
+        function acceptGhost() {
+            const completion = getInlineGhost(input.value);
+            if (!completion || completion.length <= input.value.length) return false;
+            input.value = completion;
+            updateHint(input.value);
+            updateGhost(input.value);
+            renderSuggest(input.value);
+            return true;
+        }
+
+        // Hint line: shows the command's usage under the input, e.g.
+        // "set years  <sceneId> <startYear> <endYear>" while typing the
+        // command name, or just the remaining args once the command name
+        // is finished. This is a plain line of text below the input — not
+        // an overlay on top of it — so there's no font-metric alignment
+        // math involved and nothing for it to drift out of sync with.
+        function updateHint(raw) {
+            if (!hintLine) return;
+            const trimmed = raw.trimStart();
+            if (!trimmed) { hintLine.textContent = ""; return; }
+
+            const tokens = trimmed.split(/\s+/);
+            const match = matchCommand(tokens);
+            const endsWithSpace = /\s$/.test(raw);
+
+            if (match && match.cmd.hint) {
+                const commandIsFinished = (endsWithSpace || tokens.length > match.cmdLen) && !stillExtendingLongerCmd(tokens, endsWithSpace);
+                if (commandIsFinished) {
+                    const filledArgs = endsWithSpace
+                        ? tokens.length - match.cmdLen
+                        : tokens.length - match.cmdLen - 1;
+
+                    // Use args[] labels when available — they are authoritative for how
+                    // many named slots exist. hintParts (split from the hint string) can
+                    // over-count for variadic commands like "bulk set country <country>
+                    // <id1> [id2...]" where the trailing IDs are open-ended, or
+                    // under-count when a single arg value spans multiple tokens (e.g. a
+                    // multi-word country name). With args[], once filledArgs >= the
+                    // number of defined arg slots the hint clears immediately.
+                    if (match.cmd.args && match.cmd.args.length) {
+                        // "edit scenes" uses a "--" separator; once that token is present
+                        // the ID list is open-ended. Show the remaining tail hint instead.
+                        if (match.cmd.cmd === "edit scenes" && tokens.includes("--")) {
+                            const afterSep = tokens.slice(tokens.indexOf("--") + 1);
+                            if (afterSep.length === 0 || (afterSep.length === 1 && !endsWithSpace))
+                                { hintLine.textContent = "<field>  <value>"; return; }
+                            if (afterSep.length === 1 && endsWithSpace)
+                                { hintLine.textContent = "<value>"; return; }
+                            hintLine.textContent = ""; return;
+                        }
+
+                        // Past the last defined slot (variadic tail): hint is clear.
+                        if (filledArgs >= match.cmd.args.length) {
+                            hintLine.textContent = ""; return;
+                        }
+                        // Build a hint string from the remaining named args only.
+                        const remaining = match.cmd.args.slice(filledArgs)
+                            .map(a => "<" + a.label + ">").join("  ");
+                        if (remaining) { hintLine.textContent = remaining; return; }
+                    } else {
+                        // No args metadata: fall back to splitting the hint string.
+                        const hintParts = match.cmd.hint.replace(/[<>\[\]]/g, "").trim().split(/\s+/).filter(Boolean);
+                        const remaining = hintParts.slice(filledArgs).join("  ");
+                        if (remaining) { hintLine.textContent = remaining; return; }
+                    }
+                } else {
+                    // Still typing the command name — show its full usage as a preview.
+                    hintLine.textContent = `${match.cmd.cmd}  ${match.cmd.hint}`;
+                    return;
+                }
+            }
+            hintLine.textContent = "";
+        }
+
+        // ── VS Code–style fuzzy matching ────────────────────────────────────
+        // Scores how well `query` matches `candidate` as an ordered (but not
+        // necessarily contiguous) subsequence of characters, the same basic
+        // approach VS Code's Quick Open / IntelliSense use. Rewards, in order
+        // of weight: an exact match, a match starting at a word boundary
+        // (after a space/-/_/.), a long unbroken run of matched characters,
+        // and matching early in the candidate. Returns null when `query`
+        // isn't a subsequence of `candidate` at all (no match), otherwise
+        // { score, matches } where `matches` are the matched char indices —
+        // used to bold exactly the matched letters, wherever they fall,
+        // instead of only ever bolding one contiguous substring.
+        function fuzzyScore(candidate, query) {
+            const c = candidate.toLowerCase();
+            const q = query.toLowerCase();
+            if (!q) return { score: 0, matches: [] };
+            if (c === q) return { score: 10000, matches: Array.from({ length: c.length }, (_, i) => i) };
+
+            let qi = 0, score = 0, run = 0, lastIdx = -2;
+            const matches = [];
+            for (let ci = 0; ci < c.length && qi < q.length; ci++) {
+                if (c[ci] !== q[qi]) continue;
+                matches.push(ci);
+                if (ci === lastIdx + 1) { run++; score += 8 + run * 4; }
+                else { run = 0; score += 2; }
+                if (ci === 0 || /[\s\-_./]/.test(c[ci - 1])) score += 12;
+                if (qi === 0) score += Math.max(0, 6 - ci);
+                lastIdx = ci;
+                qi++;
+            }
+            if (qi < q.length) return null; // query has chars not found in order
+            if (c.startsWith(q)) score += 30;
+            score -= c.length * 0.15; // mild bias toward shorter/tighter candidates
+            return { score, matches };
+        }
+
+        // Ranks a list of candidates against `query` using fuzzyScore, drops
+        // non-matches, and returns them best-first. `keyFn` extracts the
+        // string to match against from each candidate (defaults to identity).
+        function fuzzyRank(candidates, query, keyFn = (x) => x) {
+            if (!query) return candidates.map(item => ({ item, score: 0, matches: [] }));
+            const ranked = [];
+            for (const item of candidates) {
+                const res = fuzzyScore(String(keyFn(item)), query);
+                if (res) ranked.push({ item, score: res.score, matches: res.matches });
+            }
+            ranked.sort((a, b) => b.score - a.score);
+            return ranked;
+        }
+
+        // Wraps the characters at `matches` indices in <b> tags for display.
+        function highlightMatches(text, matches) {
+            if (!matches || !matches.length) return escHtml(text);
+            const set = new Set(matches);
+            let html = "", inRun = false;
+            for (let i = 0; i < text.length; i++) {
+                const hit = set.has(i);
+                if (hit && !inRun) { html += "<b>"; inRun = true; }
+                if (!hit && inRun) { html += "</b>"; inRun = false; }
+                html += escHtml(text[i]);
+            }
+            if (inRun) html += "</b>";
+            return html;
+        }
+
+        function escHtml(s) { return s.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;"); }
+
+        // Find the longest TERM_COMMANDS entry whose cmd is an exact match for
+        // the first N typed tokens (commands are 1-3 words: "css", "css var",
+        // "flag clear all"). Returns null while the command itself is still
+        // being typed, so command-name completion still works as before.
+        function matchCommand(tokens) {
+            for (let len = Math.min(3, tokens.length); len >= 1; len--) {
+                const prefix = tokens.slice(0, len).join(" ").toLowerCase();
+                const cmd = TERM_COMMANDS.find(c => c.cmd.toLowerCase() === prefix);
+                if (cmd) return { cmd, cmdLen: len };
+            }
+            return null;
+        }
+
+        // True if the last (currently-typed, not-yet-space-terminated) token
+        // is still a viable prefix of a LONGER command name than the one
+        // matchCommand already resolved. Without this check, typing "set y"
+        // immediately matches the short generic "set" command and starts
+        // showing argument suggestions (e.g. scene IDs) even though the user
+        // may still be typing "set years" — a longer command name. This is
+        // the source of arg/placeholder suggestions appearing to show up
+        // "already filled out" while the command name itself is incomplete.
+        function stillExtendingLongerCmd(tokens, endsWithSpace) {
+            if (endsWithSpace || !tokens.length) return false;
+            const lastIdx = tokens.length - 1;
+            const lastPartial = tokens[lastIdx].toLowerCase();
+            return TERM_COMMANDS.some(c => {
+                const words = c.cmd.toLowerCase().split(" ");
+                if (words.length <= tokens.length) return false;
+                for (let i = 0; i < lastIdx; i++) if (words[i] !== tokens[i].toLowerCase()) return false;
+                return words[lastIdx].startsWith(lastPartial);
+            });
+        }
+
+        // Returns either:
+        //   { mode:"cmd", items:[TERM_COMMANDS...] }              — completing the command name
+        //   { mode:"arg", items:["value1","value2",...], label }  — completing an argument value
+        function getSuggestions(raw) {
+            const endsWithSpace = /\s$/.test(raw);
+            const tokens = raw.trim().length ? raw.trim().split(/\s+/) : [];
+            const match = tokens.length ? matchCommand(tokens) : null;
+
+            // Only treat this as "completing an argument" once the command
+            // itself is unambiguously finished — i.e. there's a trailing
+            // space, or more tokens already follow it. Otherwise a single
+            // word like "find" or "css" would be treated as both the command
+            // AND the start of its own first argument, and accepting a
+            // suggestion would clobber the command word itself.
+            // Guard: match may be null if no command matches yet.
+            const commandIsFinished = match && (endsWithSpace || tokens.length > match.cmdLen) && !stillExtendingLongerCmd(tokens, endsWithSpace);
+            if (match && commandIsFinished && match.cmd.args && match.cmd.args.length) {
+                const argIdx = endsWithSpace
+                    ? tokens.length - match.cmdLen
+                    : Math.max(0, tokens.length - match.cmdLen - 1);
+                const argMeta = match.cmd.args[argIdx] || (
+                    // Past the last defined slot: if the last arg looks like a
+                    // repeatable value (scene IDs, db keys), keep suggesting it.
+                    // This covers variadic commands like "bulk delete <id1> [id2...]"
+                    // or "bulk set country <country> <id1> [id2...]" where the user
+                    // keeps appending more IDs after the defined slots run out.
+                    match.cmd.args[match.cmd.args.length - 1]
+                );
+                if (argMeta) {
+                    const partial = (!endsWithSpace && tokens.length > match.cmdLen)
+                        ? tokens[tokens.length - 1].toLowerCase() : "";
+                    let candidates = [];
+                    try { candidates = argMeta.source() || []; } catch { candidates = []; }
+                    candidates = candidates.filter(v => v != null);
+                    const argKey = (v) => (v && typeof v === "object" ? v.value : v);
+                    const ranked = fuzzyRank(candidates, partial, argKey).slice(0, 30);
+                    const items = ranked.map(r => r.item);
+                    return { mode: "arg", items, label: argMeta.label };
+                }
+                // Past the last defined argument slot (e.g. a free-text field
+                // like <name> with no suggestion source) — nothing to suggest,
+                // close cleanly instead of falling through to a whole-string
+                // command-name match below.
+                return { mode: "arg", items: [], label: null };
+            }
+
+            const typed = raw.trimStart().toLowerCase();
+            if (!typed) return { mode: "cmd", items: [] };
+            // Rank every command by fuzzy subsequence score (exact/prefix/word-
+            // boundary/contiguous-run matches all score higher), instead of the
+            // old exact-then-prefix-then-substring bucketing — this lets e.g.
+            // "stcty" surface "set country" the way VS Code's command palette
+            // would, while still always ranking exact and prefix hits highest.
+            const ranked = fuzzyRank(TERM_COMMANDS, typed, c => c.cmd);
+            return { mode: "cmd", items: ranked.map(r => r.item) };
+        }
+
+        // Inline ("ghost text") completion: returns the full string the
+        // input would become if the top suggestion were accepted, but ONLY
+        // when that suggestion is an unambiguous prefix-completion of what's
+        // already typed (e.g. "se" -> "set"). A fuzzy/subsequence match like
+        // "stcty" -> "set country" has no clean "rest of the word" to show
+        // inline, so it's left to the dropdown instead. Returns null when
+        // there's nothing sensible to ghost.
+        function getInlineGhost(raw) {
+            if (!raw) return null;
+            const { mode, items } = getSuggestions(raw);
+            if (!items || !items.length) return null;
+
+            if (mode === "cmd") {
+                const trimmed = raw.trimStart();
+                const lead = raw.slice(0, raw.length - trimmed.length);
+                const top = items[0].cmd;
+                if (trimmed && top.toLowerCase().startsWith(trimmed.toLowerCase()) && top.length > trimmed.length) {
+                    return lead + top;
+                }
+                return null;
+            }
+
+            if (/\s$/.test(raw)) return null; // nothing typed yet for this argument
+            const tokens = raw.trim().length ? raw.trim().split(/\s+/) : [];
+            const partial = tokens[tokens.length - 1] || "";
+            if (!partial) return null;
+            const top = items[0];
+            const val = (top && typeof top === "object") ? top.value : top;
+            if (val == null) return null;
+            const valStr = String(val);
+            if (valStr.toLowerCase().startsWith(partial.toLowerCase()) && valStr.length > partial.length) {
+                return raw.slice(0, raw.length - partial.length) + valStr;
+            }
+            return null;
+        }
+
+        function renderSuggest(raw) {
+            if (!suggest) return;
+            const { mode, items, label } = getSuggestions(raw);
+            if (!items.length) { closeSuggest(); return; }
+            suggest.innerHTML = "";
+            suggIdx = -1;
+
+            if (mode === "cmd") {
+                const typed = raw.trimStart().toLowerCase();
+                items.forEach(c => {
+                    const item = document.createElement("div");
+                    item.className = "admin-term-sugg-item";
+                    const iconEl = document.createElement("span");
+                    iconEl.className = "admin-term-sugg-icon";
+                    iconEl.textContent = (c.cat || "?").charAt(0).toUpperCase();
+                    const cmdEl = document.createElement("span");
+                    cmdEl.className = "admin-term-sugg-cmd";
+                    // Highlight every matched character (VS Code-style subsequence
+                    // highlight), not just one contiguous substring.
+                    const fz = typed ? fuzzyScore(c.cmd, typed) : null;
+                    cmdEl.innerHTML = fz ? highlightMatches(c.cmd, fz.matches) : escHtml(c.cmd);
+                    const hintEl = document.createElement("span");
+                    hintEl.className = "admin-term-sugg-hint";
+                    hintEl.textContent = c.hint;
+                    const descEl = document.createElement("span");
+                    descEl.className = "admin-term-sugg-desc";
+                    descEl.textContent = c.desc;
+                    const catEl = document.createElement("span");
+                    catEl.className = "admin-term-sugg-cat";
+                    catEl.textContent = c.cat;
+                    item.append(iconEl, cmdEl, hintEl, descEl, catEl);
+                    item.addEventListener("mousedown", e => { e.preventDefault(); acceptSuggestion(mode, c); });
+                    suggest.appendChild(item);
+                });
+            } else {
+                // Argument-value suggestions with enriched context labels.
+                // For sceneId args: show the human-readable scene name as a sub-label.
+                // For other args: show the argument slot name (label) on the right.
+                const _sceneNameMap = {};
+                if (label === "sceneId" || label === "targetId" || label === "sourceId") {
+                    termAllActiveScenes().forEach(m => { _sceneNameMap[m.scene.id] = m.scene.name; });
+                }
+                const _deletedNameMap = {};
+                if (label === "sceneId") {
+                    Array.from(deletedIds).forEach(id => {
+                        const stored = deletedSceneStore[id];
+                        if (stored) _deletedNameMap[id] = stored.name;
+                    });
+                }
+
+                const typedPartial = (() => {
+                    const endsWithSpace = /\s$/.test(raw);
+                    const tokens = raw.trim().length ? raw.trim().split(/\s+/) : [];
+                    return endsWithSpace ? "" : (tokens[tokens.length - 1] || "").toLowerCase();
+                })();
+
+                items.forEach(rawItem => {
+                    const val  = (rawItem && typeof rawItem === "object") ? rawItem.value : rawItem;
+                    const desc = (rawItem && typeof rawItem === "object") ? rawItem.desc  : "";
+                    const item = document.createElement("div");
+                    item.className = "admin-term-sugg-item admin-term-sugg-item-arg";
+                    const iconEl = document.createElement("span");
+                    iconEl.className = "admin-term-sugg-icon admin-term-sugg-icon-arg";
+                    iconEl.textContent = (label || "?").charAt(0).toUpperCase();
+                    const cmdEl = document.createElement("span");
+                    cmdEl.className = "admin-term-sugg-cmd";
+                    const fz = typedPartial ? fuzzyScore(String(val), typedPartial) : null;
+                    cmdEl.innerHTML = fz ? highlightMatches(String(val), fz.matches) : escHtml(String(val));
+
+                    // Prefer a real per-item description (e.g. what a function
+                    // does) over the generic scene-name/label sub-text.
+                    const subLabel = desc || _sceneNameMap[val] || _deletedNameMap[val] || label || "";
+                    const hintEl = document.createElement("span");
+                    hintEl.className = "admin-term-sugg-hint" + (desc ? " admin-term-sugg-hint-desc" : "");
+                    hintEl.textContent = subLabel;
+
+                    item.append(iconEl, cmdEl, hintEl);
+                    item.addEventListener("mousedown", e => { e.preventDefault(); acceptSuggestion(mode, rawItem); });
+                    suggest.appendChild(item);
+                });
+            }
+            suggest.classList.add("open");
+        }
+
+        function closeSuggest() {
+            if (!suggest) return;
+            suggest.classList.remove("open");
+            suggest.innerHTML = "";
+            suggIdx = -1;
+        }
+
+        function acceptSuggestion(mode, choice) {
+            if (mode === "cmd") {
+                input.value = choice.cmd + (choice.hint ? " " : "");
+            } else {
+                const value = (choice && typeof choice === "object") ? choice.value : choice;
+                const endsWithSpace = /\s$/.test(input.value);
+                const tokens = input.value.trim().length ? input.value.trim().split(/\s+/) : [];
+                const match = matchCommand(tokens);
+                const cmdLen = match ? match.cmdLen : 0;
+                const keepCount = endsWithSpace ? tokens.length : Math.max(cmdLen, tokens.length - 1);
+                const kept = tokens.slice(0, keepCount);
+                input.value = kept.join(" ") + (kept.length ? " " : "") + value + " ";
+            }
+            closeSuggest();
+            input.focus();
+            updateHint(input.value);
+            updateGhost(input.value);
+            renderSuggest(input.value); // immediately offer the next argument, if any
+        }
+
+        function moveSuggIdx(dir) {
+            if (!suggest?.classList.contains("open")) return false;
+            const items = suggest.querySelectorAll(".admin-term-sugg-item");
+            if (!items.length) return false;
+            items[suggIdx]?.classList.remove("active");
+            suggIdx = Math.max(0, Math.min(items.length - 1, suggIdx + dir));
+            items[suggIdx].classList.add("active");
+            items[suggIdx].scrollIntoView({ block: "nearest" });
+            return true;
+        }
+
+        const run = () => {
+            const val = input.value.trim();
+            if (!val) return;
+            _termHistory.push(val);
+            histIdx = _termHistory.length;
+            input.value = "";
+            if (hintLine) hintLine.textContent = "";
+            if (ghost) ghost.innerHTML = "";
+            closeSuggest();
+            runTermCommand(val);
+        };
+
+        btn.addEventListener("click", run);
+
+        input.addEventListener("keydown", e => {
+            const open = suggest?.classList.contains("open");
+            if (e.key === "ArrowRight" && !open &&
+                input.selectionStart === input.value.length && input.selectionEnd === input.value.length) {
+                if (acceptGhost()) { e.preventDefault(); return; }
+            }
+            if (e.key === "Enter") {
+                if (open && suggIdx >= 0) {
+                    const { mode, items } = getSuggestions(input.value);
+                    if (items[suggIdx] !== undefined) { acceptSuggestion(mode, items[suggIdx]); e.preventDefault(); return; }
+                }
+                run(); return;
+            }
+            if (e.key === "Tab") {
+                e.preventDefault();
+                if (acceptGhost()) return;
+                const { mode, items } = getSuggestions(input.value);
+                if (!items.length) return;
+                if (items.length === 1 || (open && suggIdx >= 0)) {
+                    acceptSuggestion(mode, items[open && suggIdx >= 0 ? suggIdx : 0]); return;
+                }
+                if (mode === "cmd") {
+                    // Complete to longest common prefix
+                    const lcp = items.reduce((common, c) => {
+                        let i = 0;
+                        while (i < common.length && c.cmd[i] === common[i]) i++;
+                        return common.slice(0, i);
+                    }, items[0].cmd);
+                    if (lcp.length > input.value.trimStart().length) input.value = lcp + " ";
+                }
+                renderSuggest(input.value);
+                return;
+            }
+            if (e.key === "Escape") { if (open) { closeSuggest(); e.preventDefault(); } return; }
+            if (e.key === "ArrowDown") {
+                if (open) { moveSuggIdx(1); e.preventDefault(); return; }
+                if (histIdx < _termHistory.length) { input.value = _termHistory[++histIdx] || ""; updateHint(input.value); updateGhost(input.value); renderSuggest(input.value); }
+                e.preventDefault(); return;
+            }
+            if (e.key === "ArrowUp") {
+                if (open) { moveSuggIdx(-1); e.preventDefault(); return; }
+                if (histIdx > 0) { input.value = _termHistory[--histIdx]; updateHint(input.value); updateGhost(input.value); renderSuggest(input.value); }
+                e.preventDefault(); return;
+            }
+        });
+
+        input.addEventListener("input", () => {
+            histIdx = _termHistory.length;
+            updateHint(input.value);
+            updateGhost(input.value);
+            renderSuggest(input.value);
+        });
+        input.addEventListener("blur",  () => { setTimeout(closeSuggest, 120); if (hintLine) hintLine.textContent = ""; if (ghost) ghost.innerHTML = ""; });
+        input.addEventListener("focus", () => { if (input.value) { updateHint(input.value); updateGhost(input.value); renderSuggest(input.value); } });
+
+        // Expose the real engine internals on WHDAdmin so other terminal UIs
+        // (owner-panel.js) share the exact same matching/suggestion logic and
+        // its fixes, instead of re-implementing — and forking — the same bugs.
+        // This also replaces the earlier WHDAdmin.match stub, which referenced
+        // matchCommand before it existed in scope and would have thrown.
+        Object.assign(window.WHDAdmin, {
+            match: matchCommand,
+            getSuggestions,
+            getInlineGhost,
+            fuzzyScore,
+            getHintText: (raw) => { updateHint(raw); return hintLine ? hintLine.textContent : ""; },
+            setOutput: (id) => { _termOutputId = id || "adminTermOutput"; },
+            bootMessage: () => printTermBootMessage(),
+        });
+    })();
 
     function refreshDeletedList() {
         const ids = Array.from(deletedIds);

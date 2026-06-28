@@ -240,7 +240,10 @@
 #appConfirm {
     position: fixed;
     inset: 0;
-    z-index: 10050;
+    /* Must outrank #ownerPanelOverlay (10500) — terminal commands route
+       through showAppConfirm when available, so this has to render on
+       top of the owner panel, not behind it. */
+    z-index: 20050;
     display: none;
     align-items: center;
     justify-content: center;
@@ -563,6 +566,7 @@
 .admin-page::-webkit-scrollbar{width:5px;}
 .admin-page::-webkit-scrollbar-thumb{background:var(--accent-dim);border-radius: 3px;}
 .admin-page.active{display:block;}
+.admin-page.admin-page-terminal.active{display:flex;}
 
 /* ── Section titles ───────────────────────────────── */
 .admin-section-title{
@@ -576,6 +580,7 @@
 .admin-form-full{grid-column:1/-1;}
 .admin-field{display:flex;flex-direction:column;gap:4px;}
 .admin-field label{font-size:11px;color:rgba(255,255,255,0.45);font-weight:600;letter-spacing:.06em;text-transform:uppercase;}
+.admin-field-hint{font-size:10px;color:rgba(255,255,255,0.3);font-weight:400;text-transform:none;letter-spacing:0;margin-left:6px;}
 .admin-field input,.admin-field select,.admin-field textarea{
     background:rgba(255,255,255,0.05);border:1px solid rgba(255,255,255,0.1);
     border-radius:7px;color:#fff;font-family:inherit;font-size:13px;
@@ -603,9 +608,11 @@
 
 /* ── Buttons ───────────────────────────────────────── */
 .admin-btn{
-    display:inline-flex;align-items:center;gap:5px;padding:7px 14px;
-    border-radius:8px;border:none;font-family:inherit;font-size:12px;font-weight:700;
+    display:inline-flex;align-items:center;gap:6px;padding:11px 20px;
+    border-radius:9px;border:none;font-family:inherit;font-size:13px;font-weight:700;
     letter-spacing:.06em;text-transform:uppercase;cursor:pointer;transition:all .15s;
+    min-width:0 !important;width:auto !important;box-sizing:border-box;flex:0 0 auto;
+    white-space:nowrap;
 }
 .admin-btn-primary{background:var(--accent);color:#fff;}
 .admin-btn-primary:hover{background:var(--accent-dim);}
@@ -625,10 +632,13 @@
 #adminFormMode.mode-edit{background:rgba(200,120,0,0.18);color:#f5a623;border-color:rgba(200,120,0,0.35);}
 
 /* ── Toast notifications ──────────────────────────── */
+/* Must outrank #ownerPanelOverlay (10500) too — terminal commands fire
+   toasts (e.g. "✔ Cleared flag") that need to be visible while the owner
+   panel is open, not hidden behind it. */
 #adminToast{
     position:fixed;bottom:58px;right:18px;background:rgba(20,20,20,0.97);
     border:1px solid var(--accent-dim);border-radius:8px;padding:10px 16px;
-    font-size:13px;color:#eee;z-index:10005;opacity:0;transform:translateY(8px);
+    font-size:13px;color:#eee;z-index:20005;opacity:0;transform:translateY(8px);
     transition:opacity .25s,transform .25s;pointer-events:none;max-width:320px;
 }
 #adminToast.show{opacity:1;transform:translateY(0);}
@@ -693,7 +703,17 @@ color: white;
     font-size:10px;font-weight:700;letter-spacing:.06em;padding:2px 7px;
     border-radius:99px;white-space:nowrap;border:1px solid;
 }
-.admin-scene-actions{display:flex;gap:6px;}
+.admin-scene-actions{display:flex;gap:5px;flex-wrap:wrap;justify-content:flex-end;}
+.admin-scene-actions .admin-btn{
+    padding:4px 9px !important;font-size:10.5px !important;min-width:0 !important;
+    width:auto !important;flex:0 0 auto !important;
+}
+@media (max-width: 640px) {
+    .admin-scene-row{flex-wrap:wrap;}
+    .admin-scene-row > div{flex-wrap:wrap;}
+    .admin-scene-actions{width:100%;justify-content:flex-start;margin-top:6px;}
+    .admin-scene-actions .admin-btn{padding:5px 8px !important;font-size:10px !important;}
+}
 .db-europe{color:#7abaff;border-color:rgba(122,186,255,0.3);}
 .db-asia{color:#ffb347;border-color:rgba(255,179,71,0.3);}
 .db-africa{color:#7dff9e;border-color:rgba(125,255,158,0.3);}
@@ -770,8 +790,11 @@ color: white;
 .admin-color-wheel::-webkit-color-swatch{border:none;border-radius:50%;}
 .admin-color-wheel::-moz-color-swatch{border:none;border-radius:50%;}
 /* ── Confirm dialog ────────────────────────────────── */
+/* NOTE: z-index must stay above #ownerPanelOverlay (10500) — this dialog
+   is launched from terminal commands (delete/purge/etc.) that run inside
+   the owner panel, so it has to render on top of it, not behind it. */
 #adminConfirm{
-    position:fixed;inset:0;z-index:10010;display:none;
+    position:fixed;inset:0;z-index:20010;display:none;
     align-items:center;justify-content:center;
     background:rgba(0,0,0,0.7);
 }
@@ -793,6 +816,146 @@ color: white;
 #adminConfirmOk:hover{
     background: var(--accent);
     color: white;
+}
+
+/* ── Duplicate title badge ─────────────────────────── */
+.admin-dup-badge{
+    font-size:9px;color:#ffc06a;border:1px solid var(--accent-dim);
+    border-radius:99px;padding:1px 5px;font-weight:700;margin-left:6px;
+    cursor:default;
+}
+
+/* ── Replace Scene picker dialog ───────────────────── */
+/* Same z-index reasoning as #adminConfirm above — must outrank
+   #ownerPanelOverlay (10500) since "scene replace" runs from the
+   owner terminal. */
+#adminReplace{
+    position:fixed;inset:0;z-index:20010;display:none;
+    align-items:center;justify-content:center;
+    background:rgba(0,0,0,0.7);
+}
+#adminReplaceBox{
+    background:#181818;border:1px solid var(--accent-dim);border-radius:14px;
+    padding:24px 26px;max-width:480px;width:92%;max-height:80vh;
+    display:flex;flex-direction:column;min-height:0;
+    box-shadow:0 8px 40px rgba(0,0,0,0.8);
+}
+#adminReplaceTitle{font-size:15px;font-weight:700;margin-bottom:4px;color:#fff;}
+#adminReplaceMsg{font-size:12px;color:rgba(255,255,255,0.5);line-height:1.5;margin-bottom:14px;}
+#adminReplaceFilter{
+    width:100%;box-sizing:border-box;background:rgba(255,255,255,0.05);
+    border:1px solid var(--accent-dim);border-radius:8px;color:#fff;
+    padding:8px 10px;font-size:12px;margin-bottom:12px;outline:none;
+}
+#adminReplaceFilter:focus{border-color:var(--accent);}
+#adminReplaceList{overflow-y:auto;min-height:0;flex:1;display:flex;flex-direction:column;gap:6px;
+    scrollbar-width:thin;scrollbar-color:var(--accent-dim) transparent;}
+.admin-replace-row{
+    display:flex;align-items:center;gap:8px;padding:8px 10px;border-radius:8px;
+    border:1px solid var(--accent-dim);cursor:pointer;background:rgba(255,255,255,0.03);
+    transition:border-color .15s,background .15s;
+}
+.admin-replace-row:hover{border-color:var(--accent);background:var(--accent-glow);}
+.admin-replace-row .arr-name{font-size:12px;font-weight:600;color:#fff;flex:1;min-width:0;}
+.admin-replace-row .arr-meta{font-size:10px;color:rgba(255,255,255,0.45);flex-shrink:0;}
+.admin-replace-empty{color:rgba(255,255,255,0.3);font-size:12px;padding:10px 0;text-align:center;}
+#adminReplaceBtns{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;margin-top:14px;}
+#adminReplaceBtns .admin-btn{flex:1 1 auto;min-width:0;justify-content:center;}
+
+/* ── Owner Terminal ─────────────────────────────────── */
+.admin-term-output{
+    background:#0c0c0c;border:1px solid var(--accent-dim);border-radius:8px;
+    padding:10px 12px;flex:1;min-height:180px;overflow-y:auto;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12px;line-height:1.6;margin-bottom:10px;scrollbar-width:thin;
+    scrollbar-color:var(--accent-dim) transparent;
+}
+.admin-term-line{white-space:pre-wrap;word-break:break-word;margin-bottom:2px;}
+.admin-term-line.term-cmd{color:rgba(255,255,255,0.5);}
+.admin-term-line.term-ok{color:#7dff9e;}
+.admin-term-line.term-err{color:var(--accent);}
+.admin-term-line.term-info{color:rgba(255,255,255,0.75);}
+.admin-term-inputrow{display:flex;align-items:center;gap:8px;}
+.admin-term-prompt{color:var(--accent);font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;font-weight:700;flex-shrink:0;}
+.admin-term-input{
+    flex:1;font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:13px;padding:7px 11px;border:1px solid rgba(255,255,255,0.12);
+    box-sizing:border-box;border-radius:7px;
+    background:transparent !important; /* must win over the later .admin-input rule */
+    width:100%;caret-color:auto;color:inherit;
+}
+/* Usage hint line — a plain line of text below the input (not an overlay on
+   top of it), so there's no font-metric alignment math and nothing for it
+   to drift out of sync with. */
+.admin-term-hint{
+    min-height:18px;padding:3px 11px 0;
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:11.5px;color:rgba(255,255,255,0.38);white-space:pre;overflow:hidden;
+    text-overflow:ellipsis;
+}
+
+.admin-term-input-wrap{position:relative;flex:1;background:rgba(255,255,255,0.06);border:1px solid rgba(255,255,255,0.12);border-radius:7px;}
+.admin-term-input-wrap:focus-within{border-color:var(--accent-dim);}
+.admin-term-input-wrap .admin-term-input{position:relative;z-index:1;background:transparent !important;border-color:transparent;}
+/* Ghost text sits behind the input (whose own background is transparent)
+   showing: an invisible spacer matching exactly what's already typed, then
+   the rest of the top inline completion in dim gray — the same visual
+   pattern as VS Code / Copilot inline suggestions. Only ever shown when
+   the suggestion is a true prefix-completion of what's typed, so there's
+   always an unambiguous "rest of the word" to display. */
+.admin-term-ghost{
+    position:absolute;inset:0;z-index:0;pointer-events:none;
+    display:flex;align-items:center;
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:13px;padding:7px 11px;box-sizing:border-box;
+    border:1px solid transparent;
+    white-space:pre;overflow:hidden;
+}
+.admin-term-ghost .ghost-typed{color:transparent;}
+.admin-term-ghost .ghost-rest{color:rgba(255,255,255,0.32);}
+#ownerPanel .admin-term-ghost{font-size:14px;}
+/* Terminal page fills available height as flex column */
+.admin-page-terminal{
+    display:none;flex-direction:column;padding:16px 20px;
+}
+
+/* ── Suggestion dropdown — compact layout, themed with the app's own
+   accent colors (var(--accent)/--accent-dim/--accent-glow) so it matches
+   whatever color theme the user has picked, rather than a fixed palette. ── */
+.admin-term-suggest{
+    position:absolute;left:20px;right:0;bottom:calc(100% + 6px);
+    background:#141414;border:1px solid var(--accent-dim);border-radius:7px;
+    box-shadow:0 8px 28px rgba(0,0,0,0.65);max-height:280px;overflow-y:auto;
+    display:none;z-index:20;scrollbar-width:thin;scrollbar-color:var(--accent-dim) transparent;
+    padding:3px;
+}
+.admin-term-suggest.open{display:block;}
+.admin-term-sugg-item{
+    display:grid;
+    grid-template-columns:18px minmax(140px,auto) minmax(80px,auto) 1fr auto;
+    align-items:center;gap:8px;padding:4px 9px;cursor:pointer;border-radius:5px;
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",Menlo,monospace;
+    font-size:12.5px;line-height:21px;border-bottom:none;
+}
+.admin-term-sugg-item:hover,.admin-term-sugg-item.active{background:var(--accent-glow);}
+.admin-term-sugg-item-arg{grid-template-columns:18px minmax(100px,auto) 1fr;}
+.admin-term-sugg-icon{
+    display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;
+    width:16px;height:16px;border-radius:4px;font-size:10px;font-weight:700;
+    background:var(--accent-glow);color:var(--accent);
+}
+.admin-term-sugg-icon-arg{background:rgba(255,255,255,0.09);color:rgba(255,255,255,0.6);}
+.admin-term-sugg-cmd{color:#fff;font-weight:500;white-space:nowrap;}
+.admin-term-sugg-cmd b{color:var(--accent);font-weight:800;}
+.admin-term-sugg-hint{color:var(--accent-dim);font-style:normal;font-size:11.5px;white-space:nowrap;opacity:.9;}
+.admin-term-sugg-hint-desc{
+    color:rgba(255,255,255,0.5);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    min-width:0;font-style:italic;
+}
+.admin-term-sugg-desc{color:rgba(255,255,255,0.45);font-size:11.5px;font-family:inherit;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+.admin-term-sugg-cat{
+    font-size:9px;font-weight:700;letter-spacing:.05em;text-transform:uppercase;
+    color:var(--accent);opacity:.75;background:transparent;
+    padding:0;white-space:nowrap;justify-self:end;
 }
 
 #adminAddSubtabs{
@@ -1057,7 +1220,8 @@ font-weight:700;
     display: flex;
     gap: 5px;
     margin-bottom: 16px;
-    flex-wrap: wrap;
+overflow-x: scroll;
+scrollbar-width: none;
 }
 .admin-owner-tab {
     background: rgba(255,255,255,0.05);
@@ -1582,6 +1746,56 @@ body.accent-is-light .maint-trivia-opt:hover:not(:disabled) { color: #111; }
     color: var(--accent);
 }
 .maint-trivia-sub { font-size: 12px; color: rgba(255,255,255,0.4); margin-bottom: 6px; }
+/* ── Banned page ─────────────────────────────────────────────────── */
+#bannedPage {
+    display: none;
+    position: fixed;
+    inset: 0;
+    z-index: 20000;
+    background: #0a0a0c;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+    padding: 32px;
+    font-family: "Inter", sans-serif;
+}
+#bannedPage.active { display: flex; }
+.banned-glyph {
+    font-size: 52px;
+    margin-bottom: 20px;
+    opacity: 0.5;
+}
+.banned-title {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: #f0e8d0;
+    margin-bottom: 10px;
+}
+.banned-sub {
+    font-size: 14px;
+    color: rgba(255,255,255,0.38);
+    line-height: 1.7;
+    max-width: 380px;
+    margin-bottom: 32px;
+}
+.banned-signout-btn {
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: rgba(255,255,255,0.5);
+    border-radius: 8px;
+    padding: 9px 20px;
+    font-size: 12px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+    letter-spacing: 0.05em;
+    transition: all 0.15s;
+}
+.banned-signout-btn:hover { color: #fff; border-color: rgba(255,255,255,0.3); background: rgba(255,255,255,0.1); }
+
 .maint-trivia-again {
     background: var(--accent-glow);
     border: 1px solid var(--accent-dim);
@@ -1848,4 +2062,71 @@ body.accent-is-light .admin-recipient-opt-avatar { color: #111; }
     display: flex;
     flex-direction: column;
     gap: 10px;
+}
+/* ═══════════════════════════════════════════════════════════════
+   OWNER TERMINAL PANEL (Ctrl+Shift+O — owner only)
+   Injected/controlled by javascript/owner-panel.js
+   A lightweight alternative to the Admin Panel: just the terminal,
+   no tabs, no forms. Reuses the .admin-term-* styles above.
+   ═══════════════════════════════════════════════════════════════ */
+#ownerPanelOverlay {
+    /* No backdrop: the terminal floats over the live page, which stays
+       fully interactive underneath — this is a tool window, not a modal. */
+    position:fixed;inset:0;background:transparent;z-index:10500;
+    display:none;opacity:0;transition:opacity 0.2s ease;
+    align-items:center;justify-content:center;padding:4vh 3vw;
+    pointer-events:none;
+}
+#ownerPanelOverlay.visible{display:flex;}
+#ownerPanelOverlay.active{opacity:1;}
+#ownerPanel {
+    position:relative;
+    width:min(1140px,96vw);height:min(800px,92vh);
+    min-width:420px;min-height:320px;
+    background:#0b0b0b;border:1px solid var(--accent-dim);border-radius:14px;
+    box-shadow:0 0 60px var(--accent-glow),0 20px 60px rgba(0,0,0,0.85);
+    display:flex;flex-direction:column;overflow:hidden;
+    font-family:"Inter",sans-serif;color:#eee;
+    transform:translateY(10px) scale(0.98);opacity:0;
+    transition:transform 0.2s ease,opacity 0.2s ease;
+    pointer-events:auto; /* re-enable inside the otherwise click-through overlay */
+}
+#ownerPanelOverlay.active #ownerPanel{transform:translateY(0) scale(1);opacity:1;}
+#ownerPanelHeader {
+    display:flex;align-items:center;justify-content:space-between;
+    padding:16px 22px;border-bottom:1px solid rgba(255,255,255,0.07);
+    background:var(--accent-glow);flex-shrink:0;
+    cursor:move;user-select:none;
+}
+#ownerPanelHeader h2{margin:0;font-size:17px;font-weight:700;letter-spacing:.02em;}
+#ownerPanelCloseBtn {
+    background:transparent;border:none;color:rgba(255,255,255,0.6);
+    font-size:20px;cursor:pointer;line-height:1;padding:6px 10px;border-radius:6px;
+    transition:background .15s,color .15s;
+    /* Targeted override: the global `button{min-width:200px}` rule (see
+       layout.css) would otherwise blow this up into an invisible 200px-
+       wide hit target that can swallow clicks meant for things next to it. */
+    min-width:0;width:auto;
+}
+#ownerPanelCloseBtn:hover{background:rgba(255,255,255,0.08);color:#fff;}
+#ownerPanel.whd-panel-dragging,
+#ownerPanel.whd-panel-resizing{transition:none;}
+#ownerPanel.whd-panel-dragging *,
+#ownerPanel.whd-panel-resizing *{user-select:none;}
+#ownerPanel .admin-term-output,
+#ownerPanel .admin-term-inputwrap {
+    margin:0 22px;
+}
+#ownerPanel .owner-term-output{flex:1;min-height:0;margin-top:18px;font-size:13.5px;line-height:1.7;}
+#ownerPanel .admin-term-inputwrap{margin-bottom:18px;}
+#ownerPanel .admin-term-suggest{left:0;right:0;}
+#ownerPanel .admin-term-input,
+#ownerPanel .admin-term-hint{font-size:14px;}
+#ownerPanel .admin-term-prompt{font-size:15px;}
+
+@media (max-width:640px){
+    #ownerPanelOverlay{padding:0;}
+    #ownerPanel{width:100%;height:100%;border-radius:0;}
+    #ownerPanelHeader{cursor:default;}
+    #ownerPanel .resize-handle{display:none;}
 }
