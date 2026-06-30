@@ -481,9 +481,24 @@ function enhanceNumberInputs(ids) {
     async function syncToWorker() {
         if (!WORKER_URL) return;
         const passcode = sessionStorage.getItem(SS_PASSCODE);
-        if (!passcode) return; // not verified — can't write
+        // Admin/owner roles bypass the passcode *prompt* entirely
+        // (_applyPanelRole → unlockAdminUI), so SS_PASSCODE is never set
+        // for them — they have no passcode to send. Fall back to their
+        // logged-in session token instead; the worker accepts either.
+        // Without this, every owner-terminal edit (scenes, tree, deletes)
+        // silently stayed local-only forever, since the very users driving
+        // the terminal never had a passcode to authenticate the write with.
+        const token = window.WHDAuth ? window.WHDAuth.getToken() : null;
+        if (!passcode && !token) {
+            // Truly no credentials at all (no login, no passcode) — this
+            // change really will stay LOCAL to this browser only.
+            console.warn("[WHD] Skipped global sync — no verified passcode or session token. Changes are LOCAL ONLY.");
+            toast("⚠ Not synced globally — log in or enter the owner passcode to push changes everywhere", true);
+            return;
+        }
         const payload = {
-            passcode,
+            passcode: passcode || undefined,
+            token: token || undefined,
             scenes: lsGet(LS_SCENES) || [],
             deleted: lsGet(LS_DELETED) || [],
             deletedStore: lsGet("whd_deleted_scene_store") || {},
@@ -497,7 +512,14 @@ function enhanceNumberInputs(ids) {
             });
             const data = await res.json().catch(() => ({}));
             if (!res.ok || !data.ok) {
-                toast("Couldn't sync to shared storage: " + (data.error || res.status), true);
+                // Authed via token but worker rejected it (e.g. role isn't
+                // admin/owner, or token expired) — say so plainly instead
+                // of the generic message, since "invalid passcode" is
+                // misleading when the user never typed one.
+                const reason = data.error || res.status;
+                toast(token && !passcode
+                    ? `Couldn't sync to shared storage (session may have expired — try logging in again): ${reason}`
+                    : `Couldn't sync to shared storage: ${reason}`, true);
             }
         } catch (e) {
             toast("Couldn't reach shared storage (offline?)", true);
@@ -505,13 +527,14 @@ function enhanceNumberInputs(ids) {
     }
 
     function fetchSharedAdminData() {
-        if (!WORKER_URL) return;
-        fetch(WORKER_URL + "/data")
+        if (!WORKER_URL) return Promise.resolve(false);
+        return fetch(WORKER_URL + "/data")
             .then(res => res.ok ? res.json() : null)
             .then(data => {
-                if (!data) return;
+                if (!data) return false;
                 const version = JSON.stringify(data);
-                if (version === localStorage.getItem(LS_SYNC_VERSION)) return; // unchanged
+                if (version === localStorage.getItem(LS_SYNC_VERSION)) return false; // unchanged
+                const isFirstSync = localStorage.getItem(LS_SYNC_VERSION) === null;
 
                 lsSet(LS_SCENES, data.scenes || []);
                 lsSet(LS_DELETED, data.deleted || []);
@@ -519,13 +542,60 @@ function enhanceNumberInputs(ids) {
                 if (data.tree) lsSet(LS_TREE, data.tree);
                 localStorage.setItem(LS_SYNC_VERSION, version);
 
-                if (localStorage.getItem("whd_admin_seen") === "1") {
+                // ── Actually apply it to the live page ──────────────────
+                // This used to stop at localStorage and rely on the user
+                // reloading the page for any of it to show up — for a
+                // first-time visitor that meant the data sat there unused
+                // forever, since the refresh banner below was (and still
+                // is) suppressed on a first sync. Every other browser that
+                // pulled this same page before another admin's change
+                // propagated would silently keep showing stale content
+                // until someone happened to reload it more than once.
+                const newDeleted = new Set(data.deleted || []);
+                // Anything that WAS soft-deleted locally but no longer is
+                // in the shared list got restored elsewhere — bring it
+                // back from the deleted-scene backup store if we have it.
+                deletedIds.forEach(id => {
+                    if (!newDeleted.has(id) && deletedSceneStore[id]) {
+                        const restored = deletedSceneStore[id];
+                        const dbKey = restored._dbKey || dbKeyForScene(restored);
+                        const arr = DB_MAP[dbKey] ? DB_MAP[dbKey].getArr() : null;
+                        if (arr && !arr.find(s => s.id === id)) arr.push({ ...restored });
+                        if (!scenes.find(s => s.id === id)) scenes.push({ ...restored });
+                    }
+                });
+                // Anything newly deleted elsewhere needs removing here too.
+                newDeleted.forEach(id => removeSceneFromLiveArrays(id));
+                deletedIds.clear();
+                newDeleted.forEach(id => deletedIds.add(id));
+                Object.assign(deletedSceneStore, data.deletedStore || {});
+
+                applySavedScenesAndTree(data.scenes || [], data.tree);
+
+                // Re-render whatever's currently visible so the merge above
+                // is actually seen without forcing a reload.
+                if (typeof refreshTree === "function") refreshTree();
+                if (typeof renderBookmarksList === "function") renderBookmarksList();
+                if (typeof filterExploreSearch === "function") filterExploreSearch();
+
+                // Still nudge the user that a reload would pick up anything
+                // a live merge can't safely hot-swap (e.g. a scene they're
+                // currently viewing) — but no longer gated on this being a
+                // returning visitor only, since first-time visitors deserve
+                // to know just as much.
+                if (!isFirstSync) {
                     showRefreshBanner();
                 }
                 localStorage.setItem("whd_admin_seen", "1");
+                return true;
             })
-            .catch(() => { /* offline / Worker unreachable — silently keep local cache */ });
+            .catch(() => false); // offline / Worker unreachable — caller decides how to report this
     }
+
+    // Re-check the shared store periodically while the tab stays open, so
+    // a change made by another admin reaches everyone already browsing —
+    // not just people who happen to load the page fresh afterward.
+    setInterval(fetchSharedAdminData, 120000);
 
     function showRefreshBanner() {
         if (document.getElementById("adminRefreshBanner")) return;
@@ -591,9 +661,21 @@ const deletedIds = new Set(lsGet(LS_DELETED) || []);
 // Backup store for deleted scene objects
 const deletedSceneStore = lsGet("whd_deleted_scene_store") || {};
 
+    // Populated each load by applyPersistedData(): scene ids that are
+    // CURRENTLY defined in the source code (continent JS files) but are
+    // being hidden because their id is still sitting in the deletedIds
+    // soft-delete list. This is the "Poland scenario" — someone deleted a
+    // scene via the terminal/admin panel, then re-added a scene with the
+    // same id directly in code, expecting it to reappear. Re-adding code
+    // does NOT clear a soft-delete; the id has to be explicitly restored
+    // (`restore <id>` / `restore all`) or purged. We surface it here so
+    // it's never silent again.
+    window._whdGhostDeletions = [];
+
     function applyPersistedData() {
         // 1. Remove deleted scenes from all live arrays so the main app never sees them.
         //    They stay in localStorage (LS_DELETED) so they can be restored later.
+const ghosts = [];
 deletedIds.forEach(sceneId => {
 
     for (const [dbKey, info] of Object.entries(DB_MAP)) {
@@ -603,34 +685,59 @@ deletedIds.forEach(sceneId => {
 
         if (idx !== -1) {
 
-            // Save full scene before removal
+            // This id is still in deletedIds, but the source code currently
+            // defines a scene with this exact id — i.e. it was re-added in
+            // code without clearing the old soft-delete. Flag it.
+            ghosts.push({ id: sceneId, name: arr[idx].name, dbKey });
+
+            // Save full scene before removal (always refreshed from the
+            // current code content, so a later `restore` brings back the
+            // latest version, not a stale one).
             deletedSceneStore[sceneId] = {
                 ...arr[idx],
                 _dbKey: dbKey
             };
-
-            arr.splice(idx, 1);
         }
     }
 
-    const si = scenes.findIndex(s => s.id === sceneId);
-
-    if (si !== -1) {
-        scenes.splice(si, 1);
-    }
+    removeSceneFromLiveArrays(sceneId);
 });
 
 lsSet("whd_deleted_scene_store", deletedSceneStore);
+window._whdGhostDeletions = ghosts;
+if (ghosts.length) {
+    console.warn(
+        `[WHD] ${ghosts.length} scene(s) defined in code are hidden because their id is still marked deleted:`,
+        ghosts.map(g => g.id).join(", "),
+        "— run `restore <id>` or `restore all` in the owner terminal to bring them back, or `purge <id>` if the hiding is intentional."
+    );
+}
 
-        // 2. Apply saved (added/edited) scenes
-        const saved = lsGet(LS_SCENES) || [];
-        saved.forEach(s => {
+        // 2. Apply saved (added/edited) scenes + 3. tree — shared with the
+        //    post-fetch merge below, see applySavedScenesAndTree().
+        applySavedScenesAndTree(lsGet(LS_SCENES) || [], lsGet(LS_TREE));
+
+        // 4. Load tree open state
+        treeOpenState = lsGet(LS_TREE_OPEN) || {};
+    }
+
+    // Applies a "saved scenes" array + tree object to the LIVE in-memory
+    // state (DB_MAP arrays, the flat `scenes` array, and `world.children`).
+    // Pulled out of applyPersistedData() so fetchSharedAdminData() can call
+    // it too — previously a fetch from the worker only ever wrote into
+    // localStorage and waited for the *next page load* to actually show
+    // up, which for a first-time visitor (whd_admin_seen not yet set)
+    // meant the refresh banner never even fired. Edits another admin made
+    // could sit in a visitor's localStorage indefinitely without ever
+    // reaching the screen.
+    function applySavedScenesAndTree(saved, savedTree) {
+        (saved || []).forEach(s => {
+            if (deletedIds.has(s.id)) return; // don't resurrect something soft-deleted elsewhere
             const dbKey = s._dbKey || dbKeyForScene(s);
             const arr   = DB_MAP[dbKey] ? DB_MAP[dbKey].getArr() : null;
             if (!arr) return;
             const existing = arr.findIndex(e => e.id === s.id);
             if (existing !== -1) {
-                // Update in place
                 arr[existing] = { ...s };
                 const si = scenes.findIndex(e => e.id === s.id);
                 if (si !== -1) scenes[si] = { ...s };
@@ -639,20 +746,38 @@ lsSet("whd_deleted_scene_store", deletedSceneStore);
                 if (!scenes.find(e => e.id === s.id)) scenes.push({ ...s });
             }
         });
-
-        // 3. Apply saved tree
-        const savedTree = lsGet(LS_TREE);
         if (savedTree && savedTree.children) {
             world.children = savedTree.children;
         }
+    }
 
-        // 4. Load tree open state
-        treeOpenState = lsGet(LS_TREE_OPEN) || {};
+    // Removes any scene matching `sceneId` from every live array (DB_MAP +
+    // the flat `scenes` array). Shared by the initial-load sweep and by
+    // re-applying freshly fetched shared deletions mid-session.
+    function removeSceneFromLiveArrays(sceneId) {
+        for (const info of Object.values(DB_MAP)) {
+            const arr = info.getArr();
+            const idx = arr.findIndex(s => s.id === sceneId);
+            if (idx !== -1) arr.splice(idx, 1);
+        }
+        const si = scenes.findIndex(s => s.id === sceneId);
+        if (si !== -1) scenes.splice(si, 1);
     }
 
     // Run on load
     applyPersistedData();
     fetchSharedAdminData();
+
+    // Surface ghost-deletions (code re-added a scene id that's still
+    // soft-deleted) visibly, not just in the console.
+    if (window._whdGhostDeletions && window._whdGhostDeletions.length) {
+        setTimeout(() => {
+            toast(
+                `⚠ ${window._whdGhostDeletions.length} coded scene(s) hidden by a stale delete flag — run "restore all" in the terminal`,
+                true
+            );
+        }, 600);
+    }
 
     // ── Helpers ───────────────────────────────────────────────────
     function toast(msg, isErr = false) {
@@ -858,10 +983,13 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         }
     }
     function closePanel() {
-        document.getElementById("adminOverlay").classList.remove("active");
+        const overlay = document.getElementById("adminOverlay");
+        const panel   = document.getElementById("adminPanel");
+        if (!overlay) return; // called from owner panel — nothing to close here
+        overlay.classList.remove("active");
         setTimeout(() => {
-            document.getElementById("adminOverlay").style.display = "none";
-            document.getElementById("adminPanel").classList.remove("visible");
+            overlay.style.display = "none";
+            if (panel) panel.classList.remove("visible");
         }, 250);
     }
 
@@ -910,7 +1038,7 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
     // they raced (whichever ran first set the "inited" flag and printed a
     // shorter, less accurate message, which could suppress this one).
     function printTermBootMessage() {
-        const termOut = document.getElementById("adminTermOutput");
+        const termOut = document.getElementById(_termOutputId);
         if (!termOut || termOut.dataset.inited) return;
         termOut.dataset.inited = "1";
         const role = window.WHDAuth?.getRole?.() ?? "owner";
@@ -1199,7 +1327,8 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
     setTimeout(_ulSetupAdminControls, 0);
 
     function switchToTab(tab) {
-        document.querySelector(`.admin-tab[data-tab="${tab}"]`).click();
+        const el = document.querySelector(`.admin-tab[data-tab="${tab}"]`);
+        if (el) el.click();
     }
 
     // ── ADD / EDIT TAB ────────────────────────────────────────────
@@ -1754,8 +1883,10 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
     }
 
     function refreshManageList() {
-        const q = (document.getElementById("adminSceneFilter").value || "").toLowerCase();
-        const container = document.getElementById("adminSceneList");
+        const filterEl   = document.getElementById("adminSceneFilter");
+        const container  = document.getElementById("adminSceneList");
+        if (!filterEl || !container) return; // called from owner panel — no list to refresh
+        const q = (filterEl.value || "").toLowerCase();
         container.innerHTML = "";
 
         let all = [];
@@ -2531,6 +2662,54 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         return [...new Set(names)].sort();
     }
 
+    // ── Accent colour suggestions — common palette + currently active value ─
+    function suggestAccentColors() {
+        const palette = [
+            { value: "#e05500", desc: "orange (default)" },
+            { value: "#c0392b", desc: "red" },
+            { value: "#8e44ad", desc: "purple" },
+            { value: "#2980b9", desc: "blue" },
+            { value: "#27ae60", desc: "green" },
+            { value: "#f39c12", desc: "amber" },
+            { value: "#1abc9c", desc: "teal" },
+            { value: "#e74c3c", desc: "coral" },
+            { value: "#d35400", desc: "deep orange" },
+            { value: "#16a085", desc: "dark teal" },
+        ];
+        // Prepend the current value if it's already set and not in palette
+        try {
+            const current = getComputedStyle(document.documentElement).getPropertyValue("--accent").trim();
+            if (current && !palette.some(p => p.value.toLowerCase() === current.toLowerCase())) {
+                palette.unshift({ value: current, desc: "current" });
+            }
+        } catch {}
+        return palette;
+    }
+
+    // ── eval expression suggestions — window properties + common snippets ──
+    function suggestEvalExpressions() {
+        const snippets = [
+            { value: "WHDAdmin.commands.length", desc: "total registered commands" },
+            { value: "WHDAdmin.history", desc: "terminal command history" },
+            { value: "WHDAuth.getRole()", desc: "current user role" },
+            { value: "WHDAuth.getUsername()", desc: "current username" },
+            { value: "Object.keys(WHDAdmin)", desc: "public API surface" },
+            { value: "performance.now()", desc: "page time in ms" },
+            { value: "document.title", desc: "page title" },
+            { value: "navigator.userAgent", desc: "browser user agent" },
+            { value: "localStorage.length", desc: "number of localStorage keys" },
+        ];
+        return [...snippets, ...suggestWindowPaths()];
+    }
+
+    // ── Log ID suggestions — fetched from cached log data if available ─────
+    function suggestLogIds() {
+        // WHDAdmin.logCache is populated after "log list" is run in this session
+        const cache = window._whdLogCache;
+        if (!Array.isArray(cache)) return [];
+        return cache.map(e => ({ value: String(e.id), desc: `v${e.version} — ${e.title || ""}` }));
+    }
+
     // Exposed so commands.js (loaded after this script) can build TERM_COMMANDS
     // without duplicating any suggestion logic. These all stay live/learned —
     // moving the registry out doesn't change where the data comes from.
@@ -2541,7 +2720,7 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         suggestCssProps, suggestLsKeys, suggestEventNames, suggestFunctionNames,
         suggestWindowPaths, suggestWindowFnPaths, suggestAnnounceTypes, suggestUserRoles,
         suggestBooleans, suggestMapStyles, suggestSortOrders, suggestSceneYears, suggestFindTerms,
-        suggestTreeNodes,
+        suggestTreeNodes, suggestAccentColors, suggestEvalExpressions, suggestLogIds,
     };
 
     // TERM_COMMANDS now lives in commands.js, loaded via a <script> tag
@@ -2592,8 +2771,17 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         termPrint("> " + cmd, "term-cmd");
         // "all" suffix modifier — strip the trailing token and set a flag that
         // truncating commands check to decide whether to show every result.
+        // EXCEPTION: some commands use the literal word "all" as their actual
+        // argument ("restore all", "purge all", "flag clear all") rather than
+        // as a "show everything" modifier. Stripping it there broke those
+        // commands entirely — they'd parse as "restore"/"purge"/"flag clear"
+        // with no argument and fall into the wrong (single-id) handler.
         const _parts0 = cmd.split(/\s+/);
-        const _showAll = _parts0[_parts0.length - 1].toLowerCase() === "all" && _parts0.length > 1;
+        const _rawVerb = (_parts0[0] || "").toLowerCase();
+        const _rawNoun = (_parts0[1] || "").toLowerCase();
+        const _allIsLiteralArg = _rawVerb === "restore" || _rawVerb === "purge" ||
+            (_rawVerb === "flag" && _rawNoun === "clear");
+        const _showAll = !_allIsLiteralArg && _parts0[_parts0.length - 1].toLowerCase() === "all" && _parts0.length > 1;
         const parts = _showAll ? _parts0.slice(0, -1) : _parts0;
         const verb = (parts[0] || "").toLowerCase();
         const noun = (parts[1] || "").toLowerCase();
@@ -2608,7 +2796,7 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
 
         try {
             // ── General ────────────────────────────────────────────────────────
-            if (verb === "clear") { document.getElementById("adminTermOutput").innerHTML = ""; return; }
+            if (verb === "clear") { const o = document.getElementById(_termOutputId); if (o) o.innerHTML = ""; return; }
 
             if (verb === "history") {
                 if (!_termHistory.length) { termPrint("No history yet.", "term-info"); return; }
@@ -2653,6 +2841,14 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                 Object.entries(DB_MAP).forEach(([k, info]) =>
                     termPrint(`${info.label} (${k}): ${info.getArr().filter(s => !deletedIds.has(s.id)).length} active`, "term-info")
                 );
+                return;
+            }
+
+            if (verb === "list" && noun === "ghosts") {
+                const ghosts = window._whdGhostDeletions || [];
+                if (!ghosts.length) { termPrint("✔ No ghost deletions — nothing in code is being hidden by a stale delete flag.", "term-ok"); return; }
+                ghosts.forEach(g => termPrint(`⚠ ${g.id} — "${g.name}" (${DB_MAP[g.dbKey] ? DB_MAP[g.dbKey].label : g.dbKey}) is defined in code but still marked deleted`, "term-err"));
+                termPrint(`Run "restore all" to bring all ${ghosts.length} back, or "restore <id>" / "purge <id>" individually.`, "term-info");
                 return;
             }
 
@@ -2900,9 +3096,16 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                 if (!stored) { termPrint(`No backup found for "${sceneId}".`, "term-err"); return; }
                 deletedIds.delete(sceneId);
                 persistDeleted();
+                const restored = { ...stored, _adminAdded: true };
+                delete restored._dbKey;
                 const arr = DB_MAP[stored._dbKey] ? DB_MAP[stored._dbKey].getArr() : null;
-                if (arr && !arr.find(x => x.id === sceneId)) arr.push({ ...stored });
-                if (!scenes.find(x => x.id === sceneId)) scenes.push({ ...stored });
+                if (arr) {
+                    const ei = arr.findIndex(x => x.id === sceneId);
+                    if (ei !== -1) arr[ei] = restored; else arr.push(restored);
+                }
+                const si = scenes.findIndex(x => x.id === sceneId);
+                if (si !== -1) scenes[si] = restored; else scenes.push(restored);
+                persistScenes(); // without this, the restore doesn't survive reload/sync
                 refreshDeletedList(); refreshManageList();
                 termPrint(`✔ Restored "${stored.name}".`, "term-ok");
                 return;
@@ -3812,6 +4015,51 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                 return;
             }
 
+            if (verb === "fix" && noun === "country") {
+                // fix country — finds all scenes where country field contains a season
+                // name (starts with an era prefix like "Ancient ", "Medieval ", "Modern ")
+                // and corrects both country and season fields in place.
+                const ERA_PREFIXES_FIX = ["ancient ", "medieval ", "modern ", "early ", "late "];
+                const candidates = termAllActiveScenes().filter(({ scene: s }) => {
+                    const lc = (s.country || "").toLowerCase();
+                    return ERA_PREFIXES_FIX.some(p => lc.startsWith(p));
+                });
+                if (!candidates.length) {
+                    termPrint("✔ No scenes found with a season name in the country field.", "term-ok");
+                    return;
+                }
+                termPrint(`Found ${candidates.length} scene(s) with season-name in country field:`, "term-info");
+                candidates.slice(0, 10).forEach(({ scene: s }) => {
+                    const lc = s.country.toLowerCase();
+                    const prefix = ERA_PREFIXES_FIX.find(p => lc.startsWith(p));
+                    const corrCountry = s.country.slice(prefix.length);
+                    const corrSeason  = (!s.season || s.season.toLowerCase() === lc) ? s.country : s.season;
+                    termPrint(`  ${s.id}: country "${s.country}" → "${corrCountry}"  |  season "${s.season || ""}" → "${corrSeason}"`, "term-info");
+                });
+                if (candidates.length > 10) termPrint(`  … and ${candidates.length - 10} more`, "term-info");
+                const ok = await showConfirm({
+                    icon: "🔧",
+                    title: `Fix country field on ${candidates.length} scene(s)?`,
+                    msg: "Strips era prefix from country (e.g. \"Modern United Kingdom\" → \"United Kingdom\") and ensures season is set correctly. Run \"tree sync\" afterward to rebuild the tree.",
+                    okLabel: "Fix", okClass: "admin-btn-primary"
+                });
+                if (!ok) { termPrint("Cancelled.", "term-info"); return; }
+                let fixed = 0;
+                candidates.forEach(({ scene: s }) => {
+                    const lc = s.country.toLowerCase();
+                    const prefix = ERA_PREFIXES_FIX.find(p => lc.startsWith(p));
+                    const corrCountry = s.country.slice(prefix.length);
+                    const corrSeason  = (!s.season || s.season.toLowerCase() === lc) ? s.country : s.season;
+                    s.country = corrCountry;
+                    s.season  = corrSeason;
+                    s._adminEdited = true;
+                    fixed++;
+                });
+                persistScenes(); refreshManageList();
+                termPrint(`✔ Fixed ${fixed} scene(s). Run "tree sync" to rebuild the tree with correct structure.`, "term-ok");
+                return;
+            }
+
             if (verb === "set" && noun === "country") {
                 const restTokens = parts.slice(2);
                 if (restTokens.length < 2) { termPrint("Usage: set country <sceneId|countryName> <country>", "term-err"); return; }
@@ -3944,9 +4192,26 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                 if (!sceneId) { termPrint("Usage: open <sceneId>", "term-err"); return; }
                 const found = getSceneById(sceneId);
                 if (!found) { termPrint(`Scene "${sceneId}" not found.`, "term-err"); return; }
-                loadSceneIntoForm(found.scene, found.dbKey);
-                switchToTab("add");
-                termPrint(`✔ Loaded "${found.scene.name}" into the form.`, "term-ok");
+                const adminTabsExist = !!document.querySelector(".admin-tab[data-tab=\"add\"]");
+                if (adminTabsExist) {
+                    loadSceneIntoForm(found.scene, found.dbKey);
+                    switchToTab("add");
+                    termPrint(`✔ Loaded "${found.scene.name}" into the Add/Edit form.`, "term-ok");
+                } else {
+                    // Owner panel context — admin form not available; print full scene info instead
+                    termPrint(`ℹ  open: admin form unavailable here — showing full scene info:`, "term-info");
+                    const s = found.scene;
+                    const fields = ["id","name","startYear","endYear","continent","country","season","region","coords","zoom","imgKey","info"];
+                    fields.forEach(f => {
+                        const v = s[f];
+                        if (v == null) return;
+                        const display = Array.isArray(v) ? `[${v.join(", ")}]` : String(v).slice(0, 200);
+                        termPrint(`  ${f.padEnd(12)} ${display}`, "term-info");
+                    });
+                    if (s.events?.length) termPrint(`  events       ${s.events.length} event(s)`, "term-info");
+                    termPrint(`  db           ${DB_MAP[found.dbKey]?.label || found.dbKey}`, "term-info");
+                    termPrint(`(Use 'scene js ${sceneId}' to get the full JS literal, or open the admin panel to edit.)`, "term-info");
+                }
                 return;
             }
 
@@ -3973,7 +4238,7 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                 if (missing.length) termPrint("Not found: " + missing.join(", "), "term-err");
                 if (!valid.length) return;
                 const ok = await showConfirm({
-                    icon: "edit",
+                    icon: "✏️",
                     title: "Set " + field + " on " + valid.length + " scene(s)?",
                     msg: valid.map(x => x.result.scene.name).join(", ") + "\n-> " + field + " = " + JSON.stringify(parsed),
                     okLabel: "Set", okClass: "admin-btn-primary"
@@ -4015,7 +4280,7 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                 if (missing.length) termPrint("Not found: " + missing.join(", "), "term-err");
                 if (!valid.length) return;
                 const ok = await showConfirm({
-                    icon: "tag",
+                    icon: "🏷️",
                     title: "Set " + subField + " on " + valid.length + " scene(s)?",
                     msg: "\"" + parsed + "\" -> " + valid.map(x => x.result.scene.name).join(", "),
                     okLabel: "Set", okClass: "admin-btn-primary"
@@ -4154,11 +4419,18 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                     const stored = deletedSceneStore[sceneId];
                     if (!stored) return;
                     deletedIds.delete(sceneId);
+                    const restored = { ...stored, _adminAdded: true };
+                    delete restored._dbKey;
                     const arr = DB_MAP[stored._dbKey] ? DB_MAP[stored._dbKey].getArr() : null;
-                    if (arr && !arr.find(x => x.id === sceneId)) arr.push({ ...stored });
-                    if (!scenes.find(x => x.id === sceneId)) scenes.push({ ...stored });
+                    if (arr) {
+                        const ei = arr.findIndex(x => x.id === sceneId);
+                        if (ei !== -1) arr[ei] = restored; else arr.push(restored);
+                    }
+                    const si = scenes.findIndex(x => x.id === sceneId);
+                    if (si !== -1) scenes[si] = restored; else scenes.push(restored);
                 });
                 persistDeleted();
+                persistScenes(); // without this, restores don't survive reload/sync
                 refreshDeletedList(); refreshManageList();
                 termPrint(`✔ Restored ${ids.length} scene(s).`, "term-ok");
                 return;
@@ -4260,6 +4532,31 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                 return;
             }
 
+            if (verb === "sync") {
+                // sync — force a round-trip with the shared KV store right
+                // now, instead of waiting for the 800ms debounce after an
+                // edit or the 2-minute background poll. Useful right after
+                // a batch of changes, or just to confirm changes really did
+                // go global instead of taking it on faith.
+                const passcode = sessionStorage.getItem(SS_PASSCODE);
+                const token = window.WHDAuth ? window.WHDAuth.getToken() : null;
+                if (!WORKER_URL) { termPrint("No worker configured — sync is local-only in this build.", "term-err"); return; }
+                if (!passcode && !token) {
+                    termPrint("⚠ No verified passcode or session token — log in or enter the owner passcode first, otherwise this will only ever sync locally.", "term-err");
+                    return;
+                }
+                termPrint("Pushing local changes…", "term-info");
+                await syncToWorker();
+                termPrint("Pulling latest shared data…", "term-info");
+                const updated = await fetchSharedAdminData();
+                if (updated) {
+                    termPrint("✔ Synced — pulled and applied newer data from the shared store.", "term-ok");
+                } else {
+                    termPrint("✔ Synced — your local data already matches the shared store.", "term-ok");
+                }
+                return;
+            }
+
             if (verb === "whoami") {
                 const role = window.WHDAuth?.getRole?.() ?? "—";
                 const user = window.WHDAuth?.getUsername?.() ?? "—";
@@ -4358,6 +4655,7 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                 if (!r.ok) { termPrint("Error: " + (r.error || "request failed"), "term-err"); return; }
                 const entries = r.entries || [];
                 if (!entries.length) { termPrint("No update log entries.", "term-info"); return; }
+                window._whdLogCache = entries; // cache for suggestLogIds()
                 const llLimit = 20;
                 (_showAll ? entries : entries.slice(0, llLimit)).forEach(e =>
                     termPrint(`  ${e.id}  v${e.version}  "${e.title}"  ${e.date}  (${(e.changes||[]).length} change${(e.changes||[]).length!==1?"s":""})`, "term-info")
@@ -4635,8 +4933,8 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
 
             if (verb === "session" && noun === "export") {
                 // Download the current terminal session as a .txt file
-                const output = document.getElementById("adminTermOutput");
-                const lines = output ? [...output.querySelectorAll(".term-line")].map(el => el.textContent) : [];
+                const output = document.getElementById(_termOutputId);
+                const lines = output ? [...output.querySelectorAll(".admin-term-line")].map(el => el.textContent) : [];
                 if (!lines.length) { termPrint("Nothing in the session to export.", "term-info"); return; }
                 const text = lines.join("\n");
                 const a = Object.assign(document.createElement("a"), {
@@ -4700,7 +4998,9 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
 
             if (verb === "tree" && noun === "add") {
                 // tree add <continent> [country] [season]
-                // Builds the path: continent → country → season leaf
+                // Builds the path: continent → country → season leaf (3-level), OR
+                // continent → season leaf directly for 2-level continents
+                // (where all existing children are season leaves, e.g. Australia).
                 const continent = parts[2], country = parts[3], season = parts.slice(4).join(" ");
                 if (!continent) { termPrint("Usage: tree add <continent> [country] [season]", "term-err"); return; }
 
@@ -4710,14 +5010,35 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                     world.children.push(contNode);
                     termPrint(`✔ Added continent "${continent}".`, "term-ok");
                 }
+                if (!Array.isArray(contNode.children)) contNode.children = [];
                 if (!country) { persistTree(); if (typeof refreshTree === "function") refreshTree(); return; }
 
-                let countryNode = contNode.children.find(c => c.name.toLowerCase() === country.toLowerCase());
+                // Detect 2-level: all existing children are season leaves
+                const isTwoLevel = contNode.children.length > 0 &&
+                    contNode.children.every(ch => ch.episodes !== undefined && !Array.isArray(ch.children));
+
+                if (isTwoLevel) {
+                    // In 2-level mode, the "country" arg is actually a season name
+                    const seasonName = country + (season ? " " + season : "");
+                    const exists = contNode.children.find(s => s.name.toLowerCase() === seasonName.toLowerCase());
+                    if (exists) { termPrint(`Season "${seasonName}" already exists under "${continent}".`, "term-info"); return; }
+                    contNode.children.push({ name: seasonName, episodes: [] });
+                    termPrint(`✔ Added season "${seasonName}" under "${continent}" (2-level).`, "term-ok");
+                    persistTree();
+                    if (typeof refreshTree === "function") refreshTree();
+                    return;
+                }
+
+                // 3-level: continent → country → season
+                let countryNode = contNode.children.find(c =>
+                    Array.isArray(c.children) && c.name.toLowerCase() === country.toLowerCase()
+                );
                 if (!countryNode) {
                     countryNode = { name: country, children: [] };
                     contNode.children.push(countryNode);
                     termPrint(`✔ Added country "${country}" under "${contNode.name}".`, "term-ok");
                 }
+                if (!Array.isArray(countryNode.children)) countryNode.children = [];
                 if (!season) { persistTree(); if (typeof refreshTree === "function") refreshTree(); return; }
 
                 const existingSeason = countryNode.children.find(s => s.name.toLowerCase() === season.toLowerCase());
@@ -4746,18 +5067,47 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                     }
                     return null;
                 }
-                const ok = await showConfirm({ icon: "🌳", title: `Remove "${target}" from tree?`, msg: "All child nodes will also be removed.", okLabel: "Remove", okClass: "admin-btn-danger" });
+                // Removing a tree node has no effect on the scene data —
+                // it's purely a navigation-tree edit. If scenes still tag
+                // themselves with this exact continent/country/season name,
+                // they become invisible in the tree (same "ghost scene"
+                // class of bug as the restore/purge issue) while still
+                // existing in storage. Warn about that up front instead of
+                // letting it happen silently.
+                const targetLower = target.toLowerCase();
+                const affected = scenes.filter(s =>
+                    (s.continent && s.continent.toLowerCase() === targetLower) ||
+                    (s.country && s.country.toLowerCase() === targetLower) ||
+                    (s.season && s.season.toLowerCase() === targetLower)
+                );
+                const warnMsg = affected.length
+                    ? `${affected.length} scene(s) are tagged with "${target}" and will become hidden/ghosted in the tree (still present in storage, but unreachable via navigation). Run "tree sync" afterward, or retag those scenes first.`
+                    : "All child nodes will also be removed.";
+                const ok = await showConfirm({ icon: "🌳", title: `Remove "${target}" from tree?`, msg: warnMsg, okLabel: "Remove", okClass: "admin-btn-danger" });
                 if (!ok) { termPrint("Cancelled.", "term-info"); return; }
                 const removed = findAndRemove(world.children, target);
                 if (!removed) { termPrint(`"${target}" not found in tree.`, "term-err"); return; }
                 persistTree();
                 if (typeof refreshTree === "function") refreshTree();
                 termPrint(`✔ Removed "${removed.name}" from tree.`, "term-ok");
+                if (affected.length) {
+                    termPrint(`⚠ ${affected.length} scene(s) still reference "${target}": ${affected.slice(0, 10).map(s => s.id).join(", ")}${affected.length > 10 ? ", …" : ""}`, "term-err");
+                    termPrint(`Run "tree sync" to rebuild missing nodes from scene data, or "set country/season <id> <value>" to retag them.`, "term-info");
+                }
                 return;
             }
 
             if (verb === "tree" && noun === "rename") {
-                const oldName = parts[2], newName = parts.slice(3).join(" ");
+                // tree rename <oldName> <newName>
+                // Both names may be multi-word (e.g. "Modern United Kingdom").
+                // Resolve oldName via longest-prefix match against known tree node names,
+                // then treat the remaining tokens as newName.
+                const restTokens = parts.slice(2);
+                if (restTokens.length < 2) { termPrint("Usage: tree rename <oldName> <newName>", "term-err"); return; }
+                const knownNodes = suggestTreeNodes().map(n => n.toLowerCase());
+                const keyLen = termSplitLeadingKey(restTokens, knownNodes);
+                const oldName = restTokens.slice(0, keyLen).join(" ");
+                const newName = restTokens.slice(keyLen).join(" ");
                 if (!oldName || !newName) { termPrint("Usage: tree rename <oldName> <newName>", "term-err"); return; }
                 function findAndRename(nodes, old, nw) {
                     for (const n of nodes) {
@@ -4796,14 +5146,146 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                 return;
             }
 
-            if (verb === "tree" && noun === "sync") {
-                // Sync countries from scene data into the tree automatically
-                const byContinent = {};
-                termAllActiveScenes().forEach(({ scene: s }) => {
-                    if (!s.continent || !s.country) return;
-                    (byContinent[s.continent] = byContinent[s.continent] || new Set()).add(s.country);
+            if (verb === "tree" && noun === "orphans") {
+                // tree orphans — lists scenes whose continent/country/season
+                // tags don't resolve to any node in the current tree at all.
+                // Complements "list ghosts" (which only covers deleted-ID
+                // re-adds): this catches the broader case of any scene whose
+                // tags drifted from the tree for whatever reason (manual
+                // edits, "tree remove", typos in "set country/season").
+                const allNames = new Set(suggestTreeNodes().map(n => n.toLowerCase()));
+                const orphans = scenes.filter(s => {
+                    const tags = [s.continent, s.country, s.season].filter(Boolean);
+                    return tags.some(t => !allNames.has(t.toLowerCase()));
                 });
-                let added = 0;
+                if (!orphans.length) { termPrint("✔ No orphaned scenes — every continent/country/season tag resolves to a tree node.", "term-ok"); return; }
+                const oLimit = 20;
+                (_showAll ? orphans : orphans.slice(0, oLimit)).forEach(s => {
+                    const tags = [s.continent, s.country, s.season].filter(Boolean);
+                    const bad = tags.filter(t => !allNames.has(t.toLowerCase()));
+                    termPrint(`  ${s.id} "${s.name}" — unresolved: ${bad.join(", ")}`, "term-err");
+                });
+                if (!_showAll && orphans.length > oLimit)
+                    termPrint(`… and ${orphans.length - oLimit} more. Add "all" to see every match.`, "term-info");
+                termPrint(`(${orphans.length} orphaned scene${orphans.length !== 1 ? "s" : ""}. Run "tree sync" to add the missing nodes, or retag the scenes.)`, "term-info");
+                return;
+            }
+
+            if (verb === "tree" && noun === "sync") {
+                // Sync continents → countries → seasons from scene data into
+                // the tree automatically.
+                //
+                // Handles two tree shapes:
+                //   3-level: continent → country → season   (Europe, Asia, Africa, …)
+                //   2-level: continent → season directly    (Australia, History Bites)
+                //
+                // A continent node is treated as 2-level when ALL its existing children
+                // are season leaves (have `episodes` but no `children`).  In that case
+                // we skip the country layer and attach seasons straight to contNode,
+                // regardless of what scene.country says.
+                //
+                // Bad-data correction: if scene.country looks like a season name
+                // (starts with a known era prefix such as "Ancient ", "Medieval ",
+                // "Modern "), the prefix is stripped to recover the real country name.
+                // The prefixed value is then used as the season if scene.season is
+                // also wrong (same as country) or empty.
+                const ERA_PREFIXES = ["ancient ", "medieval ", "modern ", "early ", "late "];
+                function inferCountryAndSeason(rawCountry, rawSeason) {
+                    const lc = (rawCountry || "").toLowerCase();
+                    const matchedPrefix = ERA_PREFIXES.find(p => lc.startsWith(p));
+                    if (!matchedPrefix) return { country: rawCountry, season: rawSeason };
+                    // country field contains a season name — strip the prefix for the real country
+                    const realCountry = rawCountry.slice(matchedPrefix.length);
+                    // Use the original (prefixed) value as the season if season is missing or same as country
+                    const realSeason = (!rawSeason || rawSeason.toLowerCase() === lc)
+                        ? rawCountry
+                        : rawSeason;
+                    return { country: realCountry, season: realSeason };
+                }
+
+                const byContinent = {};
+                const corrected = [];
+                termAllActiveScenes().forEach(({ scene: s }) => {
+                    if (!s.continent) return;
+                    const countries = (byContinent[s.continent] = byContinent[s.continent] || {});
+                    // Use country as the bucket key; fall back to the continent name
+                    // so 2-level scenes (country === continent, or country empty) still
+                    // accumulate seasons in a predictable slot.
+                    const { country: countryKey, season: seasonVal } = inferCountryAndSeason(
+                        s.country || s.continent, s.season
+                    );
+                    if (countryKey !== (s.country || s.continent) || seasonVal !== s.season) {
+                        corrected.push(s.id || s.name);
+                    }
+                    const seasons = (countries[countryKey] = countries[countryKey] || new Set());
+                    if (seasonVal) seasons.add(seasonVal);
+                });
+                if (corrected.length) {
+                    termPrint(`⚠ Detected ${corrected.length} scene(s) with season name in country field — correcting in tree (scene data unchanged):`, "term-warn");
+                    corrected.slice(0, 5).forEach(id => termPrint(`  ${id}`, "term-info"));
+                    if (corrected.length > 5) termPrint(`  … and ${corrected.length - 5} more`, "term-info");
+                }
+                let added = 0, removed = 0;
+
+                // ── PRUNE: remove season leaves and empty country nodes
+                //    that no longer have any matching scene data. ──────────
+                // Never auto-removes continent nodes (those may be intentional).
+                for (let ci = world.children.length - 1; ci >= 0; ci--) {
+                    const contNode = world.children[ci];
+                    if (!Array.isArray(contNode.children)) continue;
+                    const contKey = contNode.name.toLowerCase();
+                    const sceneCountries = byContinent[
+                        Object.keys(byContinent).find(k => k.toLowerCase() === contKey) || ""
+                    ] || {};
+
+                    // Detect 2-level continent
+                    const cont2Level = contNode.children.length > 0 &&
+                        contNode.children.every(ch => ch.episodes !== undefined && !Array.isArray(ch.children));
+
+                    if (cont2Level) {
+                        // 2-level: prune season leaves with no scene data
+                        const allSceneSeasons = new Set();
+                        Object.values(sceneCountries).forEach(s => s.forEach(v => allSceneSeasons.add(v.toLowerCase())));
+                        for (let si = contNode.children.length - 1; si >= 0; si--) {
+                            const leaf = contNode.children[si];
+                            if (!allSceneSeasons.has((leaf.name || "").toLowerCase())) {
+                                termPrint(`  - season "${leaf.name}" removed from "${contNode.name}" (no scenes)`, "term-info");
+                                contNode.children.splice(si, 1);
+                                removed++;
+                            }
+                        }
+                    } else {
+                        // 3-level: prune season leaves inside each country, then empty country nodes
+                        for (let ki = contNode.children.length - 1; ki >= 0; ki--) {
+                            const countryNode = contNode.children[ki];
+                            if (!Array.isArray(countryNode.children)) continue;
+                            const countryKey = countryNode.name.toLowerCase();
+                            const sceneSeasons = sceneCountries[
+                                Object.keys(sceneCountries).find(k => k.toLowerCase() === countryKey) || ""
+                            ] || new Set();
+
+                            // Prune season leaves
+                            for (let si = countryNode.children.length - 1; si >= 0; si--) {
+                                const leaf = countryNode.children[si];
+                                if (leaf.episodes !== undefined && !Array.isArray(leaf.children)) {
+                                    if (![...sceneSeasons].some(s => s.toLowerCase() === (leaf.name || "").toLowerCase())) {
+                                        termPrint(`    - season "${leaf.name}" removed from "${countryNode.name}" (no scenes)`, "term-info");
+                                        countryNode.children.splice(si, 1);
+                                        removed++;
+                                    }
+                                }
+                            }
+                            // Prune now-empty country nodes that had no scenes at all
+                            const hadScenes = Object.keys(sceneCountries).some(k => k.toLowerCase() === countryKey);
+                            if (!hadScenes && countryNode.children.length === 0) {
+                                termPrint(`  - country "${countryNode.name}" removed from "${contNode.name}" (no scenes)`, "term-info");
+                                contNode.children.splice(ki, 1);
+                                removed++;
+                            }
+                        }
+                    }
+                }
+                // ── END PRUNE ─────────────────────────────────────────────
                 Object.entries(byContinent).forEach(([cont, countries]) => {
                     let contNode = world.children.find(c => c.name.toLowerCase() === cont.toLowerCase());
                     if (!contNode) {
@@ -4812,18 +5294,135 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                         termPrint(`✔ Added continent "${cont}"`, "term-ok");
                         added++;
                     }
-                    countries.forEach(country => {
-                        if (!contNode.children.find(c => c.name.toLowerCase() === country.toLowerCase())) {
-                            contNode.children.push({ name: country, children: [] });
-                            termPrint(`  + "${country}" under "${cont}"`, "term-info");
-                            added++;
-                        }
-                    });
+                    // Ensure contNode.children exists (guard against malformed saved tree)
+                    if (!Array.isArray(contNode.children)) contNode.children = [];
+
+                    // Detect whether this continent uses a 2-level layout:
+                    // (a) All existing children are season leaves (episodes, no children), OR
+                    // (b) The only "country" key for this continent IS the continent itself
+                    //     (country field was empty or same as continent) — scene data never
+                    //     intended a separate country layer (e.g. Australia, History Bites).
+                    const existingChildren = contNode.children;
+                    const allChildrenAreLeaves = existingChildren.length > 0 &&
+                        existingChildren.every(ch => ch.episodes !== undefined && !Array.isArray(ch.children));
+                    const countryKeys = Object.keys(countries);
+                    const onlySelfKey = countryKeys.length === 1 &&
+                        countryKeys[0].toLowerCase() === cont.toLowerCase();
+                    const isTwoLevel = allChildrenAreLeaves || onlySelfKey;
+
+                    if (isTwoLevel) {
+                        // 2-level: add seasons directly under contNode, ignore country buckets
+                        const allSeasons = new Set();
+                        Object.values(countries).forEach(s => s.forEach(v => allSeasons.add(v)));
+                        allSeasons.forEach(season => {
+                            if (!existingChildren.find(s => s.name.toLowerCase() === season.toLowerCase())) {
+                                existingChildren.push({ name: season, episodes: [] });
+                                termPrint(`  + season "${season}" under "${cont}" (2-level)`, "term-info");
+                                added++;
+                            }
+                        });
+                    } else {
+                        // 3-level: continent → country → season
+                        Object.entries(countries).forEach(([country, seasons]) => {
+                            // Skip the degenerate case where country === continent
+                            // but the continent node already has mixed children —
+                            // that would nest a country inside itself.
+                            let countryNode = existingChildren.find(c =>
+                                Array.isArray(c.children) &&
+                                c.name.toLowerCase() === country.toLowerCase()
+                            );
+                            if (!countryNode) {
+                                countryNode = { name: country, children: [] };
+                                contNode.children.push(countryNode);
+                                termPrint(`  + "${country}" under "${cont}"`, "term-info");
+                                added++;
+                            }
+                            // Guard: ensure countryNode.children is an array
+                            if (!Array.isArray(countryNode.children)) countryNode.children = [];
+                            seasons.forEach(season => {
+                                if (!countryNode.children.find(s => s.name.toLowerCase() === season.toLowerCase())) {
+                                    countryNode.children.push({ name: season, episodes: [] });
+                                    termPrint(`    + season "${season}" under "${country}"`, "term-info");
+                                    added++;
+                                }
+                            });
+                        });
+                    }
                 });
-                if (!added) { termPrint("✔ Tree already matches scene data.", "term-ok"); return; }
+                if (!added && !removed) { termPrint("✔ Tree already matches scene data.", "term-ok"); return; }
                 persistTree();
                 if (typeof refreshTree === "function") refreshTree();
-                termPrint(`✔ Synced ${added} node${added !== 1 ? "s" : ""} from scene data.`, "term-ok");
+                const parts_summary = [];
+                if (added)   parts_summary.push(`added ${added}`);
+                if (removed) parts_summary.push(`removed ${removed}`);
+                termPrint(`✔ Synced tree: ${parts_summary.join(", ")} node${(added + removed) !== 1 ? "s" : ""}.`, "term-ok");
+                return;
+            }
+
+            if (verb === "tree" && noun === "repair") {
+                // tree repair — removes structural corruption caused by old versions
+                // of tree sync: misplaced country nodes inside 2-level continents,
+                // duplicate continent/country/season nodes, and orphan season leaves
+                // nested inside nodes that already have season leaves as siblings.
+                let fixed = 0;
+                function repairNode(nodes, depth) {
+                    // Remove exact-name duplicates at this level (keep first occurrence)
+                    const seen = new Map();
+                    for (let i = nodes.length - 1; i >= 0; i--) {
+                        const key = (nodes[i].name || "").toLowerCase();
+                        if (seen.has(key)) {
+                            termPrint(`  ✂ Removed duplicate "${nodes[i].name}" at depth ${depth}`, "term-info");
+                            nodes.splice(i, 1);
+                            fixed++;
+                        } else {
+                            seen.set(key, i);
+                        }
+                    }
+                    // For each node, recurse and check for structure issues
+                    for (const node of nodes) {
+                        if (!Array.isArray(node.children)) continue;
+                        const children = node.children;
+                        // Detect if this node is 2-level (should have only leaves)
+                        const hasLeaves   = children.some(ch => ch.episodes !== undefined && !Array.isArray(ch.children));
+                        const hasBranches = children.some(ch => Array.isArray(ch.children));
+                        if (hasLeaves && hasBranches) {
+                            // Mixed: hoist grandchild seasons from spurious branch nodes,
+                            // then remove the branch nodes.
+                            const toRemove = [];
+                            for (const child of children) {
+                                if (!Array.isArray(child.children)) continue;
+                                // This is a spurious country node inside a 2-level continent
+                                for (const grandchild of child.children) {
+                                    const already = children.find(x =>
+                                        x.episodes !== undefined &&
+                                        (x.name || "").toLowerCase() === (grandchild.name || "").toLowerCase()
+                                    );
+                                    if (!already) {
+                                        children.push({ name: grandchild.name, episodes: grandchild.episodes || [] });
+                                        termPrint(`  ↑ Hoisted season "${grandchild.name}" out of "${child.name}"`, "term-info");
+                                        fixed++;
+                                    }
+                                }
+                                toRemove.push(child);
+                            }
+                            for (const rem of toRemove) {
+                                const idx = children.indexOf(rem);
+                                if (idx !== -1) {
+                                    children.splice(idx, 1);
+                                    termPrint(`  ✂ Removed spurious country node "${rem.name}"`, "term-info");
+                                    fixed++;
+                                }
+                            }
+                        } else {
+                            repairNode(children, depth + 1);
+                        }
+                    }
+                }
+                repairNode(world.children, 0);
+                if (!fixed) { termPrint("✔ Tree structure looks clean — nothing to repair.", "term-ok"); return; }
+                persistTree();
+                if (typeof refreshTree === "function") refreshTree();
+                termPrint(`✔ Repaired ${fixed} issue(s) in the world tree.`, "term-ok");
                 return;
             }
 
@@ -5116,17 +5715,22 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
             if (match && match.cmd.hint) {
                 const commandIsFinished = (endsWithSpace || tokens.length > match.cmdLen) && !stillExtendingLongerCmd(tokens, endsWithSpace);
                 if (commandIsFinished) {
-                    const filledArgs = endsWithSpace
+                    // filledArgs = index of the arg slot currently being
+                    // filled = count of slots already completed. Computed
+                    // via resolveArgState (multi-word aware) rather than
+                    // raw token counting, so a partially-typed multi-word
+                    // value (e.g. "set country rome united kin") doesn't
+                    // make the hint think later slots are already filled.
+                    const _state = resolveArgState(tokens, match, endsWithSpace);
+                    const filledArgs = _state ? _state.argIdx : (endsWithSpace
                         ? tokens.length - match.cmdLen
-                        : tokens.length - match.cmdLen - 1;
+                        : tokens.length - match.cmdLen - 1);
 
                     // Use args[] labels when available — they are authoritative for how
                     // many named slots exist. hintParts (split from the hint string) can
                     // over-count for variadic commands like "bulk set country <country>
-                    // <id1> [id2...]" where the trailing IDs are open-ended, or
-                    // under-count when a single arg value spans multiple tokens (e.g. a
-                    // multi-word country name). With args[], once filledArgs >= the
-                    // number of defined arg slots the hint clears immediately.
+                    // <id1> [id2...]" where the trailing IDs are open-ended. With args[],
+                    // once filledArgs >= the number of defined arg slots the hint clears.
                     if (match.cmd.args && match.cmd.args.length) {
                         // "edit scenes" uses a "--" separator; once that token is present
                         // the ID list is open-ended. Show the remaining tail hint instead.
@@ -5175,6 +5779,79 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                 if (cmd) return { cmd, cmdLen: len };
             }
             return null;
+        }
+
+        // ── Multi-word argument boundary resolver ──────────────────────────
+        // The hint line, the suggestion dropdown, and acceptSuggestion all
+        // used to assume "1 typed token = 1 argument slot". That's wrong for
+        // any arg whose values can be multiple words (country/season/
+        // continent/tree-node names like "United Kingdom" or "Ancient
+        // Rome") — it made the hint disappear early, the suggestion list
+        // filter on only the last word, and — worst of all — accepting a
+        // suggestion would only replace the last token, leaving leftover
+        // fragments of the partially-typed value behind in the textbox
+        // (e.g. "set country rome united kin" + accept "United Kingdom" →
+        // "set country rome united United Kingdom").
+        //
+        // This mirrors the longest-known-match strategy execution already
+        // uses (termSplitLeadingKey) so the UI agrees with the command
+        // parser about where one argument ends and the next begins, instead
+        // of forking the same logic twice with two different bugs.
+        //
+        // Returns { argIdx, partial, replaceFromIdx } or null:
+        //   argIdx         — which arg slot (0-based) is currently being filled
+        //   partial        — the (possibly multi-word) text typed so far for
+        //                    that slot, lowercased, for filtering candidates
+        //   replaceFromIdx — absolute index into the full `tokens` array from
+        //                    which an accepted suggestion value should replace
+        //                    through the end of the input
+        function resolveArgState(tokens, match, endsWithSpace) {
+            if (!match) return null;
+            const argsMeta = match.cmd.args;
+            if (!argsMeta || !argsMeta.length) return null;
+            const restTokens = tokens.slice(match.cmdLen);
+            if (!restTokens.length) {
+                return { argIdx: 0, partial: "", replaceFromIdx: tokens.length };
+            }
+
+            let pos = 0; // tokens already consumed by earlier, completed arg slots
+            for (let i = 0; i < argsMeta.length; i++) {
+                const isLast = i === argsMeta.length - 1;
+                const remaining = restTokens.slice(pos);
+                if (!remaining.length) {
+                    return { argIdx: i, partial: "", replaceFromIdx: match.cmdLen + pos };
+                }
+                if (isLast) {
+                    // Free-text tail: everything left belongs to this slot.
+                    // While still typing it, the WHOLE remainder is the
+                    // partial (not just its last word), so multi-word
+                    // filtering/replacement works correctly.
+                    if (endsWithSpace) return { argIdx: i, partial: "", replaceFromIdx: tokens.length };
+                    return { argIdx: i, partial: remaining.join(" ").toLowerCase(), replaceFromIdx: match.cmdLen + pos };
+                }
+                let candidates = [];
+                try {
+                    candidates = (argsMeta[i].source() || [])
+                        .map(v => String(v && typeof v === "object" ? v.value : v).toLowerCase());
+                } catch { candidates = []; }
+                const candSet = new Set(candidates);
+                let matchedLen = 0;
+                for (let len = remaining.length; len >= 1; len--) {
+                    if (candSet.has(remaining.slice(0, len).join(" ").toLowerCase())) { matchedLen = len; break; }
+                }
+                if (!matchedLen) {
+                    if (endsWithSpace) { pos += remaining.length; continue; } // unrecognized value, assume finished, move on
+                    return { argIdx: i, partial: remaining.join(" ").toLowerCase(), replaceFromIdx: match.cmdLen + pos };
+                }
+                if (!endsWithSpace && pos + matchedLen === restTokens.length) {
+                    // An exact known value, but it's still the last thing
+                    // typed (no trailing space yet) — keep it editable as
+                    // the "current" slot rather than locking it in.
+                    return { argIdx: i, partial: remaining.slice(0, matchedLen).join(" ").toLowerCase(), replaceFromIdx: match.cmdLen + pos };
+                }
+                pos += matchedLen;
+            }
+            return { argIdx: argsMeta.length, partial: "", replaceFromIdx: match.cmdLen + pos }; // past all defined slots
         }
 
         // True if the last (currently-typed, not-yet-space-terminated) token
@@ -5253,37 +5930,45 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
             // Guard: match may be null if no command matches yet.
             const commandIsFinished = match && (endsWithSpace || tokens.length > match.cmdLen) && !stillExtendingLongerCmd(tokens, endsWithSpace);
             if (match && commandIsFinished && match.cmd.args && match.cmd.args.length) {
-                const argIdx = endsWithSpace
-                    ? tokens.length - match.cmdLen
-                    : Math.max(0, tokens.length - match.cmdLen - 1);
 
-                // "call <fn.path> [arg1 arg2 …]" is variadic and untyped — the
-                // generic "past the last defined slot, keep reusing the last
-                // slot's source" fallback below is wrong for it specifically,
-                // since call's only defined slot (argIdx 0) is the function
-                // path itself, and reusing that for arg1/arg2/etc. would just
-                // re-suggest function paths as if they were the values being
-                // passed to the function. Instead, look up suggestions keyed
-                // by the actual function path already typed, per argument
-                // position — e.g. "call setMapStyle " suggests style names,
-                // not more function paths.
-                if (match.cmd.cmd === "call" && argIdx >= 1) {
-                    const fnPath = tokens[match.cmdLen] || "";
-                    const specSources = KNOWN_CALL_ARG_SOURCES[fnPath.toLowerCase()];
-                    const specSource = specSources && specSources[argIdx - 1];
-                    const partial = (!endsWithSpace && tokens.length > match.cmdLen)
-                        ? tokens[tokens.length - 1].toLowerCase() : "";
-                    if (specSource) {
-                        let candidates = [];
-                        try { candidates = specSource() || []; } catch { candidates = []; }
-                        const valOf = v => String(v && typeof v === "object" ? v.value : v);
-                        const { items, fuzzy } = filterWithFallback(candidates, partial, 30, valOf);
-                        return { mode: "arg", items, label: `arg${argIdx + 1}`, fuzzy };
+                // "call <fn.path> [arg1 arg2 ...]" takes free-standing
+                // single-token positional JS arguments, not multi-word tag
+                // values -- it keeps the old simple 1-token-per-slot
+                // counting for positions past the function path itself,
+                // since the multi-word resolver below has no concept of
+                // call's per-function, per-position dynamic sources.
+                if (match.cmd.cmd === "call") {
+                    const callArgIdx = endsWithSpace
+                        ? tokens.length - match.cmdLen
+                        : Math.max(0, tokens.length - match.cmdLen - 1);
+                    if (callArgIdx >= 1) {
+                        const fnPath = tokens[match.cmdLen] || "";
+                        const specSources = KNOWN_CALL_ARG_SOURCES[fnPath.toLowerCase()];
+                        const specSource = specSources && specSources[callArgIdx - 1];
+                        const partial = (!endsWithSpace && tokens.length > match.cmdLen)
+                            ? tokens[tokens.length - 1].toLowerCase() : "";
+                        if (specSource) {
+                            let candidates = [];
+                            try { candidates = specSource() || []; } catch { candidates = []; }
+                            const valOf = v => String(v && typeof v === "object" ? v.value : v);
+                            const { items, fuzzy } = filterWithFallback(candidates, partial, 30, valOf);
+                            return { mode: "arg", items, label: `arg${callArgIdx + 1}`, fuzzy };
+                        }
+                        // No known suggestion source for this function/position --
+                        // stay quiet rather than suggesting something misleading.
+                        return { mode: "arg", items: [], label: null };
                     }
-                    // No known suggestion source for this function/position —
-                    // stay quiet rather than suggesting something misleading.
-                    return { mode: "arg", items: [], label: null };
+                    // callArgIdx === 0: fall through below for the fnPath slot itself.
                 }
+
+                // Multi-word-aware: resolves which arg slot is being typed
+                // and what the (possibly multi-word) partial text is, so
+                // free-text/tag values spanning several tokens (e.g.
+                // "United Kingdom") are filtered and replaced correctly
+                // instead of treating only the last word as the partial.
+                const state = resolveArgState(tokens, match, endsWithSpace);
+                const argIdx = state ? state.argIdx : 0;
+                const partial = state ? state.partial : "";
 
                 const argMeta = match.cmd.args[argIdx] || (
                     // Past the last defined slot: if the last arg looks like a
@@ -5294,8 +5979,6 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                     match.cmd.args[match.cmd.args.length - 1]
                 );
                 if (argMeta) {
-                    const partial = (!endsWithSpace && tokens.length > match.cmdLen)
-                        ? tokens[tokens.length - 1].toLowerCase() : "";
                     let candidates = [];
                     try { candidates = argMeta.source() || []; } catch { candidates = []; }
                     const valOf = v => String(v && typeof v === "object" ? v.value : v);
@@ -5303,7 +5986,7 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                     return { mode: "arg", items, label: argMeta.label, fuzzy };
                 }
                 // Past the last defined argument slot (e.g. a free-text field
-                // like <name> with no suggestion source) — nothing to suggest,
+                // like <name> with no suggestion source) -- nothing to suggest,
                 // close cleanly instead of falling through to a whole-string
                 // command-name match below.
                 return { mode: "arg", items: [], label: null };
@@ -5484,19 +6167,40 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
             suggIdx = -1;
         }
 
-        function acceptSuggestion(mode, choice) {
+        // Computes the new full input string after accepting a suggestion.
+        // Shared (via window.WHDAdmin.buildAcceptedValue) with owner-panel.js
+        // so both terminal UIs replace exactly the right span of tokens —
+        // previously owner-panel.js forked this same logic with its own
+        // naive "keep all but the last token" rule, which (like the old
+        // logic here) broke for multi-word values: typing "set country rome
+        // united kin" and accepting "United Kingdom" would leave the
+        // already-typed "united" behind, producing "...rome united United
+        // Kingdom" instead of cleanly replacing the whole in-progress value.
+        function buildAcceptedValue(raw, mode, choice) {
             if (mode === "cmd") {
-                input.value = choice.cmd + (choice.hint ? " " : "");
-            } else {
-                const value = (choice && typeof choice === "object") ? choice.value : choice;
-                const endsWithSpace = /\s$/.test(input.value);
-                const tokens = input.value.trim().length ? input.value.trim().split(/\s+/) : [];
-                const match = matchCommand(tokens);
-                const cmdLen = match ? match.cmdLen : 0;
-                const keepCount = endsWithSpace ? tokens.length : Math.max(cmdLen, tokens.length - 1);
-                const kept = tokens.slice(0, keepCount);
-                input.value = kept.join(" ") + (kept.length ? " " : "") + value + " ";
+                return choice.cmd + (choice.hint ? " " : "");
             }
+            const value = (choice && typeof choice === "object") ? choice.value : choice;
+            const endsWithSpace = /\s$/.test(raw);
+            const tokens = raw.trim().length ? raw.trim().split(/\s+/) : [];
+            const match = matchCommand(tokens);
+            let replaceFromIdx;
+            if (match && match.cmd.cmd === "call") {
+                // call's trailing args are free-standing single tokens, not
+                // multi-word tag values -- keep the simple "replace only the
+                // in-progress last token" behavior.
+                replaceFromIdx = endsWithSpace ? tokens.length : Math.max(match.cmdLen, tokens.length - 1);
+            } else {
+                const state = resolveArgState(tokens, match, endsWithSpace);
+                replaceFromIdx = state ? state.replaceFromIdx
+                    : (endsWithSpace ? tokens.length : Math.max(match ? match.cmdLen : 0, tokens.length - 1));
+            }
+            const kept = tokens.slice(0, replaceFromIdx);
+            return kept.join(" ") + (kept.length ? " " : "") + value + " ";
+        }
+
+        function acceptSuggestion(mode, choice) {
+            input.value = buildAcceptedValue(input.value, mode, choice);
             closeSuggest();
             input.focus();
             refresh(); // immediately offer the next argument, if any
@@ -5584,6 +6288,7 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
             getSuggestions,
             highlightSubstring,
             highlightFuzzy,
+            buildAcceptedValue,
             getHintText: (raw) => { updateHint(raw); return hintLine ? hintLine.textContent : ""; },
             setOutput: (id) => { _termOutputId = id || "adminTermOutput"; },
             bootMessage: () => printTermBootMessage(),
@@ -5648,9 +6353,16 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                 persistDeleted();
 
                 // Re-add to live arrays so the main app can see it again
+                const restored = { ...s, _adminAdded: true };
+                delete restored._dbKey;
                 const arr = DB_MAP[dbKey] ? DB_MAP[dbKey].getArr() : null;
-                if (arr && !arr.find(x => x.id === sceneId)) arr.push({ ...s });
-                if (!scenes.find(x => x.id === sceneId)) scenes.push({ ...s });
+                if (arr) {
+                    const ei = arr.findIndex(x => x.id === sceneId);
+                    if (ei !== -1) arr[ei] = restored; else arr.push(restored);
+                }
+                const si = scenes.findIndex(x => x.id === sceneId);
+                if (si !== -1) scenes[si] = restored; else scenes.push(restored);
+                persistScenes(); // without this, the restore doesn't survive reload/sync
 
                 refreshDeletedList();
                 refreshManageList();
@@ -5744,12 +6456,17 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
 
             if (node.children !== undefined) {
                 renderTreeChildren(node.children, childrenDiv, depth + 1);
-                // "Add child" row inside childrenDiv
+                // "Add child" row inside childrenDiv.
+                // For a 2-level continent (all children are season leaves), the
+                // "Add child" input should create a season leaf (episodes), not a
+                // branch (children) — even though this is depth 1.
+                const childrenAreAllLeaves = node.children.length > 0 &&
+                    node.children.every(ch => ch.episodes !== undefined && !Array.isArray(ch.children));
                 appendAddRow(childrenDiv, `Add child to "${node.name}"…`, newNode => {
                     node.children.push(newNode);
                     persistTree();
                     refreshTree();
-                }, depth + 1);
+                }, depth + 1, childrenAreAllLeaves);
             } else if (node.episodes !== undefined) {
                 const meta = document.createElement("div");
                 meta.style.cssText = "font-size:11px;color:rgba(255,255,255,0.3);padding:2px 0 6px 4px;";
@@ -5778,7 +6495,7 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         });
     }
 
-    function appendAddRow(container, placeholder, onAdd, depth) {
+    function appendAddRow(container, placeholder, onAdd, depth, forceLeaf) {
         const addRow = document.createElement("div");
         addRow.className = "admin-tree-add-row";
         if (depth > 0) addRow.style.paddingLeft = "20px";
@@ -5788,7 +6505,7 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         addRow.querySelector("button").addEventListener("click", () => {
             const v = inp.value.trim();
             if (!v) return;
-            const isLeaf = depth >= 2;
+            const isLeaf = forceLeaf || depth >= 2;
             const newNode = isLeaf ? { name: v, episodes: [] } : { name: v, children: [] };
             onAdd(newNode);
             toast(`✔ Added "${v}"`);

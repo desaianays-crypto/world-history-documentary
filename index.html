@@ -17,6 +17,7 @@
     <link rel="stylesheet" href="css/admin.css">
     <link rel="stylesheet" href="css/auth.css">
     <link rel="stylesheet" href="css/bugs.css">
+    <link rel="stylesheet" href="css/sources.css">
 </head>
 
 <body>
@@ -86,6 +87,7 @@
         <div id="infoPanelHeader">
             <div id="infoPanelTopRow">
                 <div id="infoYearBadge"></div>
+                <button id="infoMoreBtn" title="Sources & educational content" onclick="WHDSources.openCurrent()">📚 More</button>
                 <div id="nowPlayingPanel">
                     <div id="nowPlayingWave">
                         <span></span><span></span><span></span><span></span>
@@ -450,6 +452,7 @@
     <script src="data/australia.js"></script>
     <script src="data/historybites.js"></script>
     <script src="data/africa.js"></script>
+    <script src="data/sources-data.js"></script>
 
     <!-- App scripts (load order preserved from original) -->
     <script src="javascript/auth.js"></script>           <!-- account login/signup/guest, cloud sync -->
@@ -463,6 +466,7 @@
     <script src="javascript/settings-ui.js"></script>    <!-- applyMapTile, openSettings, sliders, bookmarks -->
     <script src="javascript/explore-story.js"></script>  <!-- explore tab, story bookmark/playlist controls -->
     <script src="javascript/init.js"></script>           <!-- map init, scenes, world tree, panel resize, globals -->
+    <script src="javascript/sources-panel.js"></script>  <!-- 📚 More: sources/educational-content panel -->
     <script src="javascript/search.js"></script>         <!-- fuzzy search engine -->
     <script src="javascript/empires.js"></script>        <!-- empire GeoJSON map -->
     <script src="javascript/bug-report.js"></script>     <!-- bug report panel (B key) -->

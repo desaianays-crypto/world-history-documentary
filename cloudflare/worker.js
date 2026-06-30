@@ -642,10 +642,24 @@ export default {
         }
         if (url.pathname === "/data" && request.method === "POST") {
             const body = await request.json().catch(() => ({}));
-            if (!env.ADMIN_PASSCODE || body.passcode !== env.ADMIN_PASSCODE) {
+            // Two ways in: the legacy shared passcode, OR a session token
+            // belonging to a logged-in admin/owner. The token path matters
+            // because admin/owner accounts skip the passcode *prompt*
+            // entirely (see admin.js _applyPanelRole) — without this they
+            // had no way to actually authenticate a write, so every owner
+            // terminal command that touched scenes/tree/deleted silently
+            // stayed local-only forever, even though the UI never told
+            // them their passcode was "wrong" (it just never asked).
+            const passcodeOk = !!env.ADMIN_PASSCODE && body.passcode === env.ADMIN_PASSCODE;
+            let tokenOk = false;
+            if (!passcodeOk && body.token) {
+                const caller = await getUserFromToken(body.token, env);
+                tokenOk = isAdminOrAbove(caller);
+            }
+            if (!passcodeOk && !tokenOk) {
                 return json({ ok: false, error: "Invalid passcode" }, 401);
             }
-            const { passcode, ...payload } = body;
+            const { passcode, token, ...payload } = body;
             await env.ADMIN_KV.put(KV_KEY, JSON.stringify(payload));
             return json({ ok: true });
         }

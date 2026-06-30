@@ -19,6 +19,7 @@
         // ── Scene: Query ────────────────────────────────────────────────────
         { cat:"Scene",    cmd:"list dbs",           hint:"",                                     desc:"Show scene counts for each database (Europe, Asia, Africa…)" },
         { cat:"Scene",    cmd:"list duplicates",     hint:"",                                     desc:"Find scenes sharing the same name, ID, or coordinates" },
+        { cat:"Scene",    cmd:"list ghosts",         hint:"",                                     desc:"List scenes still defined in code but hidden by a stale delete flag" },
         { cat:"Scene",    cmd:"list country",        hint:"<country>",                            desc:"List all active scenes tagged to a specific country",
           args:[{label:"country", source:S.suggestCountries}] },
         { cat:"Scene",    cmd:"list season",         hint:"<season>",                             desc:"List all active scenes belonging to a named season",
@@ -59,7 +60,8 @@
           args:[{label:"sceneId", source:S.suggestSceneIdsRich},{label:"zoom", source:()=>["2","3","4","5","6","7","8"]}] },
         { cat:"Scene",    cmd:"set country",         hint:"<sceneId|country> <newCountry>",       desc:"Set country on one scene by ID, or retag every scene currently in a country",
           args:[{label:"sceneId or country", source:()=>[...S.suggestSceneIdsRich(), ...S.suggestCountries()]},{label:"country", source:S.suggestCountries}] },
-        { cat:"Scene",    cmd:"set season",          hint:"<sceneId|country|season> <newSeason>",  desc:"Set season on one scene by ID, on every scene for a given country, or rename an entire season",
+        { cat:"Scene",    cmd:"fix country",         hint:"",                                     desc:"Find and fix scenes where country field contains a season name (e.g. 'Modern United Kingdom' → country='United Kingdom', season='Modern United Kingdom')" },
+        { cat:"Scene",    cmd:"set season",          hint:"<sceneId|country|season> <newSeason>", desc:"Set season on one scene by ID, on every scene for a given country, or rename an entire season",
           args:[{label:"sceneId, country, or season", source:()=>[...S.suggestSceneIdsRich(), ...S.suggestCountries(), ...S.suggestSeasons()]},{label:"season", source:S.suggestSeasons}] },
         { cat:"Scene",    cmd:"set continent",       hint:"<sceneId|country|continent> <newContinent>", desc:"Set continent on one scene by ID, on every scene for a country, or retag an entire continent",
           args:[{label:"sceneId, country, or continent", source:()=>[...S.suggestSceneIdsRich(), ...S.suggestCountries(), ...S.suggestContinents()]},{label:"continent", source:S.suggestContinents}] },
@@ -67,9 +69,9 @@
           args:[{label:"targetId", source:S.suggestSceneIdsRich},{label:"sourceId", source:S.suggestSceneIdsRich}] },
         { cat:"Scene",    cmd:"clone",               hint:"<sceneId> <newId>",                    desc:"Duplicate a scene under a new ID — all fields are copied",
           args:[{label:"sceneId", source:S.suggestSceneIdsRich}] },
-        { cat:"Scene",    cmd:"open",                hint:"<sceneId>",                            desc:"Load a scene into the Add/Edit form for manual editing",
+        { cat:"Scene",    cmd:"open",                hint:"<sceneId>",                            desc:"Load a scene into the Add/Edit form (admin panel), or print its fields (owner terminal)",
           args:[{label:"sceneId", source:S.suggestSceneIdsRich}] },
-        { cat:"Scene",    cmd:"scene add",           hint:"<db> <id> <name>",                     desc:"Create a new stub scene in a database and open it in the form",
+        { cat:"Scene",    cmd:"scene add",           hint:"<db> <id> <name>",                     desc:"Create a new stub scene in a database and open it in the form (admin panel only)",
           args:[{label:"db", source:S.suggestDbKeys},{label:"id", source:()=>[]}] },
         { cat:"Scene",    cmd:"scene js",            hint:"<sceneId>",                            desc:"Print the JavaScript object literal for a scene (useful for manual file edits)",
           args:[{label:"sceneId", source:S.suggestSceneIdsRich}] },
@@ -159,7 +161,8 @@
         { cat:"CSS",      cmd:"theme dark",          hint:"",                                     desc:"Switch the site to the dark theme (default)" },
         { cat:"CSS",      cmd:"theme light",         hint:"",                                     desc:"Switch the site to the light theme preset" },
         { cat:"CSS",      cmd:"theme reset",         hint:"",                                     desc:"Clear all theme overrides and return to the built-in defaults" },
-        { cat:"CSS",      cmd:"accent",              hint:"<hex>",                                desc:"Set the global accent colour for all users (e.g. accent #e05500)" },
+        { cat:"CSS",      cmd:"accent",              hint:"<hex>",                                desc:"Set the global accent colour for all users (e.g. accent #e05500)",
+          args:[{label:"hex color", source:S.suggestAccentColors}] },
 
         // ── Flags ─────────────────────────────────────────────────────────────
         { cat:"Flags",    cmd:"activate",            hint:"<flag> [value]",                       desc:"Force-enable a feature flag for every user (e.g. activate betaMap true)",
@@ -177,10 +180,13 @@
           args:[{label:"continent", source:S.suggestContinents},{label:"country", source:S.suggestCountries},{label:"season", source:S.suggestSeasons}] },
         { cat:"Tree",     cmd:"tree remove",         hint:"<nodeName>",                           desc:"Remove a node and all its children from the world tree",
           args:[{label:"node", source:S.suggestTreeNodes}] },
-        { cat:"Tree",     cmd:"tree rename",         hint:"<oldName> <newName>",                  desc:"Rename a node in the world tree without affecting child nodes",
+        { cat:"Tree",     cmd:"tree rename",         hint:"<oldName> <newName>",                  desc:"Rename a node in the world tree — both names may be multi-word (resolved by longest match)",
           args:[{label:"oldName", source:S.suggestTreeNodes}] },
-        { cat:"Tree",     cmd:"tree find",           hint:"<query>",                              desc:"Search the world tree for a node by name" },
-        { cat:"Tree",     cmd:"tree sync",           hint:"",                                     desc:"Auto-add any countries found in scene data that are missing from the tree" },
+        { cat:"Tree",     cmd:"tree find",           hint:"<query>",                              desc:"Search the world tree for a node by name",
+          args:[{label:"query", source:S.suggestTreeNodes}] },
+        { cat:"Tree",     cmd:"tree orphans",        hint:"",                                     desc:"List scenes whose continent/country/season tags don't resolve to any tree node" },
+        { cat:"Tree",     cmd:"tree sync",           hint:"",                                     desc:"Add missing nodes from scene data and remove stale nodes from the tree" },
+        { cat:"Tree",     cmd:"tree repair",         hint:"",                                     desc:"Fix tree corruption: remove duplicate nodes and hoist misplaced seasons out of spurious country nodes" },
         { cat:"Tree",     cmd:"tree reset",          hint:"",                                     desc:"Wipe the world tree and restore the built-in default structure (reloads page)" },
 
         // ── Runtime ───────────────────────────────────────────────────────────
@@ -197,12 +203,14 @@
           args:[{label:"path", source:S.suggestWindowPaths}] },
         { cat:"Runtime",  cmd:"fn",                  hint:"[window.path]",                        desc:"List all callable functions on window or a nested object",
           args:[{label:"path", source:S.suggestWindowPaths}] },
-        { cat:"Runtime",  cmd:"eval",                hint:"<js expression>",                      desc:"Evaluate any JavaScript expression in page scope and print the result" },
+        { cat:"Runtime",  cmd:"eval",                hint:"<js expression>",                      desc:"Evaluate any JavaScript expression in page scope and print the result",
+          args:[{label:"expression", source:S.suggestEvalExpressions}] },
         { cat:"Runtime",  cmd:"watch",               hint:"<window.path> [intervalSec]",          desc:"Poll a window property on an interval and log whenever its value changes",
           args:[{label:"path", source:S.suggestWindowPaths},{label:"interval", source:()=>["1","2","5","10"]}] },
         { cat:"Runtime",  cmd:"reload",              hint:"",                                     desc:"Re-fetch all shared admin data from the worker (users, flags, CSS, announcements)" },
         { cat:"Runtime",  cmd:"reload page",         hint:"",                                     desc:"Hard-refresh the browser page" },
         { cat:"Runtime",  cmd:"ping",                hint:"",                                     desc:"Send a test request to the worker and report connectivity and latency" },
+        { cat:"Runtime",  cmd:"sync",                hint:"",                                     desc:"Force an immediate push+pull with the shared store (instead of waiting on the debounce/poll)" },
         { cat:"Runtime",  cmd:"version",             hint:"",                                     desc:"Show the current admin panel version and build info" },
         { cat:"Runtime",  cmd:"whoami",              hint:"",                                     desc:"Print your current username, role, and session token status" },
         { cat:"Runtime",  cmd:"help",                hint:"[category]",                           desc:"List all terminal commands — optionally filter by category name",
@@ -261,21 +269,22 @@
         { cat:"Session",  cmd:"session clear",       hint:"",                                     desc:"Wipe the in-memory command history for this terminal session" },
         { cat:"Session",  cmd:"session export",      hint:"",                                     desc:"Download the full terminal output from this session as a plain-text file" },
 
-        // ── Panel ─────────────────────────────────────────────────────────────
-        { cat:"Panel",    cmd:"panel goto",          hint:"<tab>",                                desc:"Switch to a named admin panel tab (add, manage, tree, bugs, owner, info)",
+        // ── Panel (admin panel only — no-op or informational in owner terminal) ──
+        { cat:"Panel",    cmd:"panel goto",          hint:"<tab>",                                desc:"Switch to a named admin panel tab — add, manage, tree, bugs, owner, info (admin panel only)",
           args:[{label:"tab", source:()=>["add","manage","tree","bugs","owner","info"]}] },
         { cat:"Panel",    cmd:"panel close",         hint:"",                                     desc:"Close the admin panel overlay" },
 
         // ── Update Log ────────────────────────────────────────────────────────
         { cat:"Log",      cmd:"log list",            hint:"",                                     desc:"Fetch and list all update log entries with version, title, date, and change count" },
         { cat:"Log",      cmd:"log add",             hint:"<version> [title] -- <change> | …",   desc:"Create a new update log entry — separate changes with | (e.g. log add 2.4 Summer -- Fixed X | Added Y)" },
-        { cat:"Log",      cmd:"log edit",            hint:"<id> <field> <value>",                 desc:"Edit one field of an existing log entry — fields: version, title, date, changes",
-          args:[{label:"id", source:()=>[]},{label:"field", source:()=>["version","title","date","changes"]}] },
-        { cat:"Log",      cmd:"log delete",          hint:"<id>",                                 desc:"Permanently delete an update log entry by its ID (get IDs from log list)",
-          args:[{label:"id", source:()=>[]}] },
+        { cat:"Log",      cmd:"log edit",            hint:"<id> <field> <value>",                 desc:"Edit one field of an existing log entry — run 'log list' first to see IDs",
+          args:[{label:"id", source:S.suggestLogIds},{label:"field", source:()=>["version","title","date","changes"]}] },
+        { cat:"Log",      cmd:"log delete",          hint:"<id>",                                 desc:"Permanently delete an update log entry by its ID — run 'log list' first to see IDs",
+          args:[{label:"id", source:S.suggestLogIds}] },
 
         // ── General ───────────────────────────────────────────────────────────
         { cat:"General",  cmd:"clear",               hint:"",                                     desc:"Clear all output from the terminal" },
         { cat:"General",  cmd:"history",             hint:"",                                     desc:"Print the command history for this session" },
         { cat:"General",  cmd:"help",                hint:"[category]",                           desc:"List all commands or filter by a category name" },
     ];
+

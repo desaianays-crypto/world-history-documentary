@@ -3518,7 +3518,7 @@ events:[
         imgKey: "vietnam16",
         continent: "Asia",
         country: "Vietnam",
-        season: "Early Modern Vietnam",
+        season: "Modern Vietnam",
         coords: [16.5, 107.6],
         zoom: 6,
         region: "Huế",

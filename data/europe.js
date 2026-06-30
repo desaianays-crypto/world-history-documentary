@@ -1701,7 +1701,7 @@ events:[
                 country: "United Kingdom",
                 season: "Medieval United Kingdom",
                 coords: [55.9520, -3.1913],
-                zoom: 14,
+                zoom: 8,
                 region: "Edinburgh",
 info:"The witch trials associated with the Nor Loch in Edinburgh, Scotland, were part of the broader wave of Scottish witch persecutions that took place between the 16th and early 18th centuries during a period of intense religious fear, superstition, and political instability in Europe. The Nor Loch was a large artificial loch located beneath Edinburgh Castle, in the area where Princes Street Gardens now exist, and became closely tied in popular memory to executions and punishments carried out in the city. Scotland experienced some of the most severe witch hunts in Europe, especially after the Scottish Witchcraft Act of 1563 made witchcraft a capital crime punishable by death. Religious tensions following the Protestant Reformation, fear of the Devil, crop failures, disease, and social anxieties contributed to widespread accusations of witchcraft, often targeting women, the poor, healers, or socially marginalized individuals. King James VI of Scotland, later James I of England, strongly believed in witchcraft and even wrote Daemonologie (1597), encouraging persecution and investigation of alleged witches. Accused individuals were frequently subjected to interrogations, torture, sleep deprivation, and forced confessions before being tried and executed, commonly by strangulation followed by burning. While many executions in Edinburgh occurred at places such as Castlehill rather than directly at the Nor Loch itself, the loch became symbolically associated with death, imprisonment, and fear within the city’s harsh judicial environment. The Scottish witch trials gradually declined in the late 17th and early 18th centuries as skepticism toward witchcraft accusations increased and legal standards changed. The final repeal of witchcraft laws in Britain came in the 18th century, ending one of the darkest chapters of early modern European persecution.",
 events:[
@@ -1793,8 +1793,8 @@ events:[
                 startYear: 1858,
                 endYear: 1947,
                 imgKey: "uk_india",
-                continent: "Asia",
-                country: "India",
+                continent: "Europe",
+                country: "United Kingdom",
                 season: "Modern United Kingdom",
                 coords: [28.6, 77.2],
                 zoom: 5,
@@ -1816,8 +1816,8 @@ events:[
                 startYear: 1880,
                 endYear: 1960,
                 imgKey: "uk_africa",
-                continent: "Africa",
-                country: "Kenya",
+                continent: "Europe",
+                country: "United Kingdom",
                 season: "Modern United Kingdom",
                 coords: [-1.3, 36.8],
                 zoom: 5,
@@ -2870,7 +2870,15 @@ events:[
                 coords: [43, 12],
                 zoom: 5,
                 region: "Southern Europe",
-
+                info:"Italy entered World War II in June 1940 as a member of the Axis powers alongside Nazi Germany, under the Fascist regime of Benito Mussolini, hoping to expand its colonial holdings in Africa and the Mediterranean. Italian forces fought in North Africa, the Balkans, and on the Eastern Front, but suffered repeated military setbacks that exposed the weakness of Italy's armed forces and war economy. Allied forces invaded Sicily in July 1943, triggering a political crisis that led to Mussolini's removal from power and arrest. Italy signed an armistice with the Allies in September 1943, but German forces quickly occupied much of the country, rescuing Mussolini and installing him as the head of a puppet state in the north, the Italian Social Republic. This split Italy into a brutal, drawn-out campaign: Allied and resistance forces pushed up from the south while German troops and Fascist loyalists held the north, with Italian partisans waging an active resistance movement throughout. The fighting caused immense destruction and civilian suffering before the war in Italy ended with German surrender in April 1945 and Mussolini's capture and execution by partisans.",
+                events:[
+                "Italy declares war on Britain and France, joining the Axis powers (June 1940)",
+                "Allied invasion of Sicily begins, leading to Mussolini's fall from power (July 1943)",
+                "Italy signs an armistice with the Allies; Germany occupies northern and central Italy (September 1943)",
+                "Mussolini is rescued by Germany and installed as head of the Italian Social Republic in the north",
+                "Italian partisan resistance movement intensifies against German occupation and Fascist forces",
+                "German forces in Italy surrender and Mussolini is captured and executed (April 1945)"
+                ]
             },
 
             {

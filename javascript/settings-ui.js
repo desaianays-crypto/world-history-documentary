@@ -371,6 +371,7 @@ function renderBookmarksList() {
                     <div class="bm-card-btns">
                         <button class="bm-go-btn" onclick="goToBookmark('${escHtmlMain(b.id)}')" title="Go to scene">▶ Go</button>
                         <button class="bm-share-scene-btn" onclick="shareBookmarkScene('${escHtmlMain(b.id)}')" title="Copy link to this scene">🔗</button>
+                        <button class="src-more-btn" onclick="WHDSources.open('${escHtmlMain(b.id)}')" title="Sources & educational content">📚</button>
                         <button class="bm-del-btn" onclick="removeBookmark('${escHtmlMain(b.id)}')" title="Remove bookmark">★</button>
                     </div>
                 </div>`;
@@ -437,6 +438,8 @@ function filterExploreSearch() {
         const starBtn = makeBookmarkStarBtn(scene);
         starBtn.classList.add("bm-star-inline");
 
+        const moreBtn = WHDSources.makeMoreBtn(scene, "explore-share-btn");
+
         const shareBtn = document.createElement("button");
         shareBtn.className = "explore-share-btn";
         shareBtn.title = "Copy link to this scene";
@@ -454,6 +457,7 @@ function filterExploreSearch() {
         row.appendChild(img);
         row.appendChild(info);
         row.appendChild(shareBtn);
+        row.appendChild(moreBtn);
         row.appendChild(starBtn);
         row.appendChild(goBtn);
         container.appendChild(row);

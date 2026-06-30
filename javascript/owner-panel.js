@@ -237,7 +237,12 @@
         }
 
         function acceptSuggestion(mode, choice) {
-            if (mode === "cmd") {
+            // Delegates to admin.js's shared, multi-word-aware boundary
+            // resolver instead of re-implementing (and re-breaking) the
+            // same "which tokens does this suggestion replace" logic here.
+            if (typeof WA.buildAcceptedValue === "function") {
+                input.value = WA.buildAcceptedValue(input.value, mode, choice);
+            } else if (mode === "cmd") {
                 input.value = choice.cmd + (choice.hint ? " " : "");
             } else {
                 const value = (choice && typeof choice === "object") ? choice.value : choice;
