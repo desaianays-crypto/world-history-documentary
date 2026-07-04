@@ -43,15 +43,24 @@
         const channelHint = encodeURIComponent(RECOMMENDED_CHANNELS.slice(0, 3).join(" OR "));
         return [
             {
-                type: "secondary", tier: "medium", title: `"${scene.name}" on Wikipedia`,
+                type: "primary", tier: "medium", auto: true,
+                title: `Primary-source search: "${scene.name}"`,
+                publisher: "Google (site-restricted to archives, government & institutional records)",
+                url: `https://www.google.com/search?q=${q}+primary+source+(site:archive.org+OR+site:loc.gov+OR+site:gov+OR+site:.edu)`
+            },
+            {
+                type: "secondary", tier: "medium", auto: true,
+                title: `"${scene.name}" on Wikipedia`,
                 publisher: "Wikipedia", url: `https://en.wikipedia.org/w/index.php?search=${q}`
             },
             {
-                type: "secondary", tier: "medium", title: `Scholarly articles on "${scene.name}"`,
+                type: "secondary", tier: "medium", auto: true,
+                title: `Scholarly articles on "${scene.name}"`,
                 publisher: "Google Scholar", url: `https://scholar.google.com/scholar?q=${q}`
             },
             {
-                type: "video", tier: "medium", title: `Video search: "${scene.name}"`,
+                type: "video", tier: "medium", auto: true,
+                title: `Video search: "${scene.name}"`,
                 publisher: `YouTube (try ${RECOMMENDED_CHANNELS.slice(0, 3).join(", ")})`,
                 url: `https://www.youtube.com/results?search_query=${q}+${channelHint}`
             }
@@ -64,13 +73,15 @@
     function renderEntry(e) {
         const tierClass = e.tier === "high" ? "src-tier-high" : "src-tier-medium";
         return `
-            <a class="src-entry" href="${escHtml(e.url)}" target="_blank" rel="noopener noreferrer">
+            <a class="src-entry${e.auto ? " src-entry-auto" : ""}" href="${escHtml(e.url)}" target="_blank" rel="noopener noreferrer">
                 <span class="src-entry-icon">${TYPE_ICON[e.type] || "🔗"}</span>
                 <span class="src-entry-body">
                     <span class="src-entry-title">${escHtml(e.title)}</span>
                     <span class="src-entry-meta">
                         ${escHtml(e.publisher || "")}
-                        <span class="src-tier-badge ${tierClass}">${e.tier === "high" ? "Vetted" : "Suggested"}</span>
+                        ${e.auto
+                            ? `<span class="src-tier-badge src-tier-auto" title="Auto-generated search link — not a curated source">Auto</span>`
+                            : `<span class="src-tier-badge ${tierClass}">${e.tier === "high" ? "Vetted" : "Suggested"}</span>`}
                     </span>
                 </span>
                 <span class="src-entry-go">↗</span>
@@ -118,10 +129,27 @@
         const panel = ensurePanel();
 
         const curated = (window.WHD_SOURCES && window.WHD_SOURCES[scene.id]) || [];
-        const fallback = buildFallbackLinks(scene);
-        const primary = curated.filter(e => e.type === "primary");
-        const secondary = curated.filter(e => e.type === "secondary");
-        const video = curated.filter(e => e.type === "video");
+        const curatedPrimary = curated.filter(e => e.type === "primary");
+        const curatedSecondary = curated.filter(e => e.type === "secondary");
+        const curatedVideo = curated.filter(e => e.type === "video");
+
+        // Auto-generated links only fill a category that has zero curated
+        // entries — once a scene has a real curated primary/secondary/video
+        // source, that category's auto-generated link is dropped rather than
+        // shown redundantly alongside it. Surviving auto-generated entries are
+        // merged directly into their matching category (tagged "Auto-generated")
+        // instead of living in a separate "Quick search" section, so a scene
+        // that's, say, missing only a video doesn't look half-empty next to a
+        // fully curated primary/secondary pairing.
+        const allFallback = buildFallbackLinks(scene);
+        const fallbackPrimary = curatedPrimary.length ? [] : allFallback.filter(e => e.type === "primary");
+        const fallbackSecondary = curatedSecondary.length ? [] : allFallback.filter(e => e.type === "secondary");
+        const fallbackVideo = curatedVideo.length ? [] : allFallback.filter(e => e.type === "video");
+
+        const primary = [...curatedPrimary, ...fallbackPrimary];
+        const secondary = [...curatedSecondary, ...fallbackSecondary];
+        const video = [...curatedVideo, ...fallbackVideo];
+        const anyAuto = fallbackPrimary.length || fallbackSecondary.length || fallbackVideo.length;
 
         const yearStr = scene.startYear != null
             ? (scene.startYear < 0 ? Math.abs(scene.startYear) + " BCE" : scene.startYear + " CE")
@@ -135,10 +163,11 @@
             renderSection("Primary sources", primary) +
             renderSection("Secondary sources & analysis", secondary) +
             renderSection("Documentaries & video", video) +
-            renderSection("Quick search (auto-generated)", fallback) +
             (curated.length === 0
                 ? `<div class="src-empty-note">No curated sources yet for this scene — showing auto-generated search links instead.</div>`
-                : "");
+                : (anyAuto
+                    ? `<div class="src-empty-note">Curated sources are still being added for this scene — auto-generated links (marked below) fill in the rest.</div>`
+                    : ""));
 
         panel.classList.add("open");
     }
