@@ -1,5 +1,5 @@
 const historyBitesScenes = [
-    //Mini Histories
+    //History Bites
 
     //Ancient
 
@@ -10,7 +10,7 @@ const historyBitesScenes = [
         startYear: -800,
         endYear: -300,
         imgKey: "greece_culture",
-        continent: "Mini Histories",
+        continent: "History Bites",
         country: "$100000 Cheese",
         season: "Ancient Greece",
         coords: [37.9, 23.7],
@@ -33,7 +33,7 @@ events:[
         startYear: -500,
         endYear: -300,
         imgKey: "greece_empire",
-        continent: "Mini Histories",
+        continent: "History Bites",
         country: "$100000 Cheese",
         season: "Ancient Greece",
         coords: [40.6, 22.9],
@@ -56,7 +56,7 @@ events:[
         startYear: -700,
         endYear: -400,
         imgKey: "greece_war",
-        continent: "Mini Histories",
+        continent: "History Bites",
         country: "$100000 Cheese",
         season: "Ancient Greece",
         coords: [37.5, 22.0],
@@ -79,7 +79,7 @@ events:[
         startYear: -1200,
         endYear: -300,
         imgKey: "greece_myth",
-        continent: "Mini Histories",
+        continent: "History Bites",
         country: "$100000 Cheese",
         season: "Ancient Greece",
         coords: [37.9, 23.7],

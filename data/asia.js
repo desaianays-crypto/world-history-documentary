@@ -1139,7 +1139,7 @@ events:[
         startYear:1914,
         endYear:1918,
         imgKey:"mind15",
-        continent:"Asia/Europe",
+        continent:"Asia",
         country:"India",
         season:"Modern India",
         coords:[28.6,77.2],
