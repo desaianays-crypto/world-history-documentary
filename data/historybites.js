@@ -686,7 +686,7 @@ events:[
         startYear: 1330,
         endYear: 1346,
         imgKey: "bd1",
-        continent: "Asia",
+        continent: "History Bites",
         country: "Stale Bread",
         season: "Black Death",
         coords: [42.0, 75.0],
