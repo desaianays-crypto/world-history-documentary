@@ -269,7 +269,7 @@ body.story-mode #cinematicBlur {
     min-width: 0;
     padding: 0;
 }
-#playlistCloseBtn:hover { color: #fff; }
+#playlistCloseBtn:hover { color: var(--accent); }
 
 /* Playlists tab: sidebar + editor side by side */
 #panelTabPlaylists {
@@ -869,16 +869,19 @@ body.story-mode #topBar {
 #settingsCloseBtn {
     background: none;
     border: none;
-    width: 32px;
-    right: 100%;
-    position:fixed;
-    color: rgba(255,255,255,0.4);
+    color: #ffffff78;
     font-size: 20px;
+    z-index: 500;
+    width: 32px;
+    height: 32px;
+    border-radius: 25%;
     cursor: pointer;
-    padding: 0 4px 8px;
-    transition: color .15s;
-    margin-bottom: 4px;
-
+    display: flex;
+    align-self: center;
+    justify-content: center;
+    transition: color 0.2s;
+    min-width: 0;
+    padding: 0;
 }
 #settingsCloseBtn:hover { color: var(--accent); }
 

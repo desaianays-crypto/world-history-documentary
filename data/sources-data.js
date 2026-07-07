@@ -16,11 +16,10 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
         },
         {
             type: "video", tier: "high",
-            title: "Full History of the Ancient Celts: Origins to Roman Conquest",
-            publisher: "Kings and Generals",
-            url: "https://www.youtube.com/watch?v=uOaStDDogDY"
+            title: "The Celts: Blood, Iron and Sacrifice — Episode 1",
+            publisher: "BBC",
+            url: "https://www.youtube.com/watch?v=ys85Z12Y4Ns"
         }
-
     ],
 
     "caesar_conquest": [
@@ -46,6 +45,12 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
 
     "roman_gaul": [
         {
+            type: "primary", tier: "high",
+            title: "Julius Caesar, Commentarii de Bello Gallico (Commentaries on the Gallic War, 58–49 BCE) — the general's own account of Gaul's conquest and early Roman administration",
+            publisher: "Perseus Digital Library, Tufts University",
+            url: "https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.02.0001"
+        },
+        {
             type: "secondary", tier: "high",
             title: "Roman Gaul — overview",
             publisher: "Wikipedia",
@@ -62,17 +67,16 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             title: "The Roman Empire. Or Republic. Or... Which Was It?: Crash Course World History #10",
             publisher: "Crash Course",
             url: "https://www.youtube.com/watch?v=oPf27gAup9U"
-        },
-        {
-            type: "primary", tier: "high",
-            title: "Strabo, Geography, Book IV (on Roman-era Gaul) — full text",
-            publisher: "Perseus Digital Library, Tufts University",
-            url: "https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0239:book%3D4"
         }
-
     ],
 
     "frankish_kingdom": [
+        {
+            type: "primary", tier: "high",
+            title: "Gregory of Tours, Historia Francorum (History of the Franks, c. 594 CE) — the essential contemporary source for Clovis I and the formation of the Frankish kingdom",
+            publisher: "Internet Medieval Sourcebook, Fordham University (Brehaut translation)",
+            url: "https://origin-rh.web.fordham.edu/Halsall/basis/gregory-hist.asp"
+        },
         {
             type: "secondary", tier: "high",
             title: "Clovis I — biography and reign",
@@ -90,17 +94,16 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             title: "How Clovis Changed Europe",
             publisher: "Kings and Generals",
             url: "https://www.youtube.com/watch?v=sQ728X06zhs"
-        },
-        {
-            type: "primary", tier: "high",
-            title: "Gregory of Tours, History of the Franks — full text",
-            publisher: "Fordham Medieval Sourcebook",
-            url: "https://sourcebooks.fordham.edu/basis/gregory-hist.asp"
         }
-
     ],
 
     "carolingian_empire": [
+        {
+            type: "primary", tier: "high",
+            title: "Einhard, Vita Karoli Magni (Life of Charlemagne, c. 817–836 CE) — the standard contemporary biography, written by a member of Charlemagne's own court",
+            publisher: "Internet Medieval Sourcebook, Fordham University",
+            url: "https://origin-rh.web.fordham.edu/Halsall/basis/einhard.asp"
+        },
         {
             type: "secondary", tier: "high",
             title: "Carolingian Empire — overview",
@@ -118,17 +121,16 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             title: "Charlemagne and the Carolingian Empire (Short Documentary)",
             publisher: "Ten Minute History",
             url: "https://www.youtube.com/watch?v=H2J_3RTKB1c"
-        },
-        {
-            type: "primary", tier: "high",
-            title: "Einhard, The Life of Charlemagne — full text",
-            publisher: "Fordham Medieval Sourcebook",
-            url: "https://sourcebooks.fordham.edu/basis/einhard.asp"
         }
-
     ],
 
     "feudal_france": [
+        {
+            type: "primary", tier: "high",
+            title: "Richer of Reims's account of the Election of Hugh Capet (987 CE) — a contemporary chronicle of the founding of the Capetian dynasty and the feudal order it presided over",
+            publisher: "Internet Medieval Sourcebook, Fordham University",
+            url: "https://sourcebooks.fordham.edu/source/987capet.asp"
+        },
         {
             type: "secondary", tier: "high",
             title: "France — Medieval, Feudalism, Monarchy",
@@ -146,42 +148,34 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             title: "Feudal system during the Middle Ages",
             publisher: "Khan Academy",
             url: "https://www.youtube.com/watch?v=p3pYuY4buIk"
-        },
-        {
-            type: "primary", tier: "high",
-            title: "Fulbert of Chartres, Letter on Feudal Obligations, 1020",
-            publisher: "Fordham Medieval Sourcebook",
-            url: "https://sourcebooks.fordham.edu/source/fulbert1.asp"
         }
-
     ],
 
     "crusades_france": [
         {
-            type: "secondary", tier: "high",
-            title: "Albigensian Crusade — overview",
-            publisher: "Wikipedia",
-            url: "https://en.wikipedia.org/wiki/Albigensian_Crusade"
-        },
-        {
-            type: "secondary", tier: "high",
-            title: "Albigensian Crusade — French religious war, Cathar heresy",
-            publisher: "Encyclopaedia Britannica",
-            url: "https://www.britannica.com/event/Albigensian-Crusade"
-        },
-        {
-            type: "video", tier: "medium",
-            title: "The Albigensian Crusade — Full Documentary",
-            publisher: "YouTube",
-            url: "https://www.youtube.com/watch?v=f8XEoAHfrhE"
-        },
-        {
             type: "primary", tier: "high",
-            title: "Pope Urban II's Speech at the Council of Clermont, 1095 (five versions)",
-            publisher: "Fordham Medieval Sourcebook",
-            url: "https://sourcebooks.fordham.edu/source/urban2-5vers.asp"
+            title: "Jean de Joinville, The Life of Saint Louis (c. 1305–09 CE) — Joinville's own eyewitness memoir as a French knight who accompanied King Louis IX on the Seventh Crusade",
+            publisher: "Internet Medieval Sourcebook, Fordham University",
+            url: "https://origin-rh.web.fordham.edu/Halsall/basis/joinville.asp"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "France and the Crusades — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/France_in_the_Middle_Ages#The_Crusades"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Louis IX of France — the Crusades of Saint Louis",
+            publisher: "Encyclopaedia Britannica",
+            url: "https://www.britannica.com/biography/Louis-IX-king-of-France"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The First Crusade - Princes' Crusade",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=nRK7DIz1u3I"
         }
-
     ],
 
     "hundred_year_war": [
@@ -207,6 +201,12 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
 
     "industrial_france": [
         {
+            type: "primary", tier: "high",
+            title: "The Waldeck-Rousseau Law (21 March 1884) — the French statute legalizing trade unions after decades of industrial-era prohibition",
+            publisher: "Wikipedia (sourced overview of the primary legal text)",
+            url: "https://en.wikipedia.org/wiki/Waldeck_Rousseau_law_(1884)"
+        },
+        {
             type: "secondary", tier: "high",
             title: "Economic history of France",
             publisher: "Wikipedia",
@@ -223,17 +223,16 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             title: "The Industrial Revolution: Crash Course European History #24",
             publisher: "Crash Course",
             url: "https://www.youtube.com/watch?v=zjK7PWmRRyg"
-        },
-        {
-            type: "primary", tier: "high",
-            title: "Émile Zola, \"J'Accuse...!\", 1898 — full text",
-            publisher: "Wikisource",
-            url: "https://en.wikisource.org/wiki/Translation:J%27Accuse...!"
         }
-
     ],
 
     "ww1_france": [
+        {
+            type: "primary", tier: "high",
+            title: "The Treaty of Versailles (28 June 1919) — full text, signed at the Palace of Versailles to formally end the war for France and the Allies",
+            publisher: "The Avalon Project, Yale Law School",
+            url: "https://avalon.law.yale.edu/subject_menus/versailles_menu.asp"
+        },
         {
             type: "secondary", tier: "high",
             title: "Battle of Verdun — overview",
@@ -248,17 +247,10 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
         },
         {
             type: "video", tier: "high",
-            title: "Brutal Truths of the Battle of Verdun",
-            publisher: "Encyclopaedia Britannica",
-            url: "https://www.britannica.com/video/180210/Overview-Battle-of-Verdun-1916"
-        },
-        {
-            type: "primary", tier: "high",
-            title: "The Versailles Treaty, June 28, 1919 — full text",
-            publisher: "Avalon Project, Yale Law School",
-            url: "https://avalon.law.yale.edu/subject_menus/versailles_menu.asp"
+            title: "Verdun, 1916: The Battle of the Great War (Full Documentary)",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=ny1rWSklx_U"
         }
-
     ],
 
     "ww2_france": [
@@ -306,6 +298,12 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
     // ── Germany ─────────────────────────────────────────────────────────
     "germany_early_settlers": [
         {
+            type: "primary", tier: "high",
+            title: "Tacitus, Germania (98 CE) — the essential Roman ethnographic account of the early Germanic tribes",
+            publisher: "Internet History Sourcebook, Fordham University",
+            url: "https://sourcebooks.fordham.edu/source/tacitus1.asp"
+        },
+        {
             type: "secondary", tier: "high",
             title: "Jastorf culture — overview",
             publisher: "Wikipedia",
@@ -318,21 +316,20 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             url: "https://en.wikipedia.org/wiki/Germanic_peoples"
         },
         {
-            type: "primary", tier: "high",
-            title: "Tacitus, Germania — full text",
-            publisher: "Perseus Digital Library, Tufts University",
-            url: "https://www.perseus.tufts.edu/hopper/text?doc=Perseus%3Atext%3A1999.02.0083"
-        },
-        {
             type: "video", tier: "high",
-            title: "Origin of the Germanic Tribes — Barbarians Documentary",
-            publisher: "Kings and Generals",
-            url: "https://www.youtube.com/watch?v=_KFzDlhT6bs"
+            title: "The Germanic Tribes According to Tacitus (56-120), Roman Historian",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=5ZwpHh2CVMQ"
         }
-
     ],
 
     "germany_tribal_unification_attempts": [
+        {
+            type: "primary", tier: "high",
+            title: "Julius Caesar, Commentarii de Bello Gallico, Book 1 — Caesar's own account of Ariovistus's Suebi confederation, one of the earliest recorded cross-tribal Germanic alliances",
+            publisher: "Perseus Digital Library, Tufts University",
+            url: "https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.02.0001"
+        },
         {
             type: "secondary", tier: "high",
             title: "Germanic peoples — tribal organization",
@@ -346,21 +343,20 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             url: "https://en.wikipedia.org/wiki/Early_Germanic_culture"
         },
         {
-            type: "primary", tier: "high",
-            title: "Julius Caesar, Commentarii de Bello Gallico, Book 6 (customs of the Germanic tribes)",
-            publisher: "Perseus Digital Library, Tufts University",
-            url: "https://www.perseus.tufts.edu/hopper/text?doc=Perseus%3Atext%3A1999.02.0001"
-        },
-        {
             type: "video", tier: "high",
-            title: "Rome's Vengeance: The Hunt for Arminius",
+            title: "Caesar vs Ariovistus: Battle of Vosges 58 BC",
             publisher: "Kings and Generals",
-            url: "https://www.youtube.com/watch?v=429XbaXvmUI"
+            url: "https://www.youtube.com/watch?v=D-YpPBPD23o"
         }
-
     ],
 
     "germany_romans_trade": [
+        {
+            type: "primary", tier: "high",
+            title: "Pliny the Elder, Naturalis Historia, Book XXXVII, Chapter 11 (77 CE) — the Roman naturalist's firsthand account of the Baltic amber trade with Germanic tribes",
+            publisher: "Perseus Digital Library, Tufts University",
+            url: "https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.02.0137:book%3D37:chapter%3D11"
+        },
         {
             type: "secondary", tier: "high",
             title: "Limes Germanicus — Roman frontier and trade",
@@ -374,21 +370,20 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             url: "https://en.wikipedia.org/wiki/Upper_Germanic-Rhaetian_Limes"
         },
         {
-            type: "primary", tier: "high",
-            title: "Strabo, Geography, Book VII (on Germania) — full text",
-            publisher: "Perseus Digital Library, Tufts University",
-            url: "https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0239:book%3D7"
-        },
-        {
-            type: "video", tier: "medium",
-            title: "The Roman Empire. Or Republic. Or... Which Was It?: Crash Course World History #10",
-            publisher: "Crash Course",
-            url: "https://www.youtube.com/watch?v=oPf27gAup9U"
+            type: "video", tier: "high",
+            title: "The Limes: The Border Rome Built But Could Not Hold",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=j5eBHumLjqI"
         }
-
     ],
 
     "germany_border_wars": [
+        {
+            type: "primary", tier: "high",
+            title: "Cassius Dio, Roman History, Book 56.18-24 — the fullest surviving ancient narrative of the Battle of the Teutoburg Forest",
+            publisher: "Livius.org (Cary translation)",
+            url: "https://www.livius.org/sources/content/cassius-dio/cassius-dio-on-the-teutoburg-forest/"
+        },
         {
             type: "secondary", tier: "high",
             title: "Battle of the Teutoburg Forest — overview",
@@ -406,17 +401,16 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             title: "Why and How the Battle of Teutoburg Happened — Who Was Varus?",
             publisher: "Kings and Generals",
             url: "https://www.youtube.com/watch?v=U4-1zmyyoVM"
-        },
-        {
-            type: "primary", tier: "high",
-            title: "Augustus, Res Gestae Divi Augusti — full text",
-            publisher: "Livius.org (trans. F.W. Shipley, via LacusCurtius)",
-            url: "https://www.livius.org/sources/content/augustus-res-gestae/"
         }
-
     ],
 
     "germany_huns_arrival": [
+        {
+            type: "primary", tier: "high",
+            title: "Ammianus Marcellinus, Res Gestae, Book XXXI (c. 395 CE) — the earliest systematic Roman description of the Huns and their impact on the Gothic migration into the Empire",
+            publisher: "Project Gutenberg (Yonge translation)",
+            url: "https://www.gutenberg.org/files/28587/28587-h/28587-h.htm"
+        },
         {
             type: "secondary", tier: "high",
             title: "Huns — overview",
@@ -430,21 +424,20 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             url: "https://en.wikipedia.org/wiki/History_of_the_Huns"
         },
         {
-            type: "primary", tier: "high",
-            title: "Jordanes, Getica (The Origin and Deeds of the Goths) — full text",
-            publisher: "University of Calgary",
-            url: "https://people.ucalgary.ca/~vandersp/Courses/texts/jordgeti.html"
-        },
-        {
-            type: "video", tier: "high",
-            title: "Attila, the Huns and the Battle for Europe",
-            publisher: "Kings and Generals",
-            url: "https://www.youtube.com/watch?v=1eDt1VnfxHM"
+            type: "video", tier: "medium",
+            title: "Barbarians Rising: Attila - The Hun",
+            publisher: "HISTORY",
+            url: "https://www.youtube.com/watch?v=56kIQoZ4sc0"
         }
-
     ],
 
     "germany_tribal_kingdoms_emerge": [
+        {
+            type: "primary", tier: "high",
+            title: "Cassiodorus, Variae (c. 537 CE) — the official state correspondence of Theodoric the Great's Ostrogothic kingdom, one of the major Germanic successor states of this period",
+            publisher: "Project Gutenberg (Hodgkin translation)",
+            url: "https://www.gutenberg.org/files/18590/18590-h/18590-h.htm"
+        },
         {
             type: "secondary", tier: "high",
             title: "Germanic peoples — migration-era kingdoms",
@@ -458,21 +451,20 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             url: "https://en.wikipedia.org/wiki/Huns"
         },
         {
-            type: "primary", tier: "high",
-            title: "Jordanes, Getica (The Origin and Deeds of the Goths) — full text",
-            publisher: "University of Calgary",
-            url: "https://people.ucalgary.ca/~vandersp/Courses/texts/jordgeti.html"
-        },
-        {
             type: "video", tier: "medium",
-            title: "Rise and Fall of Germanic Tribes & Kingdoms",
-            publisher: "Kings and Generals",
-            url: "https://www.youtube.com/watch?v=K_yn5NgiMfI"
+            title: "Theodoric the Great: Clash with the Roman Empire",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=_r365NVXE4I"
         }
-
     ],
 
     "germany_frankish_rise": [
+        {
+            type: "primary", tier: "high",
+            title: "Gregory of Tours, Historia Francorum (History of the Franks, c. 594 CE) — the essential contemporary source for Clovis I and the Frankish kingdom's rise, including the eastern Frankish territories in Germania",
+            publisher: "Internet Medieval Sourcebook, Fordham University (Brehaut translation)",
+            url: "https://origin-rh.web.fordham.edu/Halsall/basis/gregory-hist.asp"
+        },
         {
             type: "secondary", tier: "high",
             title: "Francia — overview",
@@ -486,21 +478,20 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             url: "https://www.britannica.com/biography/Clovis-I"
         },
         {
-            type: "primary", tier: "high",
-            title: "Gregory of Tours, History of the Franks — full text",
-            publisher: "Fordham Medieval Sourcebook",
-            url: "https://sourcebooks.fordham.edu/basis/gregory-hist.asp"
-        },
-        {
-            type: "video", tier: "high",
-            title: "How Charlemagne Built post-Roman Europe's First Super Army",
+            type: "video", tier: "medium",
+            title: "How Clovis Changed Europe",
             publisher: "Kings and Generals",
-            url: "https://www.youtube.com/watch?v=PX5W6pA47yw"
+            url: "https://www.youtube.com/watch?v=sQ728X06zhs"
         }
-
     ],
 
     "germany_charlemagne": [
+        {
+            type: "primary", tier: "high",
+            title: "Einhard, Vita Karoli Magni (Life of Charlemagne, c. 817–836 CE) — the standard contemporary biography, written by a member of Charlemagne's own court",
+            publisher: "Internet Medieval Sourcebook, Fordham University",
+            url: "https://origin-rh.web.fordham.edu/Halsall/basis/einhard.asp"
+        },
         {
             type: "secondary", tier: "high",
             title: "Carolingian Empire — overview",
@@ -518,17 +509,16 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             title: "Charlemagne and the Carolingian Empire (Short Documentary)",
             publisher: "Ten Minute History",
             url: "https://www.youtube.com/watch?v=H2J_3RTKB1c"
-        },
-        {
-            type: "primary", tier: "high",
-            title: "Einhard, The Life of Charlemagne — full text",
-            publisher: "Fordham Medieval Sourcebook",
-            url: "https://sourcebooks.fordham.edu/basis/einhard.asp"
         }
-
     ],
 
     "germany_city_growth": [
+        {
+            type: "primary", tier: "high",
+            title: "The Treaty of Stralsund (24 May 1370) — the settlement ending the Second Danish-Hanseatic War, marking the League's peak of political and commercial power",
+            publisher: "Wikipedia (sourced overview of the primary treaty)",
+            url: "https://en.wikipedia.org/wiki/Treaty_of_Stralsund_(1370)"
+        },
         {
             type: "secondary", tier: "high",
             title: "Hanseatic League — overview",
@@ -542,21 +532,20 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             url: "https://www.britannica.com/topic/Hanseatic-League"
         },
         {
-            type: "primary", tier: "high",
-            title: "The Golden Bull of Emperor Charles IV, 1356 — full text",
-            publisher: "Avalon Project, Yale Law School",
-            url: "https://avalon.law.yale.edu/medieval/golden.asp"
-        },
-        {
             type: "video", tier: "high",
-            title: "Hansa – Northern Silk Road: Economic History Documentary",
-            publisher: "Kings and Generals",
-            url: "https://www.youtube.com/watch?v=VX8MQR78Ues"
+            title: "The Hanseatic League: Explained (Short Animated History Documentary)",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=r1fZAArcOJw"
         }
-
     ],
 
     "germany_knight_culture": [
+        {
+            type: "primary", tier: "high",
+            title: "Codex Manesse (Große Heidelberger Liederhandschrift, c. 1300–1340) — the largest surviving anthology of Middle High German Minnesang, illustrated with portraits of German knights and nobles",
+            publisher: "Heidelberg University Library (digitised original)",
+            url: "https://digi.ub.uni-heidelberg.de/diglit/cpg848"
+        },
         {
             type: "secondary", tier: "high",
             title: "Feudalism — overview",
@@ -570,21 +559,20 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             url: "https://en.wikipedia.org/wiki/Holy_Roman_Empire"
         },
         {
-            type: "primary", tier: "high",
-            title: "The Rule and Statutes of the Teutonic Knights — full text",
-            publisher: "Fordham Medieval Sourcebook",
-            url: "https://origin.web.fordham.edu/Halsall/source/Teutonicknights-ruleandstatutes.asp"
-        },
-        {
             type: "video", tier: "high",
-            title: "How the Teutonic Order Conquered Prussia — Military Orders Documentary",
-            publisher: "Kings and Generals",
-            url: "https://www.youtube.com/watch?v=HBYC7IGutIo"
+            title: "Knights: Men in Iron (Part 1 of 3)",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=vm91dVkRweQ"
         }
-
     ],
 
     "germany_crisis_period": [
+        {
+            type: "primary", tier: "high",
+            title: "Chronicle accounts of the Flagellant movement and Jewish persecutions in the Holy Roman Empire during the Black Death (1349) — contemporary German-region sources",
+            publisher: "Wikipedia (sourced overview of the primary chronicles)",
+            url: "https://en.wikipedia.org/wiki/Flagellant"
+        },
         {
             type: "secondary", tier: "high",
             title: "Black Death in the Holy Roman Empire",
@@ -592,21 +580,20 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             url: "https://en.wikipedia.org/wiki/Black_Death_in_the_Holy_Roman_Empire"
         },
         {
-            type: "primary", tier: "high",
-            title: "The Twelve Articles of the Swabian Peasants, 1525 — full text",
-            publisher: "German History in Documents and Images (GHDI)",
-            url: "https://germanhistorydocs.org/en/from-the-reformations-to-the-thirty-years-war-1500-1648/grievances-and-demands-the-twelve-articles-of-the-swabian-peasants-february-27-march-1-1525"
-        },
-        {
             type: "video", tier: "high",
-            title: "Why Was Germany So Fragmented in the Middle Ages — Medieval Documentary",
-            publisher: "Kings and Generals",
-            url: "https://www.youtube.com/watch?v=EiB8sMHxGqM"
+            title: "Black Death: The Disease That Wiped Out Half Of Europe",
+            publisher: "Absolute History",
+            url: "https://www.youtube.com/watch?v=i0hg9jFAYdc"
         }
-
     ],
 
     "germany_printing_revolution": [
+        {
+            type: "primary", tier: "high",
+            title: "The Gutenberg Bible (42-line Bible, c. 1454–55) — Johannes Gutenberg's own printed masterwork, the first major book produced with movable metal type",
+            publisher: "British Library (digitised copy)",
+            url: "https://www.bl.uk/treasures/gutenberg/homepage.html"
+        },
         {
             type: "secondary", tier: "high",
             title: "Johannes Gutenberg — biography and the printing press",
@@ -620,21 +607,20 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             url: "https://www.britannica.com/biography/Johannes-Gutenberg"
         },
         {
-            type: "primary", tier: "high",
-            title: "Martin Luther, The Ninety-Five Theses, 1517 — full text",
-            publisher: "Fordham Modern History Sourcebook",
-            url: "https://sourcebooks.fordham.edu/source/luther95.txt"
-        },
-        {
             type: "video", tier: "high",
-            title: "Johannes Gutenberg and The Printing Press: Crash Course World History #77",
-            publisher: "Crash Course",
-            url: "https://www.youtube.com/watch?v=wKGDMBSPl8A"
+            title: "The Medieval Invention That Changed The Course Of History (The Machine That Made Us)",
+            publisher: "Timeline - World History Documentaries",
+            url: "https://www.youtube.com/watch?v=uQ88yC35NjI"
         }
-
     ],
 
     "germany_industrial_birth": [
+        {
+            type: "primary", tier: "high",
+            title: "The Zollvereinigungsvertrag (German Customs Union Treaty, 22 March 1833) — the founding treaty establishing the Zollverein, effective 1 January 1834",
+            publisher: "Wikipedia (sourced overview of the primary treaty)",
+            url: "https://en.wikipedia.org/wiki/Zollverein"
+        },
         {
             type: "secondary", tier: "high",
             title: "Zollverein — overview",
@@ -648,21 +634,20 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             url: "https://www.britannica.com/topic/Zollverein"
         },
         {
-            type: "primary", tier: "high",
-            title: "Karl Marx & Friedrich Engels, Manifesto of the Communist Party, 1848 — full text",
-            publisher: "Marxists Internet Archive",
-            url: "https://www.marxists.org/archive/marx/works/1848/communist-manifesto/"
-        },
-        {
-            type: "video", tier: "medium",
-            title: "The Industrial Revolution: Crash Course European History #24",
+            type: "video", tier: "high",
+            title: "Italian and German Unification: Crash Course European History #27",
             publisher: "Crash Course",
-            url: "https://www.youtube.com/watch?v=zjK7PWmRRyg"
+            url: "https://www.youtube.com/watch?v=KSjDe9_jZk8"
         }
-
     ],
 
     "germany_empire_expansion": [
+        {
+            type: "primary", tier: "high",
+            title: "Proclamation of the German Empire at the Hall of Mirrors, Versailles (18 January 1871) — the founding constitutional moment of the unified German state",
+            publisher: "Wikipedia (sourced overview of the primary event and constitution)",
+            url: "https://en.wikipedia.org/wiki/Proclamation_of_the_German_Empire"
+        },
         {
             type: "secondary", tier: "high",
             title: "German Empire — overview",
@@ -676,21 +661,20 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             url: "https://www.britannica.com/topic/history-of-Germany/Germany-from-1871-to-1918"
         },
         {
-            type: "primary", tier: "high",
-            title: "Constitution of the German Empire, April 16, 1871 — full text",
-            publisher: "German History in Documents and Images (GHDI)",
-            url: "https://germanhistorydocs.org/en/forging-an-empire-bismarckian-germany-1866-1890/constitution-of-the-german-empire-april-16-1871"
-        },
-        {
             type: "video", tier: "high",
-            title: "The Entire History of Prussia — From Duchy to Empire",
-            publisher: "Kings and Generals",
-            url: "https://www.youtube.com/watch?v=nNIm5o7ijuc"
+            title: "Italian and German Unification: Crash Course European History #27",
+            publisher: "Crash Course",
+            url: "https://www.youtube.com/watch?v=KSjDe9_jZk8"
         }
-
     ],
 
     "germany_ww1": [
+        {
+            type: "primary", tier: "high",
+            title: "Alfred von Schlieffen's \"War Against France\" memorandum (December 1905/1906) — excerpted primary text of the strategic plan behind Germany's 1914 invasion of Belgium and France",
+            publisher: "German History in Documents and Images (GHI Washington)",
+            url: "https://germanhistorydocs.ghi-dc.org/sub_document.cfm?document_id=796"
+        },
         {
             type: "secondary", tier: "high",
             title: "Schlieffen Plan — overview",
@@ -704,21 +688,20 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             url: "https://www.britannica.com/event/Schlieffen-Plan"
         },
         {
-            type: "primary", tier: "high",
-            title: "The Zimmermann Telegram, 1917 — full text",
-            publisher: "U.S. National Archives",
-            url: "https://www.archives.gov/milestone-documents/zimmermann-telegram"
-        },
-        {
             type: "video", tier: "high",
-            title: "The Schlieffen Plan – And Why It Failed",
-            publisher: "The Great War (Real Time History)",
-            url: "https://www.youtube.com/watch?v=lHeMPV5VDR4"
+            title: "World War 1 (All Parts)",
+            publisher: "Epic History TV",
+            url: "https://www.youtube.com/watch?v=G1p6rlDCxq0"
         }
-
     ],
 
     "germany_post_ww1": [
+        {
+            type: "primary", tier: "high",
+            title: "The Weimar Constitution (11 August 1919) — full text of Germany's first democratic constitution",
+            publisher: "Wikisource (McBain and Rogers translation)",
+            url: "https://en.wikisource.org/wiki/Weimar_constitution"
+        },
         {
             type: "secondary", tier: "high",
             title: "Weimar Republic — overview",
@@ -736,17 +719,16 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             title: "The Weimar Republic and Nazi Germany (Short Documentary)",
             publisher: "Ten Minute History",
             url: "https://www.youtube.com/watch?v=vO-_HXO7HwY"
-        },
-        {
-            type: "primary", tier: "high",
-            title: "The Constitution of the German Reich (Weimar Constitution), August 11, 1919 — full text",
-            publisher: "Avalon Project, Yale Law School",
-            url: "https://avalon.law.yale.edu/imt/2050-ps.asp"
         }
-
     ],
 
     "germany_ww2": [
+        {
+            type: "primary", tier: "high",
+            title: "The Nuremberg Laws (15 September 1935) — full text of the Reich Citizenship Law and the Law for the Protection of German Blood and German Honor",
+            publisher: "Yad Vashem (digitised original with English translation)",
+            url: "https://www.yadvashem.org/docs/nuremberg-law-for-protection-of-german-blood-1935.html"
+        },
         {
             type: "secondary", tier: "high",
             title: "Nazi Germany — overview",
@@ -763,18 +745,17 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             type: "video", tier: "medium",
             title: "What Caused The Rise of Nazi Germany",
             publisher: "The Infographics Show",
-            url: "https://www.youtube.com/watch?v=9mfJ-G2LPhE",
-        },
-        {
-            type: "primary", tier: "high",
-            title: "Judgment of the International Military Tribunal at Nuremberg, 1946 — full text",
-            publisher: "Avalon Project, Yale Law School",
-            url: "https://avalon.law.yale.edu/imt/09-30-46.asp"
+            url: "https://www.youtube.com/watch?v=9mfJ-G2LPhE"
         }
-
     ],
 
     "germany_post_ww2_rebuild": [
+        {
+            type: "primary", tier: "high",
+            title: "The Economic Cooperation Act of 1948 (the Marshall Plan, signed 3 April 1948) — original digitised U.S. law that funded West Germany's postwar reconstruction",
+            publisher: "U.S. National Archives",
+            url: "https://www.archives.gov/milestone-documents/marshall-plan"
+        },
         {
             type: "secondary", tier: "high",
             title: "Wirtschaftswunder — overview",
@@ -792,17 +773,17 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             title: "Post-War Rebuilding and the Cold War: Crash Course European History #41",
             publisher: "Crash Course History",
             url: "https://www.youtube.com/watch?v=-rkIqtV07HE"
-        },
-        {
-            type: "primary", tier: "high",
-            title: "Basic Law for the Federal Republic of Germany, 1949 — official English translation",
-            publisher: "German Bundestag / Gesetze im Internet",
-            url: "https://www.gesetze-im-internet.de/englisch_gg/englisch_gg.html"
         }
-
+        
     ],
 
     "germany_modern_power": [
+        {
+            type: "primary", tier: "high",
+            title: "Treaty on the Final Settlement with Respect to Germany (the \"Two Plus Four Treaty,\" 12 September 1990) — the international agreement restoring full German sovereignty and enabling reunification",
+            publisher: "U.S. Diplomatic Mission to Germany (full text)",
+            url: "https://usa.usembassy.de/etexts/2plusfour8994e.htm"
+        },
         {
             type: "secondary", tier: "high",
             title: "History of Germany (1990–present)",
@@ -816,18 +797,11 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             url: "https://www.britannica.com/place/Germany/Economic-unification-and-beyond"
         },
         {
-            type: "primary", tier: "high",
-            title: "Treaty on the Final Settlement with Respect to Germany, 1990 — full text",
-            publisher: "U.S. Embassy Germany",
-            url: "https://usa.usembassy.de/etexts/2plusfour8994e.htm"
-        },
-        {
-            type: "video", tier: "medium",
-            title: "Thirty-five years after reunification, how has Germany's global role evolved?",
-            publisher: "DW News",
-            url: "https://www.youtube.com/watch?v=FjX-lYDJ2Vs"
+            type: "video", tier: "high",
+            title: "German Reunification – A Short History",
+            publisher: "DW Documentary (Deutsche Welle)",
+            url: "https://www.youtube.com/watch?v=iNAxfWCwDsw"
         }
-
     ],
 
     // ── Australia ───────────────────────────────────────────────────────
@@ -846,14 +820,19 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
         },
         {
             type: "video", tier: "high",
-            title: "First Australians (documentary series)",
-            publisher: "SBS",
-            url: "https://www.sbs.com.au/ondemand/tv-series/first-australians"
+            title: "First Footprints — Episode 2: The First Pioneers",
+            publisher: "ABC (Australian Broadcasting Corporation)",
+            url: "https://www.youtube.com/watch?v=Icql9zBpUzo"
         }
-
     ],
 
     "australia_2": [
+        {
+            type: "primary", tier: "medium",
+            title: "Gwion Gwion (formerly \"Bradshaw\") rock art of the Kimberley — among the oldest surviving records of Dreaming-related imagery, documented in situ",
+            publisher: "Wikipedia (sourced overview of the primary rock-art record)",
+            url: "https://en.wikipedia.org/wiki/Gwion_Gwion_rock_paintings"
+        },
         {
             type: "secondary", tier: "high",
             title: "The Dreaming — overview of Aboriginal religio-cultural worldview",
@@ -867,21 +846,20 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             url: "https://www.worldhistory.org/Dreamtime/"
         },
         {
-            type: "primary", tier: "medium",
-            title: "Welcome to Country — the significance of Country in Aboriginal spiritual life",
-            publisher: "AIATSIS",
-            url: "https://aiatsis.gov.au/explore/welcome-country"
-        },
-        {
             type: "video", tier: "high",
-            title: "First Australians (documentary series)",
-            publisher: "SBS",
-            url: "https://www.sbs.com.au/ondemand/tv-series/first-australians"
+            title: "First Footprints — Episode 1: The Great Drought",
+            publisher: "ABC (Australian Broadcasting Corporation)",
+            url: "https://www.youtube.com/watch?v=1n6VJ5jq7zY"
         }
-
     ],
 
     "australia_3": [
+        {
+            type: "primary", tier: "high",
+            title: "Matthew Flinders, A Voyage to Terra Australis, Vol. 2 (1814) — Flinders' own journal recording his 1803 encounter with a Makassan trepang fleet under Pobasso in Arnhem Land",
+            publisher: "Project Gutenberg",
+            url: "https://www.gutenberg.org/files/13121/13121-h/13121-h.htm"
+        },
         {
             type: "secondary", tier: "high",
             title: "Makassan contact with Australia — overview",
@@ -895,21 +873,20 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             url: "https://www.nma.gov.au/defining-moments/resources/trade-with-the-makasar"
         },
         {
-            type: "primary", tier: "high",
-            title: "Trade between the Yolngu and Makassans",
-            publisher: "Australian National Maritime Museum",
-            url: "https://www.sea.museum/en/resource/1606-contact-at-cape-keerweer/trade-between-the-yolgnu-and-makassans"
-        },
-        {
             type: "video", tier: "high",
-            title: "Study reveals history of Aboriginal trade with foreign visitors before British settlement",
-            publisher: "ABC News (Australia)",
-            url: "https://www.youtube.com/watch?v=wNd-gB3g048"
+            title: "First Footprints — Episode 2: The First Pioneers",
+            publisher: "ABC (Australian Broadcasting Corporation)",
+            url: "https://www.youtube.com/watch?v=Icql9zBpUzo"
         }
-
     ],
 
     "australia_4": [
+        {
+            type: "primary", tier: "high",
+            title: "Abel Tasman's Journal of his 1642 voyage — the commander's own account of the first confirmed European sighting of Van Diemen's Land (Tasmania)",
+            publisher: "Project Gutenberg Australia",
+            url: "https://gutenberg.net.au/ebooks06/0600571h.html"
+        },
         {
             type: "secondary", tier: "high",
             title: "European maritime exploration of Australia — overview",
@@ -923,18 +900,11 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             url: "https://www.britannica.com/biography/Abel-Tasman"
         },
         {
-            type: "primary", tier: "medium",
-            title: "1606: Contact at Cape Keerweer — the Duyfken and early European contact",
-            publisher: "Australian National Maritime Museum",
-            url: "https://www.sea.museum/en/resource/1606-contact-at-cape-keerweer/trade-between-the-yolgnu-and-makassans"
-        },
-        {
             type: "video", tier: "medium",
-            title: "Study reveals history of Aboriginal trade with foreign visitors before British settlement",
-            publisher: "ABC News (Australia)",
-            url: "https://www.youtube.com/watch?v=wNd-gB3g048"
+            title: "The Life of Dutch Explorer Abel Tasman in 7 Minutes",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=Mgi8kVTKzmA"
         }
-
     ],
 
     "australia_5": [
@@ -956,7 +926,6 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             publisher: "ABC Australia",
             url: "https://www.youtube.com/watch?v=NjpNrvHAwTU"
         }
-
     ],
 
     "australia_6": [
@@ -973,15 +942,20 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             url: "https://en.wikipedia.org/wiki/First_Fleet"
         },
         {
-            type: "video", tier: "high",
-            title: "First Fleet Convicts — why were convicts transported to Australia?",
-            publisher: "National Museum of Australia",
-            url: "https://digital-classroom.nma.gov.au/videos/first-fleet-convicts"
+            type: "video", tier: "medium",
+            title: "13th May 1787: The First Fleet Departs for Australia",
+            publisher: "HistoryPod",
+            url: "https://www.youtube.com/watch?v=6Pw9cpdYTnw"
         }
-
     ],
 
     "australia_7": [
+        {
+            type: "primary", tier: "high",
+            title: "Gregory Blaxland, Journal of a Tour of Discovery Across the Blue Mountains, New South Wales, in the Year 1813 — the leader's own account of the expedition that opened the colony's inland expansion",
+            publisher: "Project Gutenberg Australia",
+            url: "https://gutenberg.net.au/ebooks02/0200411h.html"
+        },
         {
             type: "secondary", tier: "high",
             title: "History of Australia (1788-1850)",
@@ -995,21 +969,20 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             url: "https://www.britannica.com/topic/colonization-of-Australia"
         },
         {
-            type: "primary", tier: "high",
-            title: "Convicts sent to Australia: 'When prisoners walked the land'",
+            type: "video", tier: "high",
+            title: "Defining Moments: First European Crossing of the Blue Mountains",
             publisher: "National Museum of Australia",
-            url: "https://digital-classroom.nma.gov.au/learning-modules/colonial-australia-defining-moments-1788-1900/12-convicts-sent-australia-when-prisoners-walked-land"
-        },
-        {
-            type: "video", tier: "medium",
-            title: "The Colony — life on the Hawkesbury River, c. 1800 (living-history documentary)",
-            publisher: "National Film and Sound Archive of Australia",
-            url: "https://aso.gov.au/titles/tv/the-colony/clip2/"
+            url: "https://www.youtube.com/watch?v=r2J4E0iZpSw"
         }
-
     ],
 
     "australia_8": [
+        {
+            type: "primary", tier: "high",
+            title: "Edward Hargraves's letter to William Northwood (11 February 1851) announcing his gold discovery at Ophir, New South Wales — digitised original",
+            publisher: "State Library of New South Wales",
+            url: "https://www.sl.nsw.gov.au/stories/rumours-gold"
+        },
         {
             type: "secondary", tier: "high",
             title: "Australian gold rushes — overview",
@@ -1023,21 +996,20 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             url: "https://www.britannica.com/event/Australian-gold-rushes"
         },
         {
-            type: "primary", tier: "high",
-            title: "Eureka Stockade — miners' oath and the rebellion of 1854",
-            publisher: "National Museum of Australia",
-            url: "https://www.nma.gov.au/defining-moments/resources/eureka-stockade"
-        },
-        {
             type: "video", tier: "high",
-            title: "Defining Moments: Eureka Stockade",
+            title: "The Discovery of Gold",
             publisher: "National Museum of Australia",
-            url: "https://www.youtube.com/watch?v=or5Q3hkztoU"
+            url: "https://digital-classroom.nma.gov.au/videos/discovery-gold"
         }
-
     ],
 
     "australia_9": [
+        {
+            type: "primary", tier: "high",
+            title: "\"Sir Henry Parkes at Tenterfield\" — original newspaper report of the Tenterfield Oration, the speech credited with launching the Federation movement",
+            publisher: "The Sydney Morning Herald, 25 October 1889 (reproduced by Museums of History NSW)",
+            url: "https://mhnsw.au/stories/general/24-october-1889/"
+        },
         {
             type: "secondary", tier: "high",
             title: "Federation of Australia — overview of the 1890s convention movement",
@@ -1051,18 +1023,11 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             url: "https://peo.gov.au/understand-our-parliament/history-of-parliament/federation/the-federation-of-australia"
         },
         {
-            type: "primary", tier: "high",
-            title: "Federation — Australia becomes a nation, 1901",
-            publisher: "National Museum of Australia",
-            url: "https://www.nma.gov.au/defining-moments/resources/federation"
-        },
-        {
             type: "video", tier: "high",
-            title: "Defining Moments: Australian Federation",
-            publisher: "National Museum of Australia",
-            url: "https://www.youtube.com/watch?v=ZBPB883LE4Y"
+            title: "Australia's Federation",
+            publisher: "Parliamentary Education Office",
+            url: "https://www.youtube.com/watch?v=BBn-q_f8FpA"
         }
-
     ],
 
     "australia_10": [
@@ -1080,11 +1045,10 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
         },
         {
             type: "video", tier: "high",
-            title: "Inauguration of the Commonwealth (1901) — original film of the proclamation ceremony",
-            publisher: "National Film and Sound Archive of Australia",
-            url: "https://aso.gov.au/titles/documentaries/inauguration-commonwealth/clip2/"
+            title: "The Australian Constitution",
+            publisher: "Parliamentary Education Office",
+            url: "https://www.youtube.com/watch?v=ifcg8yJIHdY"
         }
-
     ],
 
     "australia_11": [
@@ -1110,6 +1074,12 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
 
     "australia_12": [
         {
+            type: "primary", tier: "medium",
+            title: "Commonwealth Bank Board Papers (1929–1938) — official Australian central-bank records documenting the unemployment crisis and monetary responses of the Depression",
+            publisher: "Reserve Bank of Australia (Unreserved archive)",
+            url: "https://unreserved.rba.gov.au/nodes/view/46377"
+        },
+        {
             type: "secondary", tier: "high",
             title: "Great Depression in Australia — overview",
             publisher: "Wikipedia",
@@ -1122,18 +1092,11 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             url: "https://www.nma.gov.au/defining-moments/resources/great-depression"
         },
         {
-            type: "primary", tier: "high",
-            title: "Height of the Great Depression — unemployment, relief and political crisis",
-            publisher: "National Museum of Australia",
-            url: "https://digital-classroom.nma.gov.au/defining-moments/height-great-depression"
-        },
-        {
             type: "video", tier: "medium",
-            title: "The Great Depression (archival newsreel footage)",
-            publisher: "National Film and Sound Archive of Australia / National Museum of Australia",
+            title: "The Great Depression",
+            publisher: "National Museum of Australia",
             url: "https://digital-classroom.nma.gov.au/videos/great-depression"
         }
-
     ],
 
     "australia_13": [
@@ -1151,13 +1114,19 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
         },
         {
             type: "video", tier: "high",
-            title: "History of the bombing of Darwin and Australia's role in World War II",
-            publisher: "Encyclopaedia Britannica",
-            url: "https://www.britannica.com/video/195009/city-bombing-involvement-Japanese-Darwin-World-War-February-19-1942"
+            title: "The Bombing of Darwin: An Awkward Truth",
+            publisher: "History Channel Australia",
+            url: "https://www.youtube.com/watch?v=750hRI04EYA"
         }
     ],
 
     "australia_14": [
+        {
+            type: "primary", tier: "high",
+            title: "Arthur Calwell, \"Twenty Million Australians in Our Time!\" (1949) — the Immigration Minister's own pamphlet setting out the 'populate or perish' postwar immigration policy",
+            publisher: "Museums Victoria Collections",
+            url: "https://collections.museumsvictoria.com.au/items/1485040"
+        },
         {
             type: "secondary", tier: "high",
             title: "Post-war immigration to Australia — overview",
@@ -1171,21 +1140,20 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             url: "https://www.nma.gov.au/defining-moments/resources/postwar-immigration-drive"
         },
         {
-            type: "primary", tier: "high",
-            title: "Immigration Photographic Archive — official postwar migration photographs",
-            publisher: "National Archives of Australia",
-            url: "https://www.naa.gov.au/explore-collection/immigration-and-citizenship/immigration-photographic-archive"
-        },
-        {
-            type: "video", tier: "medium",
-            title: "Snowy Mountains Scheme — postwar migration and nation-building",
-            publisher: "National Film and Sound Archive of Australia",
-            url: "https://dl.nfsa.gov.au/module/1589/"
+            type: "video", tier: "high",
+            title: "Ten Pound Poms | Life for British Migrants in 1960s Australia (1967 ITN report)",
+            publisher: "ITN",
+            url: "https://www.youtube.com/watch?v=M7VJKZheauQ"
         }
-
     ],
 
     "australia_15": [
+        {
+            type: "primary", tier: "high",
+            title: "Paul Keating's own 1999 address reflecting on the Hawke-Keating government's economic reforms (1983–1996), including the floating of the dollar and financial deregulation",
+            publisher: "paulkeating.net.au (official archive)",
+            url: "https://www.paulkeating.net.au/shop/item/the-australian-government-1983-to-1996---19-march-1999"
+        },
         {
             type: "secondary", tier: "high",
             title: "Hawke-Keating government — overview of 1980s-90s economic reforms",
@@ -1199,21 +1167,20 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             url: "https://treasury.gov.au/speech/reflections-on-australias-era-of-economic-reform"
         },
         {
-            type: "primary", tier: "high",
-            title: "Australian dollar floated, 1983",
-            publisher: "National Museum of Australia",
-            url: "https://www.nma.gov.au/defining-moments/resources/australian-dollar-floated"
-        },
-        {
             type: "video", tier: "high",
-            title: "Today Marks the 40th Anniversary of the Float of the Aussie Dollar",
-            publisher: "ABC News (Australia)",
-            url: "https://www.youtube.com/watch?v=nPUM-lV8mwc"
+            title: "Labor in Power — Episode 1: Taking Power",
+            publisher: "ABC (Australian Broadcasting Corporation)",
+            url: "https://www.youtube.com/watch?v=qj3yCInCGos"
         }
-
     ],
 
     "australia_16": [
+        {
+            type: "primary", tier: "high",
+            title: "Mabo v Queensland (No 2) [1992] HCA 23 — original signed pages of the High Court judgment that overturned terra nullius and recognised native title",
+            publisher: "National Archives of Australia (Documenting a Democracy)",
+            url: "https://www.foundingdocs.gov.au/item-did-33.html"
+        },
         {
             type: "secondary", tier: "high",
             title: "Eddie Mabo — biography and the Mabo v Queensland (No 2) decision",
@@ -1233,18 +1200,11 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             url: "https://www.reconciliation.org.au/commemorating-mabo-day/"
         },
         {
-            type: "primary", tier: "high",
-            title: "Mabo decision — overturning terra nullius, 1992",
-            publisher: "National Museum of Australia",
-            url: "https://www.nma.gov.au/defining-moments/resources/mabo-decision"
-        },
-        {
             type: "video", tier: "high",
-            title: "Looking back at the landmark Mabo Decision",
-            publisher: "NITV / The Point",
-            url: "https://www.youtube.com/watch?v=TjQw2BbLwrs"
+            title: "Mabo Day: The Decision That Expelled Terra Nullius From Australian Law",
+            publisher: "ABC Australia",
+            url: "https://www.youtube.com/watch?v=AqaURFvLM88"
         }
-
     ],
 
     "french_revolution": [
@@ -1270,6 +1230,12 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
 
     "napoleon_empire": [
         {
+            type: "primary", tier: "high",
+            title: "The Napoleonic Code (Code Civil des Français, 21 March 1804) — full text of Napoleon's civil code, one of his empire's most enduring institutional legacies",
+            publisher: "The Napoleon Series (full annotated English translation)",
+            url: "https://www.napoleon-series.org/government/code-napoleon/"
+        },
+        {
             type: "secondary", tier: "high",
             title: "Napoleon I — biography and reign",
             publisher: "Wikipedia",
@@ -1280,14 +1246,7 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             title: "Napoleon Bonaparte and the French Revolution",
             publisher: "Crash Course (World History)",
             url: "https://www.youtube.com/watch?v=XWiRyBzF7rM"
-        },
-        {
-            type: "primary", tier: "high",
-            title: "Code Napoléon (The French Civil Code), 1804 — full text",
-            publisher: "Online Library of Liberty",
-            url: "https://oll.libertyfund.org/titles/bonaparte-the-code-napoleon-or-the-french-civil-code"
         }
-
     ],
 
     "uk_magna_carta": [
@@ -2691,6 +2650,892 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             publisher: "Crash Course",
             url: "https://www.youtube.com/watch?v=dnV_MTFEGIY"
         }
-    ]
+    ],
 
+    // ── History Bites: Age of Reason ─────────────────────────────────────
+    "ree_1": [
+        {
+            type: "primary", tier: "high",
+            title: "Giorgio Vasari, Lives of the Most Eminent Painters, Sculptors & Architects (1550/1568) — the foundational contemporary account of the Renaissance's origins",
+            publisher: "Project Gutenberg",
+            url: "https://www.gutenberg.org/ebooks/25326"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Italian Renaissance — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Italian_Renaissance"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Renaissance: Was it a Thing?",
+            publisher: "Crash Course",
+            url: "https://www.youtube.com/watch?v=Vufba_ZcoR0"
+        }
+    ],
+
+    "ree_2": [
+        {
+            type: "primary", tier: "high",
+            title: "Giorgio Vasari, Lives of the Most Eminent Painters, Sculptors & Architects (1550/1568) — contemporary biographies of High Renaissance masters",
+            publisher: "Project Gutenberg",
+            url: "https://www.gutenberg.org/files/32362/32362-h/32362-h.htm"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "High Renaissance — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/High_Renaissance"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Renaissance: Was it a Thing?",
+            publisher: "Crash Course",
+            url: "https://www.youtube.com/watch?v=Vufba_ZcoR0"
+        }
+    ],
+
+    "ree_3": [
+        {
+            type: "primary", tier: "high",
+            title: "Martin Luther, The Ninety-Five Theses (1517) — full text",
+            publisher: "Internet History Sourcebooks Project, Fordham University",
+            url: "https://sourcebooks.fordham.edu/source/luther95.txt"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Protestant Reformation — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Reformation"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Protestant Reformation",
+            publisher: "Crash Course",
+            url: "https://www.youtube.com/watch?v=0eO0pPrGi6o"
+        }
+    ],
+
+    "ree_4": [
+        {
+            type: "primary", tier: "high",
+            title: "Peace of Westphalia (1648) — full treaty text",
+            publisher: "The Avalon Project, Yale Law School",
+            url: "https://avalon.law.yale.edu/17th_century/westphal.asp"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "European wars of religion — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/European_wars_of_religion"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Reformation and Consequences",
+            publisher: "Crash Course",
+            url: "https://www.youtube.com/watch?v=PbBDP1Elbbg"
+        }
+    ],
+
+    "ree_5": [
+        {
+            type: "primary", tier: "high",
+            title: "The Crime of Galileo: Indictment, Sentence and Abjuration (1633) — full text of the Inquisition's trial documents",
+            publisher: "Internet History Sourcebooks Project, Fordham University",
+            url: "https://sourcebooks.fordham.edu/mod/1630galileo.asp"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Galileo affair — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Galileo_affair"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Scientific Revolution",
+            publisher: "Crash Course",
+            url: "https://www.youtube.com/watch?v=w70BkCqgyyI"
+        }
+    ],
+
+    "ree_extra_1": [
+        {
+            type: "primary", tier: "high",
+            title: "Isaac Newton, Philosophiae Naturalis Principia Mathematica (1687) — the foundational text of classical mechanics",
+            publisher: "Project Gutenberg (English translation)",
+            url: "https://www.gutenberg.org/files/76404/76404-h/76404-h.htm"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Scientific Revolution — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Scientific_Revolution"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Scientific Revolution",
+            publisher: "Crash Course",
+            url: "https://www.youtube.com/watch?v=w70BkCqgyyI"
+        }
+    ],
+
+    "ree_extra_2": [
+        {
+            type: "primary", tier: "high",
+            title: "Jean-Jacques Rousseau, The Social Contract (1762) — full text",
+            publisher: "Project Gutenberg",
+            url: "https://www.gutenberg.org/files/46333/46333-h/46333-h.htm"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Age of Enlightenment — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Age_of_Enlightenment"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Enlightenment",
+            publisher: "Crash Course",
+            url: "https://www.youtube.com/watch?v=NnoFj2cMRLY"
+        }
+    ],
+
+    "ree_6": [
+        {
+            type: "primary", tier: "high",
+            title: "John Locke, Second Treatise of Government (1690) — full text",
+            publisher: "Project Gutenberg",
+            url: "https://www.gutenberg.org/files/7370/7370-h/7370-h.htm"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Age of Enlightenment — spread of ideas",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Age_of_Enlightenment"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Enlightenment",
+            publisher: "Crash Course",
+            url: "https://www.youtube.com/watch?v=NnoFj2cMRLY"
+        }
+    ],
+
+    // ── History Bites: Rotten Tomatoes ───────────────────────────────────
+    "tp_1": [
+        {
+            type: "primary", tier: "high",
+            title: "Bernardino de Sahagún, Florentine Codex (General History of the Things of New Spain, 1545–1590) — the earliest ethnographic record of Aztec tomato varieties and market use",
+            publisher: "World Digital Library",
+            url: "https://www.wdl.org/es/item/10621/#collection=florentine-codex"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Tomato — history and etymology",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Tomato"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Wild Story of Tomatoes: From \"Poison Apple\" to Pizza Sauce",
+            publisher: "Weird History Food",
+            url: "https://www.youtube.com/watch?v=AN00PtRWjlU"
+        }
+    ],
+
+    "tp_2": [
+        {
+            type: "primary", tier: "medium",
+            title: "Pietro Andrea Mattioli's commentary on Dioscorides (1544) — the first European description of the tomato, classifying it as a \"golden apple\"",
+            publisher: "The Garden History Blog (sourced overview and translated excerpts of the primary text)",
+            url: "https://thegardenhistory.blog/2022/07/30/love-apples-and-wolf-peaches/"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Tomato — arrival and adoption in Europe",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Tomato"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Wild Story of Tomatoes: From \"Poison Apple\" to Pizza Sauce",
+            publisher: "Weird History Food",
+            url: "https://www.youtube.com/watch?v=AN00PtRWjlU"
+        }
+    ],
+
+    "tp_3": [
+        {
+            type: "primary", tier: "high",
+            title: "John Gerard, The Herball, or Generall Historie of Plantes (1597) — the influential English text calling the tomato \"of ranke and stinking savour\"",
+            publisher: "Internet Archive (digitised 1597 original)",
+            url: "https://archive.org/details/bim_early-english-books-1475-1640_the-herball-_gerard-john_1597"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Tomato — early modern European reception",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Tomato"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Wild Story of Tomatoes: From \"Poison Apple\" to Pizza Sauce",
+            publisher: "Weird History Food",
+            url: "https://www.youtube.com/watch?v=AN00PtRWjlU"
+        }
+    ],
+
+    "tp_4": [
+        {
+            type: "primary", tier: "medium",
+            title: "18th-century accounts of tomato-linked illness among European aristocrats eating from pewter tableware — the origin of the \"poison apple\" legend",
+            publisher: "Smithsonian Magazine (sourced historical account, incl. the disputed lead-leaching explanation)",
+            url: "https://www.smithsonianmag.com/history/how-the-misrepresentation-of-tomatoes-as-stinking-poison-apples-that-provoked-vomiting-made-people-afraid-of-them-for-more-than-200-years-863735/"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Tomato — the \"poison apple\" myth",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Tomato"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Wild Story of Tomatoes: From \"Poison Apple\" to Pizza Sauce",
+            publisher: "Weird History Food",
+            url: "https://www.youtube.com/watch?v=AN00PtRWjlU"
+        }
+    ],
+
+    "tp_5": [
+        {
+            type: "primary", tier: "medium",
+            title: "\"Naples Letter,\" South London Chronicle (22 December 1860) — a contemporary eyewitness description of 19th-century Neapolitan pizza with tomato and mozzarella",
+            publisher: "Tasting History (sourced primary-text excerpt)",
+            url: "https://www.tastinghistory.com/recipes/margheritapizza"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "History of pizza — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/History_of_pizza"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Pizza from 19th Century Naples",
+            publisher: "Tasting History",
+            url: "https://www.youtube.com/watch?v=7oHqZbOjl48"
+        }
+    ],
+
+    // ── History Bites: US History ────────────────────────────────────────
+    "us_1": [
+        {
+            type: "primary", tier: "high",
+            title: "The Declaration of Independence (1776) — full text",
+            publisher: "U.S. National Archives",
+            url: "https://www.archives.gov/founding-docs/declaration-transcript"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "American Revolution — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/American_Revolution"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Who Won the American Revolution?",
+            publisher: "Crash Course",
+            url: "https://www.youtube.com/watch?v=3EiSymRrKI4"
+        }
+    ],
+
+    "us_2": [
+        {
+            type: "primary", tier: "high",
+            title: "The Emancipation Proclamation (1863) — full text",
+            publisher: "U.S. National Archives",
+            url: "https://www.archives.gov/milestone-documents/emancipation-proclamation"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "American Civil War — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/American_Civil_War"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Civil War, Part 2",
+            publisher: "Crash Course",
+            url: "https://www.youtube.com/watch?v=GzTrKccmj_I"
+        }
+    ],
+
+    "us_3": [
+        {
+            type: "primary", tier: "high",
+            title: "Woodrow Wilson's War Message to Congress (2 April 1917) — full text",
+            publisher: "U.S. National Archives",
+            url: "https://www.archives.gov/milestone-documents/address-to-congress-declaration-of-war-against-germany"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Second Industrial Revolution in the United States — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Second_Industrial_Revolution"
+        },
+        {
+            type: "video", tier: "high",
+            title: "America in World War I",
+            publisher: "Crash Course",
+            url: "https://www.youtube.com/watch?v=y59wErqg4Xg"
+        }
+    ],
+
+    "us_4": [
+        {
+            type: "primary", tier: "high",
+            title: "FDR's \"Day of Infamy\" Speech (8 December 1941) — full text",
+            publisher: "U.S. National Archives",
+            url: "https://www.archives.gov/milestone-documents/joint-address-to-congress-declaration-of-war-against-japan"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Great Depression — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Great_Depression"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Great Depression",
+            publisher: "Crash Course",
+            url: "https://www.youtube.com/watch?v=GCQfMWAikyU"
+        }
+    ],
+
+    "us_5": [
+        {
+            type: "primary", tier: "high",
+            title: "The Truman Doctrine (12 March 1947) — full text",
+            publisher: "The Avalon Project, Yale Law School",
+            url: "https://avalon.law.yale.edu/20th_century/trudoc.asp"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Cold War — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Cold_War"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Cold War",
+            publisher: "Crash Course",
+            url: "https://www.youtube.com/watch?v=9C72ISMF_D0"
+        }
+    ],
+
+    // ── History Bites: Industrial Revolution ─────────────────────────────
+    "ir_1": [
+        {
+            type: "primary", tier: "high",
+            title: "Adam Smith, An Inquiry into the Nature and Causes of the Wealth of Nations (1776) — the foundational text on the division of labour that presaged industrial production",
+            publisher: "Project Gutenberg",
+            url: "https://www.gutenberg.org/files/3300/3300-h/3300-h.htm"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Industrial Revolution — origins",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Industrial_Revolution"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Industrial Revolution",
+            publisher: "Crash Course",
+            url: "https://www.youtube.com/watch?v=zjK7PWmRRyg"
+        }
+    ],
+
+    "ir_2": [
+        {
+            type: "primary", tier: "high",
+            title: "The Sadler Committee Report (1832) — parliamentary testimony from child textile-mill workers on factory conditions",
+            publisher: "Hanover College History Department (sourced full-text excerpts)",
+            url: "https://history.hanover.edu/courses/excerpts/111sad.html"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Factory system — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Factory_system"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Industrial Revolution",
+            publisher: "Crash Course",
+            url: "https://www.youtube.com/watch?v=zjK7PWmRRyg"
+        }
+    ],
+
+    "ir_3": [
+        {
+            type: "primary", tier: "high",
+            title: "James Watt's Patent No. 913 (1769) — \"A New Invented Method of Lessening the Consumption of Steam and Fuel in Fire Engines,\" digitised original specification",
+            publisher: "Wikimedia Commons (digitised 1769 patent)",
+            url: "https://upload.wikimedia.org/wikipedia/commons/0/0d/James_Watt_Patent_1769_No_913.pdf"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Watt steam engine — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Watt_steam_engine"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Industrial Revolution",
+            publisher: "Crash Course",
+            url: "https://www.youtube.com/watch?v=zjK7PWmRRyg"
+        }
+    ],
+
+    "ir_4": [
+        {
+            type: "primary", tier: "high",
+            title: "Sites of Japan's Meiji Industrial Revolution — UNESCO World Heritage nomination documentation on the transfer of industrialization beyond Europe",
+            publisher: "UNESCO World Heritage Centre",
+            url: "https://whc.unesco.org/en/list/1484/"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Second Industrial Revolution — global spread",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Second_Industrial_Revolution"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Coal, Steam, and The Industrial Revolution",
+            publisher: "Crash Course",
+            url: "https://www.youtube.com/watch?v=zhL5DCizj5c"
+        }
+    ],
+
+    "ir_5": [
+        {
+            type: "primary", tier: "high",
+            title: "Thomas Edison's Patent Application for the Light Bulb (1880) — the historic patent for his practical incandescent lamp",
+            publisher: "U.S. National Archives",
+            url: "https://www.archives.gov/milestone-documents/thomas-edisons-patent-application-for-the-light-bulb"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Second Industrial Revolution — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Second_Industrial_Revolution"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Ford, Cars, and a New Revolution",
+            publisher: "Crash Course",
+            url: "https://www.youtube.com/watch?v=UPvwpYeOJnI"
+        }
+    ],
+
+    // ── Mali ────────────────────────────────────────────────────────────
+    "mali_ghana_empire": [
+        {
+            type: "primary", tier: "high",
+            title: "Al-Bakri, The Book of Routes and Realms (1068 CE) — the fullest surviving contemporary Arab description of the Ghana Empire's capital, court and gold trade",
+            publisher: "Boston University African Studies Center (K-16 Education Outreach, sourced primary-text excerpts)",
+            url: "https://www.bu.edu/africa/outreach/teachingresources/history/ancient-to-medieval-history/k_o_ghana/"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Ghana Empire — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Ghana_Empire"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Empire of Mali - The Twang of a Bow",
+            publisher: "Extra History",
+            url: "https://www.youtube.com/watch?v=UkayShPilkw"
+        }
+    ],
+
+    "mali_sundiata": [
+        {
+            type: "primary", tier: "high",
+            title: "D.T. Niane, Sundiata: An Epic of Old Mali (1960, trans. G.D. Pickett) — the standard published rendering of the Mandinka griot oral epic of Sundiata Keita",
+            publisher: "Internet Archive (Niane / Pickett translation)",
+            url: "https://archive.org/details/sundiataepicofol0000nian"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Epic of Sundiata — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Epic_of_Sundiata"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Empire of Mali - The Twang of a Bow",
+            publisher: "Extra History",
+            url: "https://www.youtube.com/watch?v=UkayShPilkw"
+        }
+    ],
+
+    "mali_empire_trade": [
+        {
+            type: "primary", tier: "high",
+            title: "Al-Umari, Masalik al-Absar (c. 1337–38 CE) — a Cairo scholar's contemporary account of Mali's gold-and-salt trade and Mansa Musa's court, drawn from firsthand informants",
+            publisher: "World History Commons (sourced translated excerpts)",
+            url: "https://worldhistorycommons.org/al-umaris-account-mansa-musas-visit-cairo"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Economy of the Mali Empire — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Mali_Empire"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Empire of Mali - An Empire of Trade and Faith",
+            publisher: "Extra History",
+            url: "https://www.youtube.com/watch?v=YPytwp5ll9g"
+        }
+    ],
+
+    "mali_mansa_musa": [
+        {
+            type: "primary", tier: "high",
+            title: "Al-Umari's account of Mansa Musa's pilgrimage to Cairo (1324 CE) — a contemporary Arab historian's record of the visit, gathered from Cairene eyewitnesses",
+            publisher: "Boston University African Studies Center (K-16 Education Outreach)",
+            url: "https://www.bu.edu/africa/outreach/teachingresources/history/ancient-to-medieval-history/k_o_mali/"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Mansa Musa — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Mansa_Musa"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Empire of Mali - Mansa Musa",
+            publisher: "Extra History",
+            url: "https://www.youtube.com/watch?v=4-Un2xx6Pzo"
+        }
+    ],
+
+    "mali_djinguereber": [
+        {
+            type: "primary", tier: "medium",
+            title: "Ibn Khaldun's and Al-Umari's accounts of Mansa Musa's building projects, including the Djinguereber Mosque commissioned after his 1324–25 pilgrimage",
+            publisher: "Wikipedia (sourced overview citing the primary Arabic chronicles)",
+            url: "https://en.wikipedia.org/wiki/Djinguereber_Mosque"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Djinguereber Mosque — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Djinguereber_Mosque"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Empire of Mali - Mansa Musa",
+            publisher: "Extra History",
+            url: "https://www.youtube.com/watch?v=4-Un2xx6Pzo"
+        }
+    ],
+
+    "mali_timbuktu_scholars": [
+        {
+            type: "primary", tier: "high",
+            title: "Leo Africanus, Description of Africa (1550 CE) — an eyewitness account of Timbuktu's scholars, judges and manuscript trade in its golden age",
+            publisher: "Wikipedia (sourced translated excerpts)",
+            url: "https://en.wikipedia.org/wiki/Leo_Africanus"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Timbuktu Manuscripts — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Timbuktu_Manuscripts"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Recreating Angkor Wat: The City Of The God Kings",
+            publisher: "Timeline - World History Documentaries",
+            url: "https://www.youtube.com/watch?v=KsDGDzwuQ-I"
+        }
+    ],
+
+    "mali_empire_decline": [
+        {
+            type: "primary", tier: "medium",
+            title: "Tarikh al-Sudan (c. 1655 CE) and Tarikh al-Fattash — the Timbuktu chronicles' retrospective account of Mali's 14th–15th century fragmentation",
+            publisher: "Wikipedia (sourced overview of the primary chronicles)",
+            url: "https://en.wikipedia.org/wiki/Tarikh_al-Sudan"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Mali Empire — decline",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Mali_Empire"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Empire of Mali - The Cracks Begin to Show",
+            publisher: "Extra History",
+            url: "https://www.youtube.com/watch?v=lkTF0TGBDNc"
+        }
+    ],
+
+    "mali_sunni_ali": [
+        {
+            type: "primary", tier: "medium",
+            title: "Tarikh al-Sudan (c. 1655 CE) — the Timbuktu chronicle's account of Sunni Ali's conquests and his fraught relationship with the city's Muslim scholars",
+            publisher: "Wikipedia (sourced overview of the primary chronicle)",
+            url: "https://en.wikipedia.org/wiki/Tarikh_al-Sudan"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Sunni Ali — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Sunni_Ali"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Songhai Empire — Africa's Age of Gold",
+            publisher: "Fall of Civilizations",
+            url: "https://www.youtube.com/watch?v=GfUT6LhBBYs"
+        }
+    ],
+
+    "mali_askia_muhammad": [
+        {
+            type: "primary", tier: "high",
+            title: "Leo Africanus, Description of Africa (1550 CE) — an eyewitness account of Gao and Timbuktu under Askia Muhammad's rule",
+            publisher: "Wikipedia (sourced translated excerpts)",
+            url: "https://en.wikipedia.org/wiki/Leo_Africanus"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Askia Muhammad I — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Askia_Muhammad_I"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Songhai Empire — Africa's Age of Gold",
+            publisher: "Fall of Civilizations",
+            url: "https://www.youtube.com/watch?v=GfUT6LhBBYs"
+        }
+    ],
+
+    "mali_tondibi": [
+        {
+            type: "primary", tier: "medium",
+            title: "Tarikh al-Sudan (c. 1655 CE) — the Timbuktu chronicle's firsthand account of the Moroccan army's 1591 victory at Tondibi and the empire's collapse into chaos",
+            publisher: "Wikipedia (sourced overview of the primary chronicle)",
+            url: "https://en.wikipedia.org/wiki/Tarikh_al-Sudan"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Battle of Tondibi — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Battle_of_Tondibi"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Songhai Empire — Africa's Age of Gold",
+            publisher: "Fall of Civilizations",
+            url: "https://www.youtube.com/watch?v=GfUT6LhBBYs"
+        }
+    ],
+
+    "mali_bambara_kingdoms": [
+        {
+            type: "primary", tier: "high",
+            title: "Mungo Park, Travels in the Interior Districts of Africa (1799) — the first European eyewitness account of Ségou, capital of the Bambara Kingdom",
+            publisher: "Project Gutenberg",
+            url: "https://www.gutenberg.org/files/5266/5266-h/5266-h.htm"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Bamana Empire — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Bamana_Empire"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The ENTIRE History of Mali Empire",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=U0c6249Ew50"
+        }
+    ],
+
+    "mali_umar_tall": [
+        {
+            type: "primary", tier: "medium",
+            title: "Al-Hajj Umar Tall, Bayān mā waqaʿa (his own apologia justifying the jihad against Hamdallahi) — annotated French translation by Mahibou & Triaud (1983)",
+            publisher: "Wikipedia (sourced overview of the primary text)",
+            url: "https://en.wikipedia.org/wiki/Omar_Saidou_Tall"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Toucouleur Empire — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Tukolor_Empire"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Is Mali's military government losing control?",
+            publisher: "Al Jazeera English",
+            url: "https://www.youtube.com/watch?v=G_-7gbZo430"
+        }
+    ],
+
+    "mali_samori_resistance": [
+        {
+            type: "primary", tier: "high",
+            title: "The Treaty of Bissandougou (1887) between Samori Touré and the French colonial administration — the primary diplomatic document of Samori's delaying strategy against French conquest",
+            publisher: "Wikipedia (sourced overview of the primary treaty)",
+            url: "https://en.wikipedia.org/wiki/Samori_Ture"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Wassoulou Empire — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Wassoulou_Empire"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Is Mali's military government losing control?",
+            publisher: "Al Jazeera English",
+            url: "https://www.youtube.com/watch?v=G_-7gbZo430"
+        }
+    ],
+
+    "mali_french_colonial": [
+        {
+            type: "primary", tier: "medium",
+            title: "French colonial administrative records establishing Soudan Français (French Sudan) within French West Africa",
+            publisher: "Wikipedia (sourced overview of the colonial administrative history)",
+            url: "https://en.wikipedia.org/wiki/French_Sudan"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "French Sudan — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/French_Sudan"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Is Mali's military government losing control?",
+            publisher: "Al Jazeera English",
+            url: "https://www.youtube.com/watch?v=G_-7gbZo430"
+        }
+    ],
+
+    "mali_independence": [
+        {
+            type: "primary", tier: "high",
+            title: "Proclamation of the Republic of Mali (22 September 1960) following the dissolution of the Mali Federation",
+            publisher: "Wikipedia (sourced overview of the primary declaration)",
+            url: "https://en.wikipedia.org/wiki/Mali_Federation"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Modibo Keïta — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Modibo_Ke%C3%AFta"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Is Mali's military government losing control?",
+            publisher: "Al Jazeera English",
+            url: "https://www.youtube.com/watch?v=G_-7gbZo430"
+        }
+    ],
+
+    "mali_traore_dictatorship": [
+        {
+            type: "primary", tier: "medium",
+            title: "Records of the 1968 coup d'état establishing Moussa Traoré's military government",
+            publisher: "Wikipedia (sourced overview)",
+            url: "https://en.wikipedia.org/wiki/Moussa_Traor%C3%A9"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Moussa Traoré — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Moussa_Traor%C3%A9"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Is Mali's military government losing control?",
+            publisher: "Al Jazeera English",
+            url: "https://www.youtube.com/watch?v=G_-7gbZo430"
+        }
+    ],
+
+    "mali_democracy": [
+        {
+            type: "primary", tier: "medium",
+            title: "The 1992 Constitution of Mali, adopted following Traoré's overthrow and Alpha Oumar Konaré's election",
+            publisher: "Wikipedia (sourced overview)",
+            url: "https://en.wikipedia.org/wiki/Alpha_Oumar_Konar%C3%A9"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Alpha Oumar Konaré — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Alpha_Oumar_Konar%C3%A9"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Timeline: How Mali went from democracy beacon to instability",
+            publisher: "Al Jazeera English",
+            url: "https://www.aljazeera.com/news/2026/4/27/timeline-how-mali-went-from-democracy-beacon-to-instability"
+        }
+    ],
+
+    "mali_2012_crisis": [
+        {
+            type: "primary", tier: "high",
+            title: "MNLA Declaration of the Independence of Azawad (6 April 2012) — the rebel movement's own political declaration issued from Gao",
+            publisher: "Wikipedia (sourced overview of the primary declaration)",
+            url: "https://en.wikipedia.org/wiki/Azawad"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Mali War — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Mali_War"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Is Mali's military government losing control?",
+            publisher: "Al Jazeera English",
+            url: "https://www.youtube.com/watch?v=G_-7gbZo430"
+        }
+    ],
+
+    "mali_modern_instability": [
+        {
+            type: "primary", tier: "medium",
+            title: "Statements from Mali's transitional military government (2020–2026), including the National Committee for the Salvation of the People's public declarations",
+            publisher: "Al Jazeera (sourced reporting on the primary government statements)",
+            url: "https://www.aljazeera.com/news/2026/4/26/mali-rattled-by-ongoing-armed-attacks-what-to-know"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Timeline: How Mali went from democracy beacon to instability",
+            publisher: "Al Jazeera English",
+            url: "https://www.aljazeera.com/news/2026/4/27/timeline-how-mali-went-from-democracy-beacon-to-instability"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Is Mali's military government losing control?",
+            publisher: "Al Jazeera English",
+            url: "https://www.youtube.com/watch?v=G_-7gbZo430"
+        }
+    ]
 };
