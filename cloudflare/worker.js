@@ -424,7 +424,189 @@ async function handleUpdateLog(request, env) {
     return json({ ok: false, error: "Unknown action." }, 400);
 }
 
-// ── Remote config (synced CSS overrides + feature flags for the terminal) ──
+// ── GitHub push: turn a tree edit into a real, permanent source change ────
+// The admin panel's tree editor only ever writes to KV (see handleSave /
+// handleLoad below) — the actual init.js on disk/in the repo never changes.
+// This endpoint is the bridge: given the current in-memory tree, it
+// regenerates just the `const world = {...}` block inside init.js, commits
+// that to a dedicated branch (env.GITHUB_BRANCH_EDITS, default
+// "admin-edits"), and opens a PR against env.GITHUB_BRANCH_BASE (default
+// "main") so the owner can review a diff before it becomes permanent.
+// Requires three Worker secrets (wrangler secret put ...):
+//   GITHUB_TOKEN  — a fine-grained PAT with Contents + Pull requests write
+//                   access, scoped to just this repo
+//   GITHUB_REPO   — "owner/repo", e.g. "anay/whd"
+// Optional:
+//   GITHUB_BRANCH_BASE  — defaults to "main"
+//   GITHUB_BRANCH_EDITS — defaults to "admin-edits"
+//   GITHUB_INIT_PATH    — path to the file containing `const world = ...`,
+//                         defaults to "init.js"
+
+const GITHUB_API = "https://api.github.com";
+
+async function ghRequest(path, env, opts = {}) {
+    const res = await fetch(GITHUB_API + path, {
+        ...opts,
+        headers: {
+            "Authorization": `Bearer ${env.GITHUB_TOKEN}`,
+            "Accept": "application/vnd.github+json",
+            "X-GitHub-Api-Version": "2022-11-28",
+            "User-Agent": "whd-admin-worker",
+            ...(opts.headers || {}),
+        },
+    });
+    const data = await res.json().catch(() => ({}));
+    if (!res.ok) {
+        const msg = data && data.message ? data.message : `GitHub API error (${res.status})`;
+        throw new Error(msg);
+    }
+    return data;
+}
+
+// Replaces the `const world = { ... };` declaration inside an init.js source
+// string with a freshly-serialized version of the given tree, leaving
+// everything else in the file (imports, other consts, comments) untouched.
+// Uses brace-counting rather than a regex "shortest match to the next `};`"
+// so it can't be tripped up by braces or `};`-like text appearing inside a
+// string value anywhere in the tree (e.g. a scene/country name containing
+// punctuation). Throws rather than silently producing a corrupt file if the
+// declaration can't be found or the braces don't balance.
+function spliceWorldTreeIntoSource(sourceText, tree) {
+    const marker = "const world";
+    const markerIdx = sourceText.indexOf(marker);
+    if (markerIdx === -1) {
+        throw new Error("Could not find `const world` in the target file — refusing to push a blind edit.");
+    }
+    const openBraceIdx = sourceText.indexOf("{", markerIdx);
+    if (openBraceIdx === -1) {
+        throw new Error("Found `const world` but no opening brace after it — refusing to push a blind edit.");
+    }
+
+    // Walk forward from the opening brace, tracking nesting depth while
+    // respecting string literals (so braces inside quoted strings, and
+    // escaped quotes within them, don't confuse the count).
+    let depth = 0;
+    let inString = null; // null | '"' | "'" | '`'
+    let closeBraceIdx = -1;
+    for (let i = openBraceIdx; i < sourceText.length; i++) {
+        const ch = sourceText[i];
+        const prev = sourceText[i - 1];
+        if (inString) {
+            if (ch === inString && prev !== "\\") inString = null;
+            continue;
+        }
+        if (ch === '"' || ch === "'" || ch === "`") { inString = ch; continue; }
+        if (ch === "{") depth++;
+        else if (ch === "}") {
+            depth--;
+            if (depth === 0) { closeBraceIdx = i; break; }
+        }
+    }
+    if (closeBraceIdx === -1) {
+        throw new Error("Braces in `const world = {...}` never balanced — refusing to push a blind edit.");
+    }
+
+    // Include a trailing semicolon if present right after the closing brace.
+    let endIdx = closeBraceIdx + 1;
+    if (sourceText[endIdx] === ";") endIdx++;
+
+    const newDecl = `const world = ${JSON.stringify(tree, null, 2)};`;
+    return sourceText.slice(0, markerIdx) + newDecl + sourceText.slice(endIdx);
+}
+
+async function handleTreePushToGithub(request, env) {
+    const body = await request.json().catch(() => ({}));
+    const { token, tree } = body;
+
+    if (!env.GITHUB_TOKEN || !env.GITHUB_REPO) {
+        return json({ ok: false, error: "GitHub push is not configured on the server (missing GITHUB_TOKEN / GITHUB_REPO)." }, 500);
+    }
+
+    const caller = await getUserFromToken(token, env);
+    if (!caller) return json({ ok: false, error: "Not authenticated." }, 401);
+    if (!isOwner(caller)) return json({ ok: false, error: "Owner access required to push to GitHub." }, 403);
+
+    if (!tree || typeof tree !== "object" || !Array.isArray(tree.children)) {
+        return json({ ok: false, error: "Missing or invalid tree payload." }, 400);
+    }
+
+    const repo       = env.GITHUB_REPO;
+    const baseBranch = env.GITHUB_BRANCH_BASE || "main";
+    const editBranch = env.GITHUB_BRANCH_EDITS || "admin-edits";
+    const filePath    = env.GITHUB_INIT_PATH || "init.js";
+
+    try {
+        // 1. Latest commit SHA on the base branch, so the edit branch always
+        //    starts from current main rather than drifting from a stale ref.
+        const baseRef = await ghRequest(`/repos/${repo}/git/ref/heads/${encodeURIComponent(baseBranch)}`, env);
+        const baseSha = baseRef.object.sha;
+
+        // 2. Create (or fast-forward) the edit branch to that commit.
+        //    A 422 here means the branch already exists — that's fine, we
+        //    just reset it to base so it never carries forward stale edits
+        //    from a previously-abandoned push.
+        try {
+            await ghRequest(`/repos/${repo}/git/refs`, env, {
+                method: "POST",
+                body: JSON.stringify({ ref: `refs/heads/${editBranch}`, sha: baseSha }),
+            });
+        } catch (err) {
+            await ghRequest(`/repos/${repo}/git/refs/heads/${encodeURIComponent(editBranch)}`, env, {
+                method: "PATCH",
+                body: JSON.stringify({ sha: baseSha, force: true }),
+            });
+        }
+
+        // 3. Fetch the current file content off the edit branch (== base,
+        //    since we just reset it) so we edit the real file, not a guess.
+        const fileMeta = await ghRequest(
+            `/repos/${repo}/contents/${encodeURIComponent(filePath)}?ref=${encodeURIComponent(editBranch)}`,
+            env
+        );
+        const currentSource = decodeURIComponent(escape(atob(fileMeta.content.replace(/\n/g, ""))));
+        const updatedSource = spliceWorldTreeIntoSource(currentSource, tree);
+
+        // 4. Commit the updated file to the edit branch.
+        const encoded = btoa(unescape(encodeURIComponent(updatedSource)));
+        await ghRequest(`/repos/${repo}/contents/${encodeURIComponent(filePath)}`, env, {
+            method: "PUT",
+            body: JSON.stringify({
+                message: `Update world tree via admin panel (${new Date().toISOString()})`,
+                content: encoded,
+                sha: fileMeta.sha,
+                branch: editBranch,
+            }),
+        });
+
+        // 5. Open a PR if one isn't already open for this branch; otherwise
+        //    reuse it so repeated pushes don't spam new PRs.
+        let prUrl;
+        const existing = await ghRequest(
+            `/repos/${repo}/pulls?state=open&head=${encodeURIComponent(repo.split("/")[0])}:${encodeURIComponent(editBranch)}&base=${encodeURIComponent(baseBranch)}`,
+            env
+        );
+        if (Array.isArray(existing) && existing.length > 0) {
+            prUrl = existing[0].html_url;
+        } else {
+            const pr = await ghRequest(`/repos/${repo}/pulls`, env, {
+                method: "POST",
+                body: JSON.stringify({
+                    title: "World tree update (from admin panel)",
+                    head: editBranch,
+                    base: baseBranch,
+                    body: `Automated tree update pushed from the admin panel by **${caller.username || caller.key}** at ${new Date().toISOString()}.\n\nReview the diff to \`${filePath}\` below, then merge to make it live.`,
+                }),
+            });
+            prUrl = pr.html_url;
+        }
+
+        return json({ ok: true, branch: editBranch, prUrl });
+    } catch (err) {
+        return json({ ok: false, error: err && err.message ? err.message : "Unknown GitHub API error." }, 500);
+    }
+}
+
+
 // Storage shape in KV under __remoteconfig__:
 //   { cssRules: [{selector, property, value}, ...], flags: { [name]: value } }
 // admin.js's remoteConfigCall() always expects {ok, cssRules, flags} back so
@@ -687,6 +869,7 @@ export default {
         if (url.pathname === "/auth/remoteconfig/status") return handleRemoteConfigStatus(request, env);
         if (url.pathname === "/auth/remoteconfig")    return handleRemoteConfig(request, env);
         if (url.pathname === "/auth/bugs")            return handleBugReports(request, env);
+        if (url.pathname === "/tree/push-to-github")  return handleTreePushToGithub(request, env);
 
         if (url.pathname === "/auth/fixowner" && request.method === "GET") {
             const raw = await env.WHD_USERS.get(OWNER_NAME);

@@ -182,12 +182,26 @@
           args:[{label:"node", source:S.suggestTreeNodes}] },
         { cat:"Tree",     cmd:"tree rename",         hint:"<oldName> <newName>",                  desc:"Rename a node in the world tree — both names may be multi-word (resolved by longest match)",
           args:[{label:"oldName", source:S.suggestTreeNodes}] },
+        { cat:"Tree",     cmd:"tree move up",        hint:"<nodeName>",                           desc:"Move a node up one position among its siblings",
+          args:[{label:"node", source:S.suggestTreeNodes}] },
+        { cat:"Tree",     cmd:"tree move down",      hint:"<nodeName>",                           desc:"Move a node down one position among its siblings",
+          args:[{label:"node", source:S.suggestTreeNodes}] },
         { cat:"Tree",     cmd:"tree find",           hint:"<query>",                              desc:"Search the world tree for a node by name",
           args:[{label:"query", source:S.suggestTreeNodes}] },
         { cat:"Tree",     cmd:"tree orphans",        hint:"",                                     desc:"List scenes whose continent/country/season tags don't resolve to any tree node" },
         { cat:"Tree",     cmd:"tree sync",           hint:"",                                     desc:"Add missing nodes from scene data and remove stale nodes from the tree" },
         { cat:"Tree",     cmd:"tree repair",         hint:"",                                     desc:"Fix tree corruption: remove duplicate nodes and hoist misplaced seasons out of spurious country nodes" },
         { cat:"Tree",     cmd:"tree reset",          hint:"",                                     desc:"Wipe the world tree and restore the built-in default structure (reloads page)" },
+        { cat:"Tree",     cmd:"tree backup",         hint:"",                                     desc:"Create a timestamped backup of the current world tree (stored in localStorage)" },
+        { cat:"Tree",     cmd:"tree backups",        hint:"",                                     desc:"List all saved tree backups with timestamps — use 'tree restore' to load one" },
+        { cat:"Tree",     cmd:"tree restore",        hint:"[timestamp]",                          desc:"Restore the world tree from a backup — omit timestamp to see a list",
+          args:[{label:"timestamp", source:()=>[]}] },
+        { cat:"Tree",     cmd:"tree export as code", hint:"",                                     desc:"Generate and download the world tree as a JavaScript const declaration" },
+        { cat:"Tree",     cmd:"tree push",           hint:"",                                     desc:"Owner-only: commit the current world tree to a GitHub branch and open a PR against init.js — the only path that turns tree edits into a real, permanent source change" },
+
+        // ── Export As Code ────────────────────────────────────────────────────
+        { cat:"Scene",    cmd:"export as code",     hint:"[dbKey]",                              desc:"Generate and download active scenes as JavaScript const declarations — omit db to export all",
+          args:[{label:"db", source:()=>["", ...S.suggestDbKeys()]}] },
 
         // ── Runtime ───────────────────────────────────────────────────────────
         { cat:"Runtime",  cmd:"dispatch",            hint:"<eventName> [jsonPayload]",            desc:"Fire a CustomEvent on window — useful for triggering app listeners manually",

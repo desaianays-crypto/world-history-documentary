@@ -192,6 +192,23 @@ const world = {
                         },
                     ]
                 },
+                {
+                    name: "Poland",
+                    children: [
+                        {
+                            name: "Ancient Poland",
+                            episodes: []
+                        },
+                        {
+                            name: "Medieval Poland",
+                            episodes: []
+                        },
+                        {
+                            name: "Modern Poland",
+                            episodes: []
+                        },
+                    ]
+                },
             ]
         },
 
@@ -269,7 +286,23 @@ const world = {
                         },
                     ]
                 },
-
+                {
+                    name: "Vietnam",
+                    children: [
+                        {
+                            name: "Ancient Vietnam",
+                            episodes: []
+                        },
+                        {
+                            name: "Medieval Vietnam",
+                            episodes: []
+                        },
+                        {
+                            name: "Modern Vietnam",
+                            episodes: []
+                        },
+                    ]
+                },
             ]
         },
 

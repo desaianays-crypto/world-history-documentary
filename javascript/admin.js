@@ -364,6 +364,11 @@ function enhanceNumberInputs(ids) {
                 <!-- WORLD TREE PAGE -->
                 <div class="admin-page" data-page="tree">
                     <p class="admin-section-title">World Navigation Tree</p>
+                    <div id="adminTreePushRow" style="display:none;margin-bottom:12px;">
+                        <button class="admin-btn admin-btn-primary" id="adminTreePushBtn">⬆ Push Tree to GitHub</button>
+                        <span style="font-size:11px;color:rgba(255,255,255,0.4);margin-left:8px;">Opens a PR with the current tree baked into init.js — merge it to make changes permanent</span>
+                        <div id="adminTreePushResult" style="margin-top:8px;font-size:12px;"></div>
+                    </div>
                     <div id="adminTreeContainer"></div>
                 </div>
                 
@@ -451,6 +456,7 @@ function enhanceNumberInputs(ids) {
     // ── State ─────────────────────────────────────────────────────
     let unlocked      = sessionStorage.getItem(SS_UNLOCKED) === "1";
     let activeTab     = "add";
+    let _isOwnerCached = false; // updated by _applyPanelRole(); gates owner-only tree actions (move, push-to-GitHub)
     let editingId     = null;   // scene id currently being edited (null = add mode)
     let editingDbKey  = null;
     let confirmResolve = null;
@@ -653,6 +659,71 @@ function enhanceNumberInputs(ids) {
     function persistTree() {
         lsSet(LS_TREE, world);
         queueWorkerSync();
+    }
+
+    // Pushes the current world tree to GitHub as a commit on a dedicated
+    // branch (see worker.js POST /tree/push-to-github), opening/updating a
+    // PR against the base branch for review — this is the only path that
+    // turns an admin-panel tree edit into an actual change to init.js, since
+    // everything else in this file only ever writes to localStorage + the
+    // KV-backed runtime overlay (see applySavedScenesAndTree). Always takes
+    // a local timestamped backup first so there's a one-command rollback
+    // (`tree restore <timestamp>`) if the generated code needs fixing.
+    async function pushTreeToGithub() {
+        const resultEl = document.getElementById("adminTreePushResult");
+        if (!_isOwnerCached) {
+            termPrint("Only the owner can push tree changes to GitHub.", "term-err");
+            if (resultEl) resultEl.innerHTML = `<span style="color:#e05555">Only the owner can push tree changes to GitHub.</span>`;
+            return;
+        }
+        const token = window.WHDAuth ? window.WHDAuth.getToken() : null;
+        if (!token) {
+            termPrint("You must be logged in as owner to push to GitHub.", "term-err");
+            if (resultEl) resultEl.innerHTML = `<span style="color:#e05555">You must be logged in as owner to push to GitHub.</span>`;
+            return;
+        }
+
+        // Local safety net first — mirrors the "tree backup" command.
+        const timestamp = Date.now();
+        const backup = { timestamp, tree: lsGet(LS_TREE) || world };
+        lsSet(`${LS_TREE}_backup_${timestamp}`, backup);
+        const metadata = lsGet("whd_tree_backup_metadata") || { backups: [] };
+        metadata.backups.push({ timestamp, iso: new Date(timestamp).toISOString(), size: JSON.stringify(backup).length });
+        lsSet("whd_tree_backup_metadata", metadata);
+
+        termPrint(`Backed up current tree (timestamp: ${timestamp}). Pushing to GitHub…`, "term-info");
+        toast("⏳ Pushing tree to GitHub…");
+        if (resultEl) resultEl.innerHTML = `<span style="color:rgba(255,255,255,0.5)">⏳ Pushing…</span>`;
+        const pushBtn = document.getElementById("adminTreePushBtn");
+        if (pushBtn) pushBtn.disabled = true;
+
+        try {
+            const res = await fetch(WORKER_URL + "/tree/push-to-github", {
+                method: "POST",
+                headers: { "Content-Type": "application/json" },
+                body: JSON.stringify({ token, tree: world }),
+            });
+            const data = await res.json().catch(() => ({ ok: false, error: "Bad response from worker" }));
+            if (!data.ok) {
+                termPrint(`✘ Push failed: ${data.error || "unknown error"}`, "term-err");
+                toast("✘ Push to GitHub failed", true);
+                if (resultEl) resultEl.innerHTML = `<span style="color:#e05555">✘ ${escHtml(data.error || "Push failed")}</span>`;
+                return;
+            }
+            termPrint(`✔ Pushed to branch "${data.branch}" — ${data.prUrl}`, "term-ok");
+            termPrint(`Review and merge the PR to make this live in the actual source.`, "term-hint");
+            toast("✔ Pushed to GitHub — review the PR to merge");
+            if (resultEl) {
+                resultEl.innerHTML = `<span style="color:#5ec97a">✔ Pushed to branch "${escHtml(data.branch)}".</span> ` +
+                    `<a href="${escHtml(data.prUrl)}" target="_blank" rel="noopener noreferrer" style="color:var(--accent)">Open PR to review &amp; merge ↗</a>`;
+            }
+        } catch (err) {
+            termPrint(`✘ Push failed: ${err && err.message ? err.message : "network error"}`, "term-err");
+            toast("✘ Push to GitHub failed", true);
+            if (resultEl) resultEl.innerHTML = `<span style="color:#e05555">✘ ${escHtml(err && err.message ? err.message : "Network error")}</span>`;
+        } finally {
+            if (pushBtn) pushBtn.disabled = false;
+        }
     }
 
 // Deleted IDs set (persisted)
@@ -933,6 +1004,7 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         const username = window.WHDAuth && typeof window.WHDAuth.getUsername === "function" ? window.WHDAuth.getUsername() : "";
         const isOwner = role === "owner" || (username || "").toLowerCase() === "anay" || (window.WHDAuth && typeof window.WHDAuth.isOwner === "function" && window.WHDAuth.isOwner());
         const isAdminOrAbove = role === "admin" || role === "owner";
+        _isOwnerCached = isOwner;
 
         // Owners: the Admin Panel that's already open (opened before the
         // role had resolved) gets replaced by the standalone Owner Terminal,
@@ -947,6 +1019,8 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         // a fallback only if owner-panel.js failed to load)
         const ownerTab = document.getElementById("adminOwnerTab");
         if (ownerTab) ownerTab.style.display = isOwner ? "" : "none";
+        const treePushRow = document.getElementById("adminTreePushRow");
+        if (treePushRow) treePushRow.style.display = isOwner ? "" : "none";
 
         if (isOwner) {
             // Fallback (owner-panel.js missing): switch directly to the terminal tab
@@ -5124,6 +5198,29 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                 return;
             }
 
+            if (verb === "tree" && noun === "move" && (parts[2] === "up" || parts[2] === "down")) {
+                // tree move up|down <nodeName>
+                const dir = parts[2] === "up" ? -1 : 1;
+                const target = parts.slice(3).join(" ");
+                if (!target) { termPrint(`Usage: tree move ${parts[2]} <nodeName>`, "term-err"); return; }
+                const found = findTreeNodeWithSiblings(world.children, target);
+                if (!found) { termPrint(`"${target}" not found in tree.`, "term-err"); return; }
+                const { siblingArr, idx } = found;
+                const targetIdx = idx + dir;
+                if (targetIdx < 0 || targetIdx >= siblingArr.length) {
+                    termPrint(`"${target}" is already at the ${dir < 0 ? "top" : "bottom"} of its siblings.`, "term-info");
+                    return;
+                }
+                moveTreeNode(siblingArr, idx, dir);
+                termPrint(`✔ Moved "${target}" ${dir < 0 ? "up" : "down"}.`, "term-ok");
+                return;
+            }
+
+            if (verb === "tree" && noun === "push") {
+                await pushTreeToGithub();
+                return;
+            }
+
             if (verb === "tree" && noun === "find") {
                 const q = parts.slice(2).join(" ").toLowerCase();
                 if (!q) { termPrint("Usage: tree find <name>", "term-err"); return; }
@@ -5432,6 +5529,125 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
                 localStorage.removeItem(LS_TREE);
                 localStorage.removeItem(LS_TREE_OPEN);
                 location.reload();
+                return;
+            }
+
+            // ── Tree: backup/restore ──────────────────────────────────────────
+            if (verb === "tree" && noun === "backup") {
+                const currentTree = lsGet(LS_TREE);
+                const timestamp = Date.now();
+                const backup = { timestamp, tree: currentTree };
+                const backupKey = `${LS_TREE}_backup_${timestamp}`;
+                lsSet(backupKey, backup);
+                
+                // Store metadata for listing
+                const metadata = lsGet("whd_tree_backup_metadata") || { backups: [] };
+                metadata.backups.push({ timestamp, iso: new Date(timestamp).toISOString(), size: JSON.stringify(backup).length });
+                lsSet("whd_tree_backup_metadata", metadata);
+                
+                termPrint(`✔ Tree backed up (timestamp: ${timestamp}, ISO: ${new Date(timestamp).toISOString()})`, "term-ok");
+                return;
+            }
+
+            if (verb === "tree" && noun === "backups") {
+                const metadata = lsGet("whd_tree_backup_metadata") || { backups: [] };
+                if (!metadata.backups || metadata.backups.length === 0) {
+                    termPrint("No tree backups found. Use 'tree backup' to create one.", "term-info");
+                    return;
+                }
+                termPrint("Available tree backups:", "term-header");
+                metadata.backups.forEach(b => {
+                    termPrint(`  ${b.timestamp}  ${b.iso}  (${b.size} bytes)`, "term-info");
+                });
+                termPrint(`Use 'tree restore <timestamp>' to restore one.`, "term-hint");
+                return;
+            }
+
+            if (verb === "tree" && noun === "restore") {
+                const timestamp = parts[2];
+                if (!timestamp) {
+                    const metadata = lsGet("whd_tree_backup_metadata") || { backups: [] };
+                    if (metadata.backups && metadata.backups.length > 0) {
+                        termPrint("Available backups:", "term-header");
+                        metadata.backups.forEach(b => {
+                            termPrint(`  tree restore ${b.timestamp}`, "term-info");
+                        });
+                    } else {
+                        termPrint("No backups available.", "term-info");
+                    }
+                    return;
+                }
+                const backupKey = `${LS_TREE}_backup_${timestamp}`;
+                const backup = lsGet(backupKey);
+                if (!backup) {
+                    termPrint(`Backup ${timestamp} not found.`, "term-err");
+                    return;
+                }
+                lsSet(LS_TREE, backup.tree);
+                localStorage.removeItem(LS_TREE_OPEN);
+                if (typeof refreshTree === "function") refreshTree();
+                termPrint(`✔ Tree restored from backup ${timestamp}.`, "term-ok");
+                return;
+            }
+
+            if (verb === "tree" && noun === "export" && parts[2] === "as" && parts[3] === "code") {
+                // Generate JavaScript const for the tree structure
+                const currentTree = lsGet(LS_TREE) || window.world;
+                if (!currentTree) {
+                    termPrint("No tree found to export.", "term-err");
+                    return;
+                }
+                const code = `// Auto-generated world tree\nconst world = ${JSON.stringify(currentTree, null, 2)};`;
+                const blob = new Blob([code], { type: "text/javascript" });
+                const a = Object.assign(document.createElement("a"), {
+                    href: URL.createObjectURL(blob),
+                    download: `world-tree-${Date.now()}.js`
+                });
+                a.click();
+                termPrint(`✔ Tree exported as JavaScript code.`, "term-ok");
+                return;
+            }
+
+            // ── Export As Code (Scenes) ───────────────────────────────────────
+            if (verb === "export" && noun === "as" && parts[2] === "code") {
+                const dbKey = parts[3] || "";
+                let scenes = [];
+                
+                if (dbKey) {
+                    // Export specific database
+                    const db = DB_MAP[dbKey];
+                    if (!db) {
+                        termPrint(`Database "${dbKey}" not found.`, "term-err");
+                        return;
+                    }
+                    scenes = db.getArr().filter(s => !deletedIds.has(s.id));
+                } else {
+                    // Export all databases
+                    scenes = termAllActiveScenes().map(e => e.scene);
+                }
+
+                // Format as JavaScript const declarations
+                const exportedDbs = {};
+                scenes.forEach(scene => {
+                    const dbKey = scene._dbKey || dbKeyForScene(scene);
+                    if (!exportedDbs[dbKey]) exportedDbs[dbKey] = [];
+                    exportedDbs[dbKey].push(scene);
+                });
+
+                let code = "// Auto-generated scene data\n\n";
+                for (const [dbKey, sceneList] of Object.entries(exportedDbs)) {
+                    const varName = `${dbKey}Scenes`;
+                    code += `const ${varName} = ${JSON.stringify(sceneList, null, 2)};\n\n`;
+                }
+
+                const blob = new Blob([code], { type: "text/javascript" });
+                const a = Object.assign(document.createElement("a"), {
+                    href: URL.createObjectURL(blob),
+                    download: `scenes-${dbKey || "all"}-${Date.now()}.js`
+                });
+                a.click();
+                const totalScenes = Object.values(exportedDbs).reduce((sum, arr) => sum + arr.length, 0);
+                termPrint(`✔ Exported ${totalScenes} scene(s) as JavaScript code.`, "term-ok");
                 return;
             }
 
@@ -6407,6 +6623,12 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
             persistTree();
             refreshTree();
         }, 0);
+
+        const pushBtn = document.getElementById("adminTreePushBtn");
+        if (pushBtn && !pushBtn._whdBound) {
+            pushBtn._whdBound = true;
+            pushBtn.addEventListener("click", () => pushTreeToGithub());
+        }
     }
 
     function renderTreeChildren(nodes, container, depth) {
@@ -6438,6 +6660,26 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
 
             const actionsDiv = document.createElement("div");
             actionsDiv.className = "admin-tree-node-actions";
+
+            const upBtn = document.createElement("button");
+            upBtn.className = "admin-btn admin-btn-secondary";
+            upBtn.style.cssText = "padding:2px 8px;font-size:11px;";
+            upBtn.textContent = "▲";
+            upBtn.title = "Move up";
+            upBtn.disabled = nodeIdx === 0;
+            if (upBtn.disabled) upBtn.style.opacity = "0.3";
+            upBtn.addEventListener("click", () => moveTreeNode(nodes, nodeIdx, -1));
+            actionsDiv.appendChild(upBtn);
+
+            const downBtn = document.createElement("button");
+            downBtn.className = "admin-btn admin-btn-secondary";
+            downBtn.style.cssText = "padding:2px 8px;font-size:11px;";
+            downBtn.textContent = "▼";
+            downBtn.title = "Move down";
+            downBtn.disabled = nodeIdx === nodes.length - 1;
+            if (downBtn.disabled) downBtn.style.opacity = "0.3";
+            downBtn.addEventListener("click", () => moveTreeNode(nodes, nodeIdx, 1));
+            actionsDiv.appendChild(downBtn);
 
             const delBtn = document.createElement("button");
             delBtn.className = "admin-btn admin-btn-danger";
@@ -6513,6 +6755,35 @@ document.querySelectorAll(".admin-add-subtab").forEach(btn => {
         });
         inp.addEventListener("keydown", e => { if (e.key === "Enter") addRow.querySelector("button").click(); });
         container.appendChild(addRow);
+    }
+
+    // Swaps a node with its previous (dir=-1) or next (dir=+1) sibling within
+    // the same parent array. No-op at the ends (buttons are disabled there,
+    // but this guards direct calls too, e.g. from the terminal).
+    function moveTreeNode(siblingArr, idx, dir) {
+        const targetIdx = idx + dir;
+        if (targetIdx < 0 || targetIdx >= siblingArr.length) return;
+        const [node] = siblingArr.splice(idx, 1);
+        siblingArr.splice(targetIdx, 0, node);
+        persistTree();
+        toast(`✔ Moved "${node.name}" ${dir < 0 ? "up" : "down"}`);
+        refreshTree();
+    }
+
+    // Finds a node anywhere in the tree by name (depth-first) and returns
+    // its sibling array + index, so both the terminal command and any
+    // future UI hook can reuse the same move logic as the tree buttons.
+    function findTreeNodeWithSiblings(nodes, name) {
+        for (let i = 0; i < nodes.length; i++) {
+            if (nodes[i].name.toLowerCase() === name.toLowerCase()) {
+                return { siblingArr: nodes, idx: i };
+            }
+            if (Array.isArray(nodes[i].children)) {
+                const found = findTreeNodeWithSiblings(nodes[i].children, name);
+                if (found) return found;
+            }
+        }
+        return null;
     }
 
     async function deleteTreeNode(node, parentArr, idx) {
