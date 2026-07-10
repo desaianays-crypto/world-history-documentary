@@ -67,6 +67,12 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             title: "The Roman Empire. Or Republic. Or... Which Was It?: Crash Course World History #10",
             publisher: "Crash Course",
             url: "https://www.youtube.com/watch?v=oPf27gAup9U"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The ENTIRE History of ROME",
+            publisher: "Historically",
+            url: "https://www.youtube.com/watch?v=EHLI2WZUtXs"
         }
     ],
 
@@ -75,7 +81,7 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             type: "primary", tier: "high",
             title: "Gregory of Tours, Historia Francorum (History of the Franks, c. 594 CE) — the essential contemporary source for Clovis I and the formation of the Frankish kingdom",
             publisher: "Internet Medieval Sourcebook, Fordham University (Brehaut translation)",
-            url: "https://origin-rh.web.fordham.edu/Halsall/basis/gregory-hist.asp"
+            url: "https://sourcebooks.web.fordham.edu/basis/gregory-hist.asp"
         },
         {
             type: "secondary", tier: "high",
@@ -102,7 +108,7 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             type: "primary", tier: "high",
             title: "Einhard, Vita Karoli Magni (Life of Charlemagne, c. 817–836 CE) — the standard contemporary biography, written by a member of Charlemagne's own court",
             publisher: "Internet Medieval Sourcebook, Fordham University",
-            url: "https://origin-rh.web.fordham.edu/Halsall/basis/einhard.asp"
+            url: "https://sourcebooks.web.fordham.edu/basis/einhard.asp"
         },
         {
             type: "secondary", tier: "high",
@@ -129,7 +135,7 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             type: "primary", tier: "high",
             title: "Richer of Reims's account of the Election of Hugh Capet (987 CE) — a contemporary chronicle of the founding of the Capetian dynasty and the feudal order it presided over",
             publisher: "Internet Medieval Sourcebook, Fordham University",
-            url: "https://sourcebooks.fordham.edu/source/987capet.asp"
+            url: "https://sourcebooks.web.fordham.edu/source/987capet.asp"
         },
         {
             type: "secondary", tier: "high",
@@ -156,7 +162,7 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             type: "primary", tier: "high",
             title: "Jean de Joinville, The Life of Saint Louis (c. 1305–09 CE) — Joinville's own eyewitness memoir as a French knight who accompanied King Louis IX on the Seventh Crusade",
             publisher: "Internet Medieval Sourcebook, Fordham University",
-            url: "https://origin-rh.web.fordham.edu/Halsall/basis/joinville.asp"
+            url: "https://sourcebooks.web.fordham.edu/basis/joinville.asp"
         },
         {
             type: "secondary", tier: "high",
@@ -183,7 +189,7 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             type: "primary", tier: "high",
             title: "Trial of Joan of Arc (1431) — full transcript",
             publisher: "Internet Medieval Sourcebook, Fordham University",
-            url: "https://origin-rh.web.fordham.edu/Halsall/basis/joanofarc-trial.asp"
+            url: "https://sourcebooks.web.fordham.edu/basis/joanofarc-trial.asp"
         },
         {
             type: "secondary", tier: "high",
@@ -250,6 +256,12 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             title: "Verdun, 1916: The Battle of the Great War (Full Documentary)",
             publisher: "YouTube",
             url: "https://www.youtube.com/watch?v=ny1rWSklx_U"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "World War 1 - Simplified",
+            publisher: "Historically",
+            url: "https://www.youtube.com/watch?v=w5mhZs73Qwc"
         }
     ],
 
@@ -301,7 +313,7 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             type: "primary", tier: "high",
             title: "Tacitus, Germania (98 CE) — the essential Roman ethnographic account of the early Germanic tribes",
             publisher: "Internet History Sourcebook, Fordham University",
-            url: "https://sourcebooks.fordham.edu/source/tacitus1.asp"
+            url: "https://sourcebooks.web.fordham.edu/source/tacitus1.asp"
         },
         {
             type: "secondary", tier: "high",
@@ -374,6 +386,12 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             title: "The Limes: The Border Rome Built But Could Not Hold",
             publisher: "YouTube",
             url: "https://www.youtube.com/watch?v=j5eBHumLjqI"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The ENTIRE History of ROME",
+            publisher: "Historically",
+            url: "https://www.youtube.com/watch?v=EHLI2WZUtXs"
         }
     ],
 
@@ -463,7 +481,7 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             type: "primary", tier: "high",
             title: "Gregory of Tours, Historia Francorum (History of the Franks, c. 594 CE) — the essential contemporary source for Clovis I and the Frankish kingdom's rise, including the eastern Frankish territories in Germania",
             publisher: "Internet Medieval Sourcebook, Fordham University (Brehaut translation)",
-            url: "https://origin-rh.web.fordham.edu/Halsall/basis/gregory-hist.asp"
+            url: "https://sourcebooks.web.fordham.edu/basis/gregory-hist.asp"
         },
         {
             type: "secondary", tier: "high",
@@ -490,7 +508,7 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             type: "primary", tier: "high",
             title: "Einhard, Vita Karoli Magni (Life of Charlemagne, c. 817–836 CE) — the standard contemporary biography, written by a member of Charlemagne's own court",
             publisher: "Internet Medieval Sourcebook, Fordham University",
-            url: "https://origin-rh.web.fordham.edu/Halsall/basis/einhard.asp"
+            url: "https://sourcebooks.web.fordham.edu/basis/einhard.asp"
         },
         {
             type: "secondary", tier: "high",
@@ -673,7 +691,7 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             type: "primary", tier: "high",
             title: "Alfred von Schlieffen's \"War Against France\" memorandum (December 1905/1906) — excerpted primary text of the strategic plan behind Germany's 1914 invasion of Belgium and France",
             publisher: "German History in Documents and Images (GHI Washington)",
-            url: "https://germanhistorydocs.ghi-dc.org/sub_document.cfm?document_id=796"
+            url: "https://germanhistorydocs.org/en/wilhelmine-germany-and-the-first-world-war-1890-1918/the-schlieffen-plan-1905"
         },
         {
             type: "secondary", tier: "high",
@@ -692,6 +710,12 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             title: "World War 1 (All Parts)",
             publisher: "Epic History TV",
             url: "https://www.youtube.com/watch?v=G1p6rlDCxq0"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "World War 1 - Simplified",
+            publisher: "Historically",
+            url: "https://www.youtube.com/watch?v=w5mhZs73Qwc"
         }
     ],
 
@@ -1575,9 +1599,9 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
     "austria_10": [
         {
             type: "primary", tier: "high",
-            title: "Francis II's declaration abdicating the German imperial throne (1806) — documentary record",
+            title: "Declaration of His Majesty the Emperor Francis II, whereby he abdicates the German imperial throne and the imperial government (1806) — the actual abdication document",
             publisher: "German History in Documents and Images (GHI Washington)",
-            url: "https://germanhistorydocs.org/en/the-holy-roman-empire-1648-1815/francis-ii-holy-roman-emperor-c-1804"
+            url: "https://germanhistorydocs.org/en/the-holy-roman-empire-1648-1815/declaration-of-his-majesty-the-emperor-francis-ii-whereby-he-abdicates-the-german-imperial-throne-and-the-imperial-government"
         },
         {
             type: "secondary", tier: "high",
@@ -2021,7 +2045,7 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             type: "primary", tier: "high",
             title: "The Edict of Milan (313 CE) — full text",
             publisher: "Internet History Sourcebooks Project, Fordham University",
-            url: "https://sourcebooks.fordham.edu/source/edict-milan.asp"
+            url: "https://sourcebooks.web.fordham.edu/source/edict-milan.asp"
         },
         {
             type: "secondary", tier: "high",
@@ -2380,7 +2404,7 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
     "bd_1": [
         {
             type: "primary", tier: "high",
-            title: "Ibn al-Wardi, Risalat al-naba' 'an al-waba' (Essay on the Report of the Pestilence, 1348) — an Aleppo scholar's contemporary literary account of the plague's advance",
+            title: "Ibn al-Wardi, Risalat al-naba' 'an al-waba' (Essay on the Report of the Pestilence, 1348) — an Aleppo scholar's account of the plague's advance, written as a maqama (a stylized Arabic literary form); 2025 scholarship (Omar & Fancy, Univ. of Exeter) has shown it was long misread as a literal eyewitness route report and should not be treated as one",
             publisher: "The Plague Anthology (sourced translated excerpt)",
             url: "https://plagueanthology.com/2020/07/24/ibn-al-wardi-on-the-advance-of-plague-1348/"
         },
@@ -2424,7 +2448,7 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             type: "primary", tier: "high",
             title: "Giovanni Boccaccio, Introduction to The Decameron (c. 1350–53) — eyewitness description of plague-ravaged Florence",
             publisher: "Internet History Sourcebooks Project, Fordham University",
-            url: "https://sourcebooks.fordham.edu/source/boccacio2.asp"
+            url: "https://sourcebooks.web.fordham.edu/source/boccacio2.asp"
         },
         {
             type: "secondary", tier: "high",
@@ -2615,7 +2639,7 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             type: "primary", tier: "high",
             title: "Ibn Battuta, The Rihla (Travels in Asia and Africa, 1325–1354) — eyewitness account of Indian Ocean port cities and trade",
             publisher: "Internet History Sourcebooks Project, Fordham University",
-            url: "https://sourcebooks.fordham.edu/source/1354-ibnbattuta.asp"
+            url: "https://sourcebooks.web.fordham.edu/source/1354-ibnbattuta.asp"
         },
         {
             type: "secondary", tier: "high",
@@ -2700,7 +2724,7 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             type: "primary", tier: "high",
             title: "Martin Luther, The Ninety-Five Theses (1517) — full text",
             publisher: "Internet History Sourcebooks Project, Fordham University",
-            url: "https://sourcebooks.fordham.edu/source/luther95.txt"
+            url: "https://sourcebooks.web.fordham.edu/source/luther95.txt"
         },
         {
             type: "secondary", tier: "high",
@@ -2742,7 +2766,7 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             type: "primary", tier: "high",
             title: "The Crime of Galileo: Indictment, Sentence and Abjuration (1633) — full text of the Inquisition's trial documents",
             publisher: "Internet History Sourcebooks Project, Fordham University",
-            url: "https://sourcebooks.fordham.edu/mod/1630galileo.asp"
+            url: "https://sourcebooks.web.fordham.edu/mod/1630galileo.asp"
         },
         {
             type: "secondary", tier: "high",
@@ -3536,6 +3560,895 @@ window.WHD_SOURCES = window.WHD_SOURCES || {
             title: "Is Mali's military government losing control?",
             publisher: "Al Jazeera English",
             url: "https://www.youtube.com/watch?v=G_-7gbZo430"
+        }
+    ],
+
+    // ── Poland ──────────────────────────────────────────────────────────
+    "poland_10": [
+        {
+            type: "primary", tier: "high",
+            title: "The Third Partition treaty (24 October 1795) — the agreement between Russia, Prussia, and Austria dividing the last remnants of the Polish–Lithuanian Commonwealth, extinguishing the Polish state",
+            publisher: "Internet History Sourcebooks Project, Fordham University",
+            url: "https://sourcebooks.web.fordham.edu/mod/1795Poland-division.asp"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Partitions of Poland — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Partitions_of_Poland"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Partitions of Poland — summary",
+            publisher: "Encyclopaedia Britannica",
+            url: "https://www.britannica.com/event/Partitions-of-Poland"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "This Country Disappeared 8 TIMES....",
+            publisher: "Historically",
+            url: "https://www.youtube.com/watch?v=F0_d1xjk2to"
+        }
+    ],
+
+    // ── South Africa ────────────────────────────────────────────────────
+    "sa_1": [
+        {
+            type: "primary", tier: "high",
+            title: "Maloti-Drakensberg Park rock art sites — one of the largest and most concentrated collections of San rock paintings in Africa, dating back millennia",
+            publisher: "UNESCO World Heritage Centre",
+            url: "https://whc.unesco.org/en/list/985/"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "San people — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/San_people"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Mother Africa — History Of Africa with Zeinab Badawi [Episode 1]",
+            publisher: "BBC News Africa",
+            url: "https://www.youtube.com/watch?v=ETnIsBnNRr0"
+        }
+    ],
+
+    "sa_2": [
+        {
+            type: "primary", tier: "high",
+            title: "Kasteelberg, Western Cape — the key excavated archaeological site documenting the emergence of Khoekhoe pastoralism in southern Africa, as described firsthand by its excavator",
+            publisher: "The Heritage Portal (Prof. Andrew B. Smith, University of Cape Town)",
+            url: "http://www.theheritageportal.co.za/article/place-kasteelberg-khoekhoe-history"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Khoikhoi — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Khoikhoi"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Cattle, Crops and Iron — History Of Africa with Zeinab Badawi [Episode 2]",
+            publisher: "BBC News Africa",
+            url: "https://www.youtube.com/watch?v=Srlf_xltWfc"
+        }
+    ],
+
+    "sa_3": [
+        {
+            type: "primary", tier: "medium",
+            title: "Early Iron Age ceramic sequences (Blackburn and related traditions, c. 5th–11th centuries CE) — the archaeological record documenting the southward migration of Bantu-speaking farming communities into southern Africa",
+            publisher: "Wikipedia (sourced overview of the primary archaeological record)",
+            url: "https://en.wikipedia.org/wiki/Bantu_expansion"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Bantu expansion — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Bantu_expansion"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Cattle, Crops and Iron — History Of Africa with Zeinab Badawi [Episode 2]",
+            publisher: "BBC News Africa",
+            url: "https://www.youtube.com/watch?v=Srlf_xltWfc"
+        }
+    ],
+
+    "sa_4": [
+        {
+            type: "primary", tier: "medium",
+            title: "Early Iron Age settlement sites in the Limpopo and Mpumalanga lowveld (c. 1000–1200 CE) — the archaeological record of the farming and metalworking communities that preceded Mapungubwe",
+            publisher: "Wikipedia (sourced overview of the primary archaeological record)",
+            url: "https://en.wikipedia.org/wiki/Mapungubwe#History"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "History of South Africa — Early Iron Age",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/History_of_South_Africa"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Cattle, Crops and Iron — History Of Africa with Zeinab Badawi [Episode 2]",
+            publisher: "BBC News Africa",
+            url: "https://www.youtube.com/watch?v=Srlf_xltWfc"
+        }
+    ],
+
+    "sa_5": [
+        {
+            type: "primary", tier: "high",
+            title: "Mapungubwe Hill — archaeological site of the royal capital of southern Africa's first known kingdom, including the famous gold rhinoceros burial find",
+            publisher: "UNESCO World Heritage Centre",
+            url: "https://whc.unesco.org/en/list/1099/"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Kingdom of Mapungubwe — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Mapungubwe"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Southern Kingdoms — History Of Africa with Zeinab Badawi [Episode 13]",
+            publisher: "BBC News Africa",
+            url: "https://www.youtube.com/watch?v=GdSupLM4zAA"
+        }
+    ],
+
+    "sa_6": [
+        {
+            type: "primary", tier: "high",
+            title: "Thulamela, Kruger National Park — a fortified Iron Age royal settlement showing direct architectural and material links to Great Zimbabwe's stone-building tradition",
+            publisher: "SANParks (South African National Parks)",
+            url: "https://www.sanparks.org/parks/kruger/conservation/scientific/ecological_journeys/thulamela.php"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Great Zimbabwe — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Great_Zimbabwe"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Southern Kingdoms — History Of Africa with Zeinab Badawi [Episode 13]",
+            publisher: "BBC News Africa",
+            url: "https://www.youtube.com/watch?v=GdSupLM4zAA"
+        }
+    ],
+
+    "sa_7": [
+        {
+            type: "primary", tier: "medium",
+            title: "Thulamela and related lowveld sites (14th–16th centuries CE) — archaeological evidence of the trade-connected regional kingdoms that flourished across northern South Africa in this period",
+            publisher: "SANParks (South African National Parks)",
+            url: "https://www.sanparks.org/parks/kruger/conservation/scientific/ecological_journeys/thulamela.php"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Kingdom of Mutapa — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Kingdom_of_Mutapa"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Southern Kingdoms — History Of Africa with Zeinab Badawi [Episode 13]",
+            publisher: "BBC News Africa",
+            url: "https://www.youtube.com/watch?v=GdSupLM4zAA"
+        }
+    ],
+
+    "sa_8": [
+        {
+            type: "primary", tier: "high",
+            title: "The Roteiro (journal) of Vasco da Gama's first voyage (1497–99, trans. E.G. Ravenstein, 1898) — the earliest firsthand European account of sailing the southern African coast and encountering local peoples along the way to the Indian Ocean trade world",
+            publisher: "Internet Archive / Project Gutenberg (Hakluyt Society edition)",
+            url: "https://archive.org/details/ajournalofthefir46440gut"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Indian Ocean trade — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Indian_Ocean_trade"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Southern Kingdoms — History Of Africa with Zeinab Badawi [Episode 13]",
+            publisher: "BBC News Africa",
+            url: "https://www.youtube.com/watch?v=GdSupLM4zAA"
+        }
+    ],
+
+    "sa_9": [
+        {
+            type: "primary", tier: "high",
+            title: "The Journal of Jan van Riebeeck (1652–62) — the official day-by-day diary of the Dutch commander who founded the Cape refreshment station, including firsthand entries on Khoikhoi contact (e.g. the interpreter Krotoa/Eva)",
+            publisher: "World History Commons (sourced translated excerpts, ed. H.B. Thom)",
+            url: "https://worldhistorycommons.org/journal-jan-van-riebeeck"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Jan van Riebeeck — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Jan_van_Riebeeck"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Cape Colony: The Making of South Africa",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=-oeGWXCTrBw"
+        }
+    ],
+
+    "sa_10": [
+        {
+            type: "primary", tier: "medium",
+            title: "The VOC's 1709 proclamation limiting settlement beyond the Cape peninsula — a Company administrative order the trekboers ignored en masse as they pushed the colonial frontier eastward through the 18th century",
+            publisher: "Wikipedia (sourced overview of the primary administrative record)",
+            url: "https://en.wikipedia.org/wiki/Trekboers"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Cape Colony — 18th-century expansion",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Cape_Colony"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Cape Colony: The Making of South Africa",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=-oeGWXCTrBw"
+        }
+    ],
+
+    "sa_11": [
+        {
+            type: "primary", tier: "high",
+            title: "The 1806 Cape Articles of Capitulation — the actual surrender terms signed by the Batavian and British commanders after the Battle of Blaauwberg, formalising British control of the Cape",
+            publisher: "The O'Malley Archives (Nelson Mandela Foundation)",
+            url: "https://omalley.nelsonmandela.org/index.php/site/q/03lv01538/04lv01646/05lv01647.htm"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "History of the Cape Colony from 1806 to 1870 — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/History_of_the_Cape_Colony_from_1806_to_1870"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Cape Colony: The Making of South Africa",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=-oeGWXCTrBw"
+        }
+    ],
+
+    "sa_12": [
+        {
+            type: "primary", tier: "high",
+            title: "Piet Retief's manifesto (published in the Grahamstown Journal, 2 February 1837) — the Voortrekker leader's own published statement of grievances justifying the Great Trek (a one-sided source reflecting only the Voortrekker viewpoint, not an objective account of the period)",
+            publisher: "South African History Online",
+            url: "https://sahistory.org.za/archive/retief-manifesto-grahams-town-journal-2-february-1837"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Great Trek — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Great_Trek"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Great Trek Part 1 - The History of South Africa",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=kDHWAtk8zik"
+        }
+    ],
+
+    "sa_13": [
+        {
+            type: "primary", tier: "medium",
+            title: "Sir Bartle Frere's ultimatum to King Cetshwayo (December 1878) — the British high commissioner's own demand that precipitated the Anglo-Zulu War (note: the surviving written record of this war is almost entirely British/colonial, since Zulu accounts were transmitted orally and were rarely recorded at the time)",
+            publisher: "Wikipedia (sourced overview of the primary ultimatum)",
+            url: "https://en.wikipedia.org/wiki/Anglo-Zulu_War"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Battle of Isandlwana — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Battle_of_Isandlwana"
+        },
+        {
+            type: "video", tier: "high",
+            title: "1879: The Bloodiest Battles Of The Anglo-Zulu War",
+            publisher: "Timeline - World History Documentaries",
+            url: "https://www.youtube.com/watch?v=gO2TsFNWmmg"
+        }
+    ],
+
+    "sa_14": [
+        {
+            type: "primary", tier: "high",
+            title: "President Paul Kruger's proclamation of the Witwatersrand goldfields (8 September 1886, published in the Staats Courant of the Zuid-Afrikaansche Republiek) — the founding government document behind the gold rush that created Johannesburg",
+            publisher: "The Heritage Portal",
+            url: "https://www.theheritageportal.co.za/article/johannesburg-goldfield-discovered"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Witwatersrand Gold Rush — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Witwatersrand_Gold_Rush"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Mineral Revolution — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Mineral_Revolution"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Cape Colony: The Making of South Africa",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=-oeGWXCTrBw"
+        }
+    ],
+
+    "sa_15": [
+        {
+            type: "primary", tier: "high",
+            title: "The Treaty of Vereeniging (31 May 1902) — full text of the peace treaty ending the Second Anglo-Boer War, including the clause deferring Black South Africans' political rights to the future all-white Union government",
+            publisher: "Wikisource",
+            url: "https://en.wikisource.org/wiki/Peace_of_Vereeniging"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Second Boer War — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Second_Boer_War"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Boer War: 1899-1902 (Full Documentary)",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=Lw9X-nVbkfc"
+        }
+    ],
+
+    "sa_16": [
+        {
+            type: "primary", tier: "high",
+            title: "The South Africa Act, 1909 — full official text of the UK Parliament's act constituting the Union of South Africa, including the racially-restricted franchise provisions",
+            publisher: "UK National Archives (legislation.gov.uk, official archived PDF)",
+            url: "https://www.legislation.gov.uk/ukpga/Edw7/9/9/pdfs/ukpga_19090009_en.pdf"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Union of South Africa — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Union_of_South_Africa"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Cape Colony: The Making of South Africa",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=-oeGWXCTrBw"
+        }
+    ],
+
+    "sa_17": [
+        {
+            type: "primary", tier: "high",
+            title: "The Population Registration Act, No. 30 of 1950 — full text of the foundational apartheid law that required every South African to be classified and registered by race",
+            publisher: "Wikisource",
+            url: "https://en.wikisource.org/wiki/Population_Registration_Act,_1950"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Population Registration Act, 1950 — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Population_Registration_Act,_1950"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Trevor McDonald Explores The History Of South Africa's Apartheid",
+            publisher: "ITV (Our History)",
+            url: "https://www.youtube.com/watch?v=oY6QEPkTWDo"
+        }
+    ],
+
+    "sa_18": [
+        {
+            type: "primary", tier: "high",
+            title: "The Freedom Charter (adopted 26 June 1955, Congress of the People, Kliptown) — the resistance movement's own founding statement of principles for a non-racial, democratic South Africa",
+            publisher: "African National Congress (official text)",
+            url: "https://www.anc1912.org.za/the-freedom-charter-2/"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Freedom Charter — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Freedom_Charter"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Trevor McDonald Explores The History Of South Africa's Apartheid",
+            publisher: "ITV (Our History)",
+            url: "https://www.youtube.com/watch?v=oY6QEPkTWDo"
+        }
+    ],
+
+    "sa_19": [
+        {
+            type: "primary", tier: "high",
+            title: "Nelson Mandela's speech on his release from prison (Cape Town City Hall, 11 February 1990) — his own first public words as a free man after 27 years' imprisonment",
+            publisher: "Nelson Mandela Foundation (official archive)",
+            url: "http://www.mandela.gov.za/mandela_speeches/1990/900211_release.htm"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "History of South Africa (1990–1994) — negotiations to end apartheid",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/History_of_South_Africa_(1994%E2%80%93present)"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Trevor McDonald Explores The History Of South Africa's Apartheid",
+            publisher: "ITV (Our History)",
+            url: "https://www.youtube.com/watch?v=oY6QEPkTWDo"
+        }
+    ],
+
+    "sa_20": [
+        {
+            type: "primary", tier: "high",
+            title: "The Constitution of the Republic of South Africa, 1996 — full official text, signed by President Nelson Mandela, establishing the country's post-apartheid democratic order and Bill of Rights",
+            publisher: "South African Department of Justice and Constitutional Development",
+            url: "https://www.justice.gov.za/constitution/SAConstitution-web-eng.pdf"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Constitution of South Africa — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Constitution_of_South_Africa"
+        },
+        {
+            type: "video", tier: "high",
+            title: "South Africa: 30 Years after Apartheid",
+            publisher: "ARTE.tv Documentary",
+            url: "https://www.youtube.com/watch?v=s-Eiti4i2uc"
+        }
+    ],
+
+    // ── Japan (Ancient & Medieval) ──────────────────────────────────────
+    "jomon_period": [
+        {
+            type: "primary", tier: "high",
+            title: "Jomon Prehistoric Sites in Northern Japan — 17 archaeological sites (settlements, stone circles, shell middens) documenting more than 10,000 years of Jomon hunter-fisher-gatherer culture",
+            publisher: "UNESCO World Heritage Centre",
+            url: "https://whc.unesco.org/en/list/1632/"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Jōmon period — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/J%C5%8Dmon_period"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The ENTIRE History of JAPAN | Ancient to Modern",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=sZROmdC5pVY"
+        }
+    ],
+
+    "yayoi_period": [
+        {
+            type: "primary", tier: "high",
+            title: "The Wei Zhi (\"Records of Wei,\" c. 297 CE), Account of the Wa — the earliest written account of Japan, describing Queen Himiko and the Yamatai polity, based on 3rd-century Chinese diplomatic contact",
+            publisher: "Asia for Educators, Columbia University (sourced translated excerpts)",
+            url: "https://afe.easia.columbia.edu/ps/japan/wei_history_wa_pimiko.pdf"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Yayoi period — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Yayoi_period"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The ENTIRE History of JAPAN | Ancient to Modern",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=sZROmdC5pVY"
+        }
+    ],
+
+    "kofun_period": [
+        {
+            type: "primary", tier: "high",
+            title: "The Inariyama Sword inscription (471 or 531 CE) — a 115-character gold-inlaid inscription naming the warrior Wowake and his service to King Wakatakeru (identified with Emperor Yūryaku), one of the era's few surviving contemporary texts",
+            publisher: "Wikipedia (sourced full inscription and translation by Murayama & Miller)",
+            url: "https://en.wikipedia.org/wiki/Inariyama_Sword"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Kofun period — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Kofun_period"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The ENTIRE History of JAPAN | Ancient to Modern",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=sZROmdC5pVY"
+        }
+    ],
+
+    "asuka_period": [
+        {
+            type: "primary", tier: "high",
+            title: "The Seventeen-Article Constitution (604 CE, attributed to Prince Shōtoku) — Japan's first code of governing principles, blending Confucian and Buddhist ideals (note: its exact authorship and date are debated by scholars, with some viewing it as an early-8th-century retrospective composition)",
+            publisher: "Asia for Educators, Columbia University (full text, Aston translation)",
+            url: "https://afe.easia.columbia.edu/ps/japan/shotoku.pdf"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Asuka period — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Asuka_period"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The ENTIRE History of JAPAN | Ancient to Modern",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=sZROmdC5pVY"
+        }
+    ],
+
+    "nara_period": [
+        {
+            type: "primary", tier: "high",
+            title: "Emperor Shōmu's 743 CE proclamation ordering the construction of the Great Buddha (Daibutsu) at Tōdai-ji — the emperor's own decree declaring himself \"Servant of the Three Treasures\" and mobilising the nation's resources for the project",
+            publisher: "Wikipedia (sourced overview of the primary proclamation)",
+            url: "https://en.wikipedia.org/wiki/T%C5%8Ddai-ji"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Nara period — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Nara_period"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The ENTIRE History of JAPAN | Ancient to Modern",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=sZROmdC5pVY"
+        }
+    ],
+
+    "heian_period": [
+        {
+            type: "primary", tier: "high",
+            title: "Sei Shōnagon, The Pillow Book (c. 1002 CE) — a court lady's own firsthand diary of daily life, aesthetics, and gossip at the Heian imperial court",
+            publisher: "Asia for Educators, Columbia University (sourced translated excerpts)",
+            url: "https://afe.easia.columbia.edu/special/japan_600ce_heian.htm"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Heian period — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Heian_period"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Japan in the Heian Period and Cultural History: Crash Course World History #227",
+            publisher: "Crash Course",
+            url: "https://www.youtube.com/watch?v=ZnZEoOJ-cxE"
+        }
+    ],
+
+    "japan_genpei_war": [
+        {
+            type: "primary", tier: "medium",
+            title: "The Tale of the Heike (Heike Monogatari, standard 1371 Kakuichi text) — the epic account of the Taira-Minamoto struggle, though it is a semi-fictionalised work compiled and embellished by oral performers generations after the war, not a contemporary eyewitness record",
+            publisher: "Internet Archive (A.L. Sadler translation, 1918-21)",
+            url: "https://archive.org/details/TheHeikeMonogatari"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Genpei War — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Genpei_War"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Genpei War | FULL DOCUMENTARY",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=SbajWMqLvFk"
+        }
+    ],
+
+    "kamakura_shogunate": [
+        {
+            type: "primary", tier: "high",
+            title: "The Goseibai Shikimoku (\"Formulary of Adjudications,\" 1232 CE) — Japan's first samurai legal code, promulgated by regent Hōjō Yasutoki and remaining in effect for centuries",
+            publisher: "Wikipedia (sourced overview of the primary legal code)",
+            url: "https://en.wikipedia.org/wiki/Goseibai_Shikimoku"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Kamakura shogunate — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Kamakura_shogunate"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Rise of the Kamakura Shogunate | Setting the Stage",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=KW1AaK29ftc"
+        }
+    ],
+
+    "japan_mongol_invasions": [
+        {
+            type: "primary", tier: "high",
+            title: "Mōko Shūrai Ekotoba (\"Mongol Invasion Scroll,\" c. 1293 CE) — an illustrated scroll commissioned by Takezaki Suenaga, the samurai who personally fought against the Mongols in 1274 and 1281, to document his own service and claim rewards",
+            publisher: "Princeton University (interactive digitised scrolls)",
+            url: "https://afe.easia.columbia.edu/tps/1000ce_jp.htm"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Mongol invasions of Japan — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Mongol_invasions_of_Japan"
+        },
+        {
+            type: "video", tier: "high",
+            title: "How the Samurai Defended Against the Mongols",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=fMN1VALIb5A"
+        }
+    ],
+
+    "muromachi_period": [
+        {
+            type: "primary", tier: "high",
+            title: "The Kenmu Shikimoku (\"Kenmu Code,\" 1336 CE) — Ashikaga Takauji's own founding statement of governing philosophy for the new Muromachi shogunate, drafted by his officials",
+            publisher: "Asia for Educators, Columbia University (full text PDF)",
+            url: "https://afe.easia.columbia.edu/main_pop/ps/ps_japan.htm"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Muromachi period — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Muromachi_period"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Rise and Fall of the Ashikaga Shogunate: Japan's Era of Warriors and Warlords",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=ar_jMEC2WW0"
+        }
+    ],
+
+    "sengoku_period": [
+        {
+            type: "primary", tier: "high",
+            title: "The Seventeen-Article Injunction of Asakura Toshikage (c. 1480s CE) — a daimyo's own house code, part of the new genre of clan laws (bunkokuhō) that governed individual domains during the civil wars of the Sengoku period",
+            publisher: "Asia for Educators, Columbia University (full text PDF)",
+            url: "https://afe.easia.columbia.edu/main_pop/ps/ps_japan.htm"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Sengoku period — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Sengoku_period"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Rise of Tokugawa Ieyasu - Sengoku Jidai - History of Japan",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=kQaRauHgRbY"
+        }
+    ],
+
+    "azuchi_momoyama": [
+        {
+            type: "primary", tier: "high",
+            title: "Toyotomi Hideyoshi's Sword Hunt Edict (1588 CE) — the unifier's own decree disarming the peasantry, one of the defining acts of social engineering that ended the Sengoku period's chaos",
+            publisher: "Asia for Educators, Columbia University (full text PDF, Lu translation)",
+            url: "https://afe.easia.columbia.edu/ps/japan/tokugawa_edicts_swords.pdf"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Azuchi–Momoyama period — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Azuchi%E2%80%93Momoyama_period"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Rise of Tokugawa Ieyasu - Sengoku Jidai - History of Japan",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=kQaRauHgRbY"
+        }
+    ],
+
+    // ── Japan (Early Modern & Modern) ───────────────────────────────────
+    "edo_period": [
+        {
+            type: "primary", tier: "high",
+            title: "The Buke Shohatto (\"Laws for the Military Houses,\" 1615, reissued and expanded 1635) — the shogunate's own edicts regulating daimyo conduct, the sankin-kotai alternate-attendance system, and (from 1635) the sakoku maritime restrictions",
+            publisher: "Asia for Educators, Columbia University (full text PDF, Lu translation)",
+            url: "https://afe.easia.columbia.edu/ps/japan/tokugawa_edicts_military.pdf"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Edo period — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Edo_period"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Closing of Japan - The Age of Sakoku Begins | The Edo Period Episode 5",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=oCXVe3iYMlA"
+        }
+    ],
+
+    "japan_bakumatsu": [
+        {
+            type: "primary", tier: "high",
+            title: "The Treaty of Kanagawa (31 March 1854) — full text of the treaty Commodore Perry compelled the shogunate to sign, ending over two centuries of sakoku and precipitating the Bakumatsu crisis",
+            publisher: "The Avalon Project, Yale Law School",
+            url: "https://avalon.law.yale.edu/19th_century/japan002.asp"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Bakumatsu — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Bakumatsu"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Meiji Restoration Explained: Rise of Japan DOCUMENTARY",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=dM-vlhIqBaQ"
+        }
+    ],
+
+    "meiji_restoration": [
+        {
+            type: "primary", tier: "high",
+            title: "The Charter Oath (6 April 1868) — the new Meiji government's own five-article statement of principles, read before the Emperor and over 400 officials at Kyoto Imperial Palace",
+            publisher: "Asia for Educators, Columbia University (full text PDF)",
+            url: "https://afe.easia.columbia.edu/ps/japan/charter_oath_1868.pdf"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Meiji Restoration — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Meiji_Restoration"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Meiji Restoration Explained: Rise of Japan DOCUMENTARY",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=dM-vlhIqBaQ"
+        }
+    ],
+
+    "imperial_japan": [
+        {
+            type: "primary", tier: "high",
+            title: "The Japanese Instrument of Surrender (2 September 1945) — the actual signed document aboard USS Missouri ending the Pacific War and Japan's imperial expansion",
+            publisher: "U.S. National Archives (digitised original)",
+            url: "https://www.archives.gov/milestone-documents/surrender-of-japan"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Empire of Japan — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Empire_of_Japan"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Second Sino-Japanese War — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Second_Sino-Japanese_War"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Rise of Ultranationalism in Japan - Pacific War #0.3 DOCUMENTARY",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=7vQ6nxBRGd8"
+        }
+    ],
+
+    "postwar_japan": [
+        {
+            type: "primary", tier: "high",
+            title: "The Constitution of Japan (promulgated 3 November 1946, effective 3 May 1947) — including Article 9's renunciation of war, drafted under the Allied Occupation and adopted by the Japanese government",
+            publisher: "House of Representatives of Japan (official English text)",
+            url: "https://www.shugiin.go.jp/internet/itdb_english.nsf/html/statics/english/constitution_e.htm"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Japanese economic miracle — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Japanese_economic_miracle"
+        },
+        {
+            type: "video", tier: "high",
+            title: "How Japan Became an Economic Powerhouse - Cold War DOCUMENTARY",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=6IIvo2KOASk"
+        }
+    ],
+
+    "japan_bubble": [
+        {
+            type: "primary", tier: "high",
+            title: "The Plaza Accord (22 September 1985) — the joint agreement among Japan, the US, UK, France, and West Germany to depreciate the dollar, whose resulting yen appreciation and subsequent monetary easing are widely credited with fueling Japan's asset price bubble",
+            publisher: "Wikipedia (sourced overview of the primary agreement)",
+            url: "https://en.wikipedia.org/wiki/Plaza_Accord"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Japanese asset price bubble — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Japanese_asset_price_bubble"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The Last Miracle: Why the World Will Never See Another Japan",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=vOTgi8PniA8"
+        }
+    ],
+
+    "japan_2011_disaster": [
+        {
+            type: "primary", tier: "high",
+            title: "The Official Report of the Fukushima Nuclear Accident Independent Investigation Commission (5 July 2012) — the National Diet of Japan's own investigative report, concluding the disaster was \"profoundly man-made\" and preventable",
+            publisher: "National Diet of Japan Fukushima Nuclear Accident Independent Investigation Commission (executive summary, via ReliefWeb)",
+            url: "https://reliefweb.int/report/japan/official-report-fukushima-nuclear-accident-independent-investigation-commission"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "2011 Tōhoku earthquake and tsunami — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/2011_T%C5%8Dhoku_earthquake_and_tsunami"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Fukushima nuclear accident — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Fukushima_nuclear_accident"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Fukushima Nuclear Accident: Minute by Minute | Full Film",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=sZN3prnIdtA"
+        }
+    ],
+
+    "modern_japan": [
+        {
+            type: "primary", tier: "high",
+            title: "Diplomatic Bluebook 2025 — the Ministry of Foreign Affairs of Japan's own official annual statement of foreign policy and international outlook",
+            publisher: "Ministry of Foreign Affairs of Japan",
+            url: "https://www.mofa.go.jp/policy/other/bluebook/2025/pdf/en_index.html"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "History of Japan — Heisei and Reiwa eras",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/History_of_Japan"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The Last Miracle: Why the World Will Never See Another Japan",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=vOTgi8PniA8"
         }
     ]
 };
