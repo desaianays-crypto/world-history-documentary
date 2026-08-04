@@ -473,5 +473,446 @@ window.WHD_SOURCES = Object.assign(window.WHD_SOURCES || {}, {
         }
     ],
 
-    // ── Poland ──────────────────────────────────────────────────────────
+    // ── Vietnam ─────────────────────────────────────────────────────────
+    "vietnam_dongson": [
+        {
+            type: "primary", tier: "high",
+            title: "The Đông Sơn bronze drums (c. 600 BCE – 3rd century CE) — the culture's own decorated bronze artifacts, including the Ngọc Lũ drum, held at the Vietnam National History Museum",
+            publisher: "Vietnam National History Museum / Smarthistory",
+            url: "https://smarthistory.org/dong-son-drums/"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Đông Sơn culture — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/%C4%90%C3%B4ng_S%C6%A1n_culture"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The Entire History of Vietnam (FULL Documentary)",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=_2K_xAymQWg"
+        }
+    ],
+
+    "vietnam_vanlang": [
+        {
+            type: "primary", tier: "medium",
+            title: "Đại Việt sử ký toàn thư (Complete Annals of Đại Việt, compiled by Ngô Sĩ Liên, 1479 CE) — the 15th-century chronicle that canonized the legendary Hùng Kings and the Kingdom of Văn Lang; a retrospective compilation of oral folklore, not a contemporary record, and modern historians treat its 18-king genealogy as euhemerized legend rather than verified history",
+            publisher: "Wikipedia (sourced overview of the primary chronicle)",
+            url: "https://en.wikipedia.org/wiki/%C4%90%E1%BA%A1i_Vi%E1%BB%87t_s%E1%BB%AD_k%C3%BD_to%C3%A0n_th%C6%B0"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Hồng Bàng dynasty — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Hong_Bang_dynasty"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The Entire History of Vietnam (FULL Documentary)",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=_2K_xAymQWg"
+        }
+    ],
+
+    "vietnam_aulac": [
+        {
+            type: "primary", tier: "high",
+            title: "Cổ Loa Citadel (founded traditionally c. 258 BCE) — the excavated spiral fortress capital of Âu Lạc, the only genuinely contemporary evidence for the kingdom, since no inscriptions or administrative records from Âu Lạc itself survive and even the existence of its king, An Dương Vương, is attested only in later Chinese and Vietnamese texts",
+            publisher: "Wikipedia (sourced overview of the primary archaeological site)",
+            url: "https://en.wikipedia.org/wiki/C%E1%BB%95_Loa_Citadel"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Âu Lạc — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/%C3%82u_L%E1%BA%A1c"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The Entire History of Vietnam (FULL Documentary)",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=_2K_xAymQWg"
+        }
+    ],
+
+    "vietnam_namviet": [
+        {
+            type: "primary", tier: "high",
+            title: "Sima Qian, Shiji (Records of the Grand Historian, c. 94 BCE) — the contemporary Han Chinese account of Zhao Tuo (Triệu Đà) and the founding of the kingdom of Nanyue (Nam Việt)",
+            publisher: "Wikipedia (sourced overview of the primary text)",
+            url: "https://en.wikipedia.org/wiki/Nanyue"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Nanyue — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Nanyue"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The Entire History of Vietnam (FULL Documentary)",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=_2K_xAymQWg"
+        }
+    ],
+
+    "vietnam_handomination": [
+        {
+            type: "primary", tier: "high",
+            title: "The Western Han census of 2 CE for Jiaozhi Commandery — the Han dynasty's own administrative household count, recording 92,440 hearths and confirming Jiaozhi's status as the empire's most densely populated southern territory",
+            publisher: "Wikipedia (sourced overview of the primary census record)",
+            url: "https://en.wikipedia.org/wiki/Vietnam_under_Chinese_rule"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "First Era of Northern Domination — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/First_Era_of_Northern_Domination"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The Entire History of Vietnam (FULL Documentary)",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=_2K_xAymQWg"
+        }
+    ],
+
+    "vietnam_trungsisters": [
+        {
+            type: "primary", tier: "high",
+            title: "Hou Hanshu (Book of the Later Han, compiled by Fan Ye, early 5th century CE), Biographies of the Southern and Southwestern Barbarians — the principal surviving account of the Trưng Sisters' rebellion (note: no contemporary Lạc Việt inscription or record survives, making this Chinese imperial history the sole near-primary documentation of the uprising)",
+            publisher: "Wikipedia (sourced overview and translated excerpts of the primary chronicle)",
+            url: "https://en.wikipedia.org/wiki/Tr%C6%B0ng_sisters"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Trưng sisters — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Tr%C6%B0ng_sisters"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The Entire History of Vietnam (FULL Documentary)",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=_2K_xAymQWg"
+        }
+    ],
+
+    "vietnam_bacthuo2": [
+        {
+            type: "primary", tier: "medium",
+            title: "Records of Lý Bôn's rebellion and the Early Lý dynasty (544 CE) — the founding of Vạn Xuân, a rare period of de facto independence within the long centuries of Chinese domination that this scene spans",
+            publisher: "Wikipedia (sourced overview of the primary chronicle record)",
+            url: "https://en.wikipedia.org/wiki/L%C3%BD_B%C3%AD"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Vietnam under Chinese rule — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Vietnam_under_Chinese_rule"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The Entire History of Vietnam (FULL Documentary)",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=_2K_xAymQWg"
+        }
+    ],
+
+    "vietnam_ngoquyen": [
+        {
+            type: "primary", tier: "high",
+            title: "The surviving iron-tipped stakes of the Battle of Bạch Đằng (938 CE) — the physical remains of Ngô Quyền's underwater stake trap, recovered and displayed at the Museum of History in Hanoi",
+            publisher: "Wikipedia (sourced overview of the primary archaeological artifacts)",
+            url: "https://en.wikipedia.org/wiki/Battle_of_B%E1%BA%A1ch_%C4%90%E1%BA%B1ng_(938)"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Ngô Quyền — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Ng%C3%B4_Quy%E1%BB%81n"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The Entire History of Vietnam (FULL Documentary)",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=_2K_xAymQWg"
+        }
+    ],
+
+    "vietnam_ly": [
+        {
+            type: "primary", tier: "high",
+            title: "Lý Thái Tổ's Edict on the Transfer of the Capital (Chiếu dời đô, autumn 1010 CE) — the emperor's own decree moving the capital from Hoa Lư to Đại La, which he renamed Thăng Long (\"Ascending Dragon\"), now Hanoi",
+            publisher: "Thăng Long — Hà Nội Heritage Conservation Center (official Vietnamese government translation)",
+            url: "https://thanglong.chinhphu.vn/english/the-royal-edict-on-the-transfer-of-the-capital-of-thang-long-in-the-year-1010-110109.htm"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Lý dynasty — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/L%C3%BD_dynasty"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The Entire History of Vietnam (FULL Documentary)",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=_2K_xAymQWg"
+        }
+    ],
+
+    "vietnam_tran": [
+        {
+            type: "primary", tier: "medium",
+            title: "Trần-era administrative and legal records, continuing the Lý dynasty's Hình Thư legal tradition that would culminate in the Later Lê's Hồng Đức Code — the Trần court's own governance framework during its consolidation of Đại Việt",
+            publisher: "Wikipedia (sourced overview of Vietnamese dynastic law codification)",
+            url: "https://en.wikipedia.org/wiki/Tr%E1%BA%A7n_dynasty"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Trần dynasty — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Tr%E1%BA%A7n_dynasty"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The Entire History of Vietnam (FULL Documentary)",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=_2K_xAymQWg"
+        }
+    ],
+
+    "vietnam_mongols": [
+        {
+            type: "primary", tier: "high",
+            title: "Trần Hưng Đạo's Hịch tướng sĩ (\"Proclamation to the Officers,\" 1284 CE) — the supreme commander's own exhortation to his army on the eve of the second Mongol invasion, one of the most celebrated texts in Vietnamese literature",
+            publisher: "Viet Country (full English translation)",
+            url: "https://viet-country.com/article/tran-hung-dao-s-proclamation-to-his-officers"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Mongol invasions of Đại Việt — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Mongol_invasions_of_Vietnam"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The Entire History of Vietnam (FULL Documentary)",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=_2K_xAymQWg"
+        }
+    ],
+
+    "vietnam_leloi": [
+        {
+            type: "primary", tier: "high",
+            title: "Nguyễn Trãi, Bình Ngô đại cáo (\"Great Proclamation upon the Pacification of the Wu,\" 1428 CE) — written on Lê Lợi's behalf to announce victory over the Ming and affirm Đại Việt's independence, often called Vietnam's \"second declaration of independence\"",
+            publisher: "University of Hawaii ScholarSpace (Stephen O'Harrow translation and study)",
+            url: "https://scholarspace.manoa.hawaii.edu/items/3d81cbd4-9ddd-48cb-b57d-d6a64fbf7b30"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Lam Sơn uprising — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Lam_S%C6%A1n_uprising"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The Entire History of Vietnam (FULL Documentary)",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=_2K_xAymQWg"
+        }
+    ],
+
+    "vietnam_laterle": [
+        {
+            type: "primary", tier: "high",
+            title: "The Hồng Đức Code (Quốc Triều Hình Luật, promulgated under Lê Thánh Tông, ratified ~1483 CE) — the Later Lê dynasty's own legal code, notable among East Asian law codes of its era for provisions recognizing women's property and inheritance rights",
+            publisher: "Wikipedia (sourced overview of the primary legal code)",
+            url: "https://en.wikipedia.org/wiki/Later_L%C3%AA_dynasty"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Later Lê dynasty — overview",
+            publisher: "Encyclopaedia Britannica",
+            url: "https://www.britannica.com/topic/Later-Le-dynasty"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The Entire History of Vietnam (FULL Documentary)",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=_2K_xAymQWg"
+        }
+    ],
+
+    "vietnam_trinh_nguyen": [
+        {
+            type: "primary", tier: "medium",
+            title: "The de facto partition at the Gianh River (established through the Trịnh–Nguyễn Wars, 1627–1672) — the territorial line the two rival lordly houses maintained for over a century while both nominally served the same Lê emperor",
+            publisher: "Wikipedia (sourced overview of the primary territorial and administrative record)",
+            url: "https://en.wikipedia.org/wiki/Tr%E1%BB%8Bnh%E2%80%93Nguy%E1%BB%85n_War"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Trịnh–Nguyễn War — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Tr%E1%BB%8Bnh%E2%80%93Nguy%E1%BB%85n_War"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The Entire History of Vietnam (FULL Documentary)",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=_2K_xAymQWg"
+        }
+    ],
+
+    "vietnam_tayson": [
+        {
+            type: "primary", tier: "high",
+            title: "Emperor Quang Trung's (Nguyễn Huệ's) proclamation to his troops before the Battle of Ngọc Hồi–Đống Đa (26 November 1788 CE) — his own address rallying 100,000 soldiers for the surprise Tết offensive that routed the invading Qing army",
+            publisher: "Wikipedia (sourced overview of the primary proclamation and campaign)",
+            url: "https://en.wikipedia.org/wiki/T%C3%A2y_S%C6%A1n_wars"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Tây Sơn wars — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/T%C3%A2y_S%C6%A1n_wars"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The Entire History of Vietnam (FULL Documentary)",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=_2K_xAymQWg"
+        }
+    ],
+
+    "vietnam_nguyen": [
+        {
+            type: "primary", tier: "high",
+            title: "The Hoàng Việt Luật Lệ (\"Gia Long Code,\" 1815 CE) — Emperor Gia Long's own legal code, commissioned to consolidate the newly unified Nguyễn state on Qing- and Hồng Đức-derived legal foundations",
+            publisher: "Wikipedia (sourced overview of the primary legal code)",
+            url: "https://en.wikipedia.org/wiki/Nguy%E1%BB%85n_dynasty"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Nguyễn dynasty — overview",
+            publisher: "Encyclopaedia Britannica",
+            url: "https://www.britannica.com/topic/Nguyen-dynasty"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The Entire History of Vietnam (FULL Documentary)",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=_2K_xAymQWg"
+        }
+    ],
+
+    "vietnam_french": [
+        {
+            type: "primary", tier: "high",
+            title: "The Treaty of Huế (6 June 1884, the \"Patenôtre Treaty\") — full English text of the treaty establishing the French protectorates of Annam and Tonkin, forming the legal basis of French colonial rule for the next seven decades",
+            publisher: "U.S. Office of the Historian (Foreign Relations of the United States, digitised original translation)",
+            url: "https://history.state.gov/historicaldocuments/frus1883/d485"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Treaty of Huế (1884) — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Treaty_of_Hu%E1%BA%BF_(1884)"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Vietnam War | Full Episode 1 | Déjà Vu (1858-1961)",
+            publisher: "PBS",
+            url: "https://www.youtube.com/watch?v=L1D7At5QkGs"
+        }
+    ],
+
+    "vietnam_hcm": [
+        {
+            type: "primary", tier: "high",
+            title: "Hồ Chí Minh's Declaration of Independence of the Democratic Republic of Vietnam (Ba Đình Square, Hanoi, 2 September 1945) — his own speech, deliberately opening with an echo of the American Declaration of Independence",
+            publisher: "Asia for Educators, Columbia University (full text PDF)",
+            url: "https://afe.easia.columbia.edu/ps/vietnam/independence.pdf"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Declaration of independence of the Democratic Republic of Vietnam — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Declaration_of_independence_of_the_Democratic_Republic_of_Vietnam"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Vietnam War | Full Episode 1 | Déjà Vu (1858-1961)",
+            publisher: "PBS",
+            url: "https://www.youtube.com/watch?v=L1D7At5QkGs"
+        }
+    ],
+
+    "vietnam_firstindochina": [
+        {
+            type: "primary", tier: "high",
+            title: "The Geneva Accords (21 July 1954) — the final declarations partitioning Vietnam at the 17th parallel following the French defeat at Dien Bien Phu, ending the First Indochina War",
+            publisher: "Vassar College, The Wars for Vietnam (digitised primary documents archive)",
+            url: "https://www.vassar.edu/the-wars-for-vietnam/documents/final-declarations-geneva-conference-july-21-1954"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "First Indochina War — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/First_Indochina_War"
+        },
+        {
+            type: "video", tier: "high",
+            title: "First Indochina War Begins - Cold War DOCUMENTARY",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=V9wSqx0W8h0"
+        }
+    ],
+
+    "vietnam_war": [
+        {
+            type: "primary", tier: "high",
+            title: "The Gulf of Tonkin Resolution (7 August 1964) — full text of the joint Congressional resolution authorizing U.S. military escalation, passed after reported attacks on U.S. Navy ships that later investigation (including a 1997 assessment by Robert McNamara and Võ Nguyên Giáp) concluded likely did not occur as described, at least for the second incident",
+            publisher: "The Avalon Project, Yale Law School",
+            url: "https://avalon.law.yale.edu/20th_century/tonkin-g.asp"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Vietnam War — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Vietnam_War"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The ENTIRE History Of The Vietnam War | 1862 - 1975",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=KNQuS8GoD0o"
+        }
+    ],
+
+    "vietnam_modern": [
+        {
+            type: "primary", tier: "high",
+            title: "Resolution of the Sixth National Congress of the Communist Party of Vietnam (December 1986), launching Đổi Mới (\"Renovation\") — including General Secretary Trường Chinh's own self-critical assessment of prior policy failures (\"we have made mistakes due to 'leftist infantilism'...\")",
+            publisher: "ANU Press (sourced translated excerpt within an academic study of Vietnam's reform process)",
+            url: "https://press-files.anu.edu.au/downloads/press/p16721/pdf/ch0611.pdf"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Đổi Mới — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/%C4%90%E1%BB%95i_M%E1%BB%9Bi"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The Entire History of Vietnam (FULL Documentary)",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=_2K_xAymQWg"
+        }
+    ]
+
 });

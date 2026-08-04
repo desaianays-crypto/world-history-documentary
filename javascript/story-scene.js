@@ -56,6 +56,29 @@ function updateMusicForScene(s) {
     playMusic(musicName);
 }
 
+function getYearBadgeHint(startYear) {
+    if (startYear === undefined || startYear === null || startYear === "") return "";
+
+    const currentYear = new Date().getFullYear();
+    let yearsDifference = 0;
+
+    if (startYear < 0) {
+        yearsDifference = currentYear + Math.abs(startYear);
+    } else {
+        yearsDifference = currentYear - startYear;
+    }
+
+    if (yearsDifference < 0) {
+        return `about ${Math.abs(yearsDifference).toLocaleString()} years in the future`;
+    }
+
+    if (yearsDifference === 0) {
+        return "this year";
+    }
+
+    return `about ${yearsDifference.toLocaleString()} years ago`;
+}
+
 function showFinishedScreen(storyTitle, replayFn) {
     // Store replay callback for the Play Again button
     _storyReplayFn = replayFn || null;
@@ -302,6 +325,16 @@ function showScene(s) {
                 ? (s.startYear < 0 ? `${Math.abs(s.startYear)} BCE` : `${s.startYear} CE`)
                 : "";
             badgeEl.innerText = yearText;
+
+            const yearHint = getYearBadgeHint(s.startYear);
+            badgeEl.removeAttribute("title");
+            if (yearHint) {
+                badgeEl.setAttribute("data-tooltip", yearHint);
+                badgeEl.style.cursor = "default";
+            } else {
+                badgeEl.removeAttribute("data-tooltip");
+                badgeEl.style.cursor = "";
+            }
         }
 
         // Force reflow so removing 'revealed' has taken effect, then animate in

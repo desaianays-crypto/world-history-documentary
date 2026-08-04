@@ -4,6 +4,866 @@
 // so files can load in any order without clobbering each other.
 window.WHD_SOURCES = Object.assign(window.WHD_SOURCES || {}, {
 
+    // ── Egypt ───────────────────────────────────────────────────────────
+    "egy_1": [
+        {
+            type: "primary", tier: "high",
+            title: "Predynastic Neolithic settlement material (Merimde, Badarian, Naqada cultures, c. 5000–3100 BCE) — the archaeological record of the earliest Nile Valley farming communities",
+            publisher: "Wikipedia (sourced overview of the primary archaeological record)",
+            url: "https://en.wikipedia.org/wiki/Prehistoric_Egypt"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Prehistoric Egypt — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Prehistoric_Egypt"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Planet Egypt: Birth of an Empire (Full Episode)",
+            publisher: "HISTORY",
+            url: "https://www.youtube.com/watch?v=b484AV-lE3Q"
+        }
+    ],
+
+    "egy_2": [
+        {
+            type: "primary", tier: "high",
+            title: "The Narmer Palette (c. 3100 BCE) — the ceremonial siltstone tablet depicting Narmer wearing both the White and Red Crowns, widely (though not unanimously) read as commemorating the unification of Upper and Lower Egypt",
+            publisher: "Wikipedia (sourced overview, including the scholarly debate over its historical vs. ceremonial meaning)",
+            url: "https://en.wikipedia.org/wiki/Narmer_Palette"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Narmer — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Narmer"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Planet Egypt: Birth of an Empire (Full Episode)",
+            publisher: "HISTORY",
+            url: "https://www.youtube.com/watch?v=b484AV-lE3Q"
+        }
+    ],
+
+    "egy_3": [
+        {
+            type: "primary", tier: "high",
+            title: "The Palermo Stone (Royal Annals of the Old Kingdom, c. 5th Dynasty) — the oldest surviving Egyptian king-list and yearly chronicle, recording the reigns from the First Dynasty into the Old Kingdom",
+            publisher: "Wikipedia (sourced overview of the primary inscription)",
+            url: "https://en.wikipedia.org/wiki/Palermo_Stone"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Old Kingdom of Egypt — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Old_Kingdom_of_Egypt"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Planet Egypt: Birth of an Empire (Full Episode)",
+            publisher: "HISTORY",
+            url: "https://www.youtube.com/watch?v=b484AV-lE3Q"
+        }
+    ],
+
+    "egy_4": [
+        {
+            type: "primary", tier: "medium",
+            title: "The Instructions for Merikare (composed during or shortly after the First Intermediate Period) — political advice from a Heracleopolitan king to his son, reflecting the era's instability (note: the related \"Admonitions of Ipuwer\" is sometimes cited for this period too, but mainstream Egyptology treats it as later didactic literature rather than a contemporary eyewitness account)",
+            publisher: "Wikipedia (sourced overview of the primary text)",
+            url: "https://en.wikipedia.org/wiki/Instructions_for_Merikare"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "First Intermediate Period of Egypt — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/First_Intermediate_Period_of_Egypt"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Planet Egypt: Birth of an Empire (Full Episode)",
+            publisher: "HISTORY",
+            url: "https://www.youtube.com/watch?v=b484AV-lE3Q"
+        }
+    ],
+
+    "egy_5": [
+        {
+            type: "primary", tier: "high",
+            title: "The Story of Sinuhe (c. early 12th Dynasty, Middle Kingdom) — the celebrated Middle Egyptian narrative poem, set against Amenemhat I's death and Senusret I's accession",
+            publisher: "OMNIKA Library (James P. Allen translation)",
+            url: "https://omnika.org/texts/204"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Middle Kingdom of Egypt — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Middle_Kingdom_of_Egypt"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Planet Egypt: Birth of an Empire (Full Episode)",
+            publisher: "HISTORY",
+            url: "https://www.youtube.com/watch?v=b484AV-lE3Q"
+        }
+    ],
+
+    "egy_6": [
+        {
+            type: "primary", tier: "high",
+            title: "The First and Second Kamose Stelae (c. 1550s BCE) — Pharaoh Kamose's own inscribed account of his campaigns against the Hyksos capital of Avaris",
+            publisher: "Wikipedia (sourced overview of the primary inscriptions, with full translations by Gardiner and Habachi)",
+            url: "https://en.wikipedia.org/wiki/Kamose"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Hyksos — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Hyksos"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Planet Egypt: Birth of an Empire (Full Episode)",
+            publisher: "HISTORY",
+            url: "https://www.youtube.com/watch?v=b484AV-lE3Q"
+        }
+    ],
+
+    "egy_7": [
+        {
+            type: "primary", tier: "high",
+            title: "The Amarna Letters (c. 1360–1332 BCE) — the diplomatic cuneiform correspondence between the Egyptian court and Near Eastern rulers, discovered at Akhenaten's capital, Tell el-Amarna",
+            publisher: "Wikipedia (sourced overview of the primary archive)",
+            url: "https://en.wikipedia.org/wiki/Amarna_letters"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "New Kingdom of Egypt — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/New_Kingdom_of_Egypt"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Planet Egypt: Birth of an Empire (Full Episode)",
+            publisher: "HISTORY",
+            url: "https://www.youtube.com/watch?v=b484AV-lE3Q"
+        }
+    ],
+
+    "egy_8": [
+        {
+            type: "primary", tier: "high",
+            title: "Howard Carter's excavation journal for the 1922 season — his own handwritten, contemporaneous account of discovering Tutankhamun's tomb, entry for 26 November 1922 (\"...the impression was overwhelming\")",
+            publisher: "The Griffith Institute, University of Oxford (digitised original)",
+            url: "http://www.griffith.ox.ac.uk/gri/4sea1not.html"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Discovery of the tomb of Tutankhamun — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Discovery_of_the_tomb_of_Tutankhamun"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Planet Egypt: Birth of an Empire (Full Episode)",
+            publisher: "HISTORY",
+            url: "https://www.youtube.com/watch?v=b484AV-lE3Q"
+        }
+    ],
+
+    "egy_9": [
+        {
+            type: "primary", tier: "high",
+            title: "The Great Triumphal Stela of Piye (c. 727 BCE) — the Kushite pharaoh's own detailed inscription recounting his conquest of Egypt during the fractured Late Period",
+            publisher: "Wikipedia (sourced overview of the primary inscription)",
+            url: "https://en.wikipedia.org/wiki/Great_Triumphal_Stele_of_Piye"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Late Period of ancient Egypt — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Late_Period_of_ancient_Egypt"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Planet Egypt: Birth of an Empire (Full Episode)",
+            publisher: "HISTORY",
+            url: "https://www.youtube.com/watch?v=b484AV-lE3Q"
+        }
+    ],
+
+    "egy_10": [
+        {
+            type: "primary", tier: "high",
+            title: "The Rosetta Stone (Memphis Decree, 196 BCE) — the trilingual priestly decree honoring Ptolemy V, whose parallel Greek and Egyptian texts unlocked the modern decipherment of hieroglyphs",
+            publisher: "British Museum",
+            url: "https://www.britishmuseum.org/collection/object/Y_EA24"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Ptolemaic Kingdom — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Ptolemaic_Kingdom"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Alexander the Great (Part 1)",
+            publisher: "Epic History TV",
+            url: "https://www.youtube.com/watch?v=aMyxwFib0_M"
+        }
+    ],
+
+    "egy_11": [
+        {
+            type: "primary", tier: "high",
+            title: "Strabo, Geographica, Book XVII (c. 7 BCE–23 CE) — a Greek geographer's firsthand description of Roman Egypt, including Alexandria, the Nile, and provincial administration",
+            publisher: "Wikipedia (sourced overview of the primary text)",
+            url: "https://en.wikipedia.org/wiki/Roman_Egypt"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Roman Egypt — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Roman_Egypt"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The Roman Empire. Or Republic. Or... Which Was It?: Crash Course World History #10",
+            publisher: "Crash Course",
+            url: "https://www.youtube.com/watch?v=oPf27gAup9U"
+        }
+    ],
+
+    "egy_12": [
+        {
+            type: "primary", tier: "high",
+            title: "The writings of the Desert Fathers of Egypt (4th–5th centuries CE) — contemporary monastic texts from Byzantine Christian Egypt, including the Apophthegmata Patrum",
+            publisher: "Wikipedia (sourced overview of the primary monastic literature)",
+            url: "https://en.wikipedia.org/wiki/Desert_Fathers"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Egypt (Roman province) — Byzantine period",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Egypt_(Roman_province)"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "From Jesus to Christ: The First Christians (Part Two)",
+            publisher: "PBS FRONTLINE",
+            url: "https://www.youtube.com/watch?v=GXqFvfCaFwY"
+        }
+    ],
+
+    "egy_13": [
+        {
+            type: "primary", tier: "high",
+            title: "The Mosque of Amr ibn al-As, Fustat (founded 641–642 CE) — Egypt and Africa's first mosque, built by the Arab conqueror on the site of his campaign tent",
+            publisher: "Wikipedia (sourced overview of the primary monument)",
+            url: "https://en.wikipedia.org/wiki/Mosque_of_Amr_ibn_al-As"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Muslim conquest of Egypt — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Muslim_conquest_of_Egypt"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Early Muslim Expansion — Khalid, Yarmouk, al-Qadisiyyah",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=r2cEIDZwG5M"
+        }
+    ],
+
+    "egy_14": [
+        {
+            type: "primary", tier: "high",
+            title: "Al-Azhar Mosque, Cairo (founded 970–972 CE) — the centerpiece of the newly-founded Fatimid capital, al-Qahira, which became the world's leading center of Sunni Islamic learning",
+            publisher: "Wikipedia (sourced overview of the primary monument)",
+            url: "https://en.wikipedia.org/wiki/Al-Azhar_Mosque"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Fatimid Caliphate — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Fatimid_Caliphate"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Kings and Emirs — History Of Africa with Zeinab Badawi [Episode 6]",
+            publisher: "BBC News Africa",
+            url: "https://www.youtube.com/watch?v=vCyQgTJ6WgA"
+        }
+    ],
+
+    "egy_15": [
+        {
+            type: "primary", tier: "high",
+            title: "Baha ad-Din ibn Shaddad, al-Nawadir al-Sultaniyya (\"The Rare and Excellent History of Saladin,\" c. 1195–98) — a firsthand biography by Saladin's own qadi al-'askar and close confidant",
+            publisher: "Wikipedia (sourced overview of the primary text; full translation by D.S. Richards, 2001)",
+            url: "https://en.wikipedia.org/wiki/Baha_al-Din_ibn_Shaddad"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Ayyubid dynasty — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Ayyubid_dynasty"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Third Crusade - The Beginning",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=kHTLBHt3zUM"
+        }
+    ],
+
+    "egy_16": [
+        {
+            type: "primary", tier: "high",
+            title: "Jami' al-Tawarikh's account of the Battle of Ain Jalut (1260), trans. W.M. Thackston — contemporary Mamluk-Mongol battle narrative marking the Mamluk Sultanate's founding triumph",
+            publisher: "De Re Militari (Society for Medieval Military History)",
+            url: "https://www.deremilitari.org/RESOURCES/SOURCES/aynjalut.htm"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Mamluk Sultanate (Cairo) — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Mamluk_Sultanate_(Cairo)"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Rise of the Mamluks — Animated Medieval History Documentary",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=87YSV2UbfDc"
+        }
+    ],
+
+    "egy_17": [
+        {
+            type: "primary", tier: "high",
+            title: "Ibn Zunbul, Akhirat al-Mamalik (\"The End of the Mamluks,\" 16th century) — a contemporary Egyptian historian's account of the 1517 Ottoman conquest, one of only three Arabic eyewitness-era sources for the war",
+            publisher: "ResearchGate (sourced scholarly overview of the primary chronicle)",
+            url: "https://www.researchgate.net/publication/359214308_The_Ottoman-Mamluk_War_of_1516-1517_as_Described_by_the_Egyptian_Historian_Ibn_Zunbul"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Ottoman–Mamluk War (1516–1517) — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Ottoman%E2%80%93Mamluk_War_(1516%E2%80%931517)"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Rise of the Mamluks — Animated Medieval History Documentary",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=87YSV2UbfDc"
+        }
+    ],
+
+    "egy_18": [
+        {
+            type: "primary", tier: "high",
+            title: "Napoleon Bonaparte's Proclamation to the People of Egypt (2 July 1798) — his own address issued on landing, published in Arabic to justify the French invasion",
+            publisher: "DePaul University Digital Commons (annotated full-text translation)",
+            url: "https://via.library.depaul.edu/cgi/viewcontent.cgi?httpsredir=1&article=1005&context=napoleon"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "French invasion of Egypt and Syria — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/French_invasion_of_Egypt_and_Syria"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Napoleon in Egypt (All Parts)",
+            publisher: "Epic History TV",
+            url: "https://www.youtube.com/watch?v=xxSVuNCzJEQ"
+        }
+    ],
+
+    "egy_19": [
+        {
+            type: "primary", tier: "medium",
+            title: "Records of Muhammad Ali's administrative and military reforms, incl. the Description de l'Égypte-era French mission correspondence documenting his modernization program",
+            publisher: "Wikipedia (sourced overview of the primary administrative record)",
+            url: "https://en.wikipedia.org/wiki/Muhammad_Ali_of_Egypt"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Muhammad Ali dynasty — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Muhammad_Ali_dynasty"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Muhammad Ali Pasha: The Founder of Modern Egypt",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=ZqpcU__3vx8"
+        }
+    ],
+
+    // ── Ethiopia ────────────────────────────────────────────────────────
+    "egy_20": [
+        {
+            type: "primary", tier: "high",
+            title: "The Constitution of the Arab Republic of Egypt (2014, as amended) — Egypt's current governing constitutional document, adopted after the 2011 and 2013 upheavals",
+            publisher: "Constitute Project (official full-text translation)",
+            url: "https://www.constituteproject.org/constitution/Egypt_2019"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "History of modern Egypt — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/History_of_modern_Egypt"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "2011 Egyptian revolution — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/2011_Egyptian_revolution"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Egypt in Crisis",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=IOFN4qdROV0"
+        }
+    ],
+
+    "eth_1": [
+        {
+            type: "primary", tier: "high",
+            title: "AL 288-1 (\"Lucy\"/Dinkinesh), Australopithecus afarensis, discovered at Hadar (24 November 1974) — the fossil itself and Donald Johanson's own discovery account",
+            publisher: "Institute of Human Origins, Arizona State University",
+            url: "https://iho.asu.edu/aboutLucy"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Lucy (Australopithecus) — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Lucy_(Australopithecus)"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Mother Africa — History Of Africa with Zeinab Badawi [Episode 1]",
+            publisher: "BBC News Africa",
+            url: "https://www.youtube.com/watch?v=ETnIsBnNRr0"
+        }
+    ],
+
+    "eth_2": [
+        {
+            type: "primary", tier: "medium",
+            title: "Archaeobotanical evidence of teff, ensete and cereal domestication in the Ethiopian highlands — excavation records from Horn of Africa sites",
+            publisher: "Wikipedia (sourced overview of the archaeological evidence)",
+            url: "https://en.wikipedia.org/wiki/History_of_agriculture_in_Ethiopia"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Agriculture in Ethiopia — origins and history",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Agriculture_in_Ethiopia"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Cattle, Crops and Iron — History Of Africa with Zeinab Badawi [Episode 2]",
+            publisher: "BBC News Africa",
+            url: "https://www.youtube.com/watch?v=fhfo5uC-wD8"
+        }
+    ],
+
+    "eth_3": [
+        {
+            type: "primary", tier: "high",
+            title: "The Wa'ran Hywt inscription (RIÉ 1, Amda Tsyon/Seglamen) — a contemporary royal inscription from the Kingdom of D'mt naming a king and his temple restoration",
+            publisher: "Wikipedia (sourced overview of the primary inscription)",
+            url: "https://en.wikipedia.org/wiki/D%CA%BFmt"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "D'mt — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/D%CA%BFmt"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Rise Of Aksum — History Of Africa With Zeinab Badawi [Episode 5]",
+            publisher: "BBC News Africa",
+            url: "https://www.youtube.com/watch?v=A4OSEpexs_Q"
+        }
+    ],
+
+    "eth_4": [
+        {
+            type: "primary", tier: "high",
+            title: "The Periplus of the Erythraean Sea (1st century CE) — a Greek merchant's firsthand trading handbook describing Aksum's rise as a Red Sea commercial power",
+            publisher: "Wikipedia (sourced overview of the primary text)",
+            url: "https://en.wikipedia.org/wiki/Periplus_of_the_Erythraean_Sea"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Kingdom of Aksum — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Kingdom_of_Aksum"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Rise Of Aksum — History Of Africa With Zeinab Badawi [Episode 5]",
+            publisher: "BBC News Africa",
+            url: "https://www.youtube.com/watch?v=A4OSEpexs_Q"
+        }
+    ],
+
+    "eth_5": [
+        {
+            type: "primary", tier: "high",
+            title: "The Ezana Stone (RIÉ 270, c. 4th century CE) — King Ezana's own trilingual inscription (Ge'ez, Sabaean, Greek) recording his conversion to Christianity",
+            publisher: "Simon Fraser University Museum of Archaeology & Ethnology (sourced translated excerpts)",
+            url: "https://www.sfu.ca/archaeology/museum/exhibits/virtual-exhibits/aksum/ge-ez-stele.html"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Ezana of Axum — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Ezana_of_Axum"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Rise Of Aksum — History Of Africa With Zeinab Badawi [Episode 5]",
+            publisher: "BBC News Africa",
+            url: "https://www.youtube.com/watch?v=A4OSEpexs_Q"
+        }
+    ],
+
+    "eth_6": [
+        {
+            type: "primary", tier: "medium",
+            title: "Late Aksumite coinage and inscriptions (7th–9th centuries CE) — the archaeological record of the kingdom's declining minting activity and trade contraction",
+            publisher: "Wikipedia (sourced overview of the primary numismatic and epigraphic record)",
+            url: "https://en.wikipedia.org/wiki/Kingdom_of_Aksum#Decline"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Kingdom of Aksum — decline",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Kingdom_of_Aksum"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Kings and Emirs — History Of Africa with Zeinab Badawi [Episode 6]",
+            publisher: "BBC News Africa",
+            url: "https://www.youtube.com/watch?v=vCyQgTJ6WgA"
+        }
+    ],
+
+    "eth_7": [
+        {
+            type: "primary", tier: "medium",
+            title: "The rock-hewn churches of Lalibela (12th–13th century CE) — the Zagwe dynasty's own architectural and religious monument, built under King Lalibela",
+            publisher: "UNESCO World Heritage Centre",
+            url: "https://whc.unesco.org/en/list/18/"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Zagwe dynasty — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Zagwe_dynasty"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Kings and Emirs — History Of Africa with Zeinab Badawi [Episode 6]",
+            publisher: "BBC News Africa",
+            url: "https://www.youtube.com/watch?v=vCyQgTJ6WgA"
+        }
+    ],
+
+    "eth_8": [
+        {
+            type: "primary", tier: "high",
+            title: "The Kebra Nagast (\"The Glory of Kings,\" compiled c. 1314–22 CE) — the Ge'ez national epic asserting the Solomonic line's restoration under Yekuno Amlak in 1270",
+            publisher: "Internet Sacred Text Archive (Budge translation)",
+            url: "https://sacred-texts.com/afr/kn/index.htm"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Solomonic dynasty — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Solomonic_dynasty"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Kings and Emirs — History Of Africa with Zeinab Badawi [Episode 6]",
+            publisher: "BBC News Africa",
+            url: "https://www.youtube.com/watch?v=vCyQgTJ6WgA"
+        }
+    ],
+
+    "eth_9": [
+        {
+            type: "primary", tier: "high",
+            title: "Futuh al-Habasha (\"The Conquest of Abyssinia,\" c. 1540s) — Arab Faqih's firsthand Adal-side chronicle of the Ethiopian–Adal War",
+            publisher: "Wikipedia (sourced overview of the primary chronicle, with a full English translation by Stenhouse & Pankhurst, 2003)",
+            url: "https://en.wikipedia.org/wiki/Futuh_al-Habasha"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Ethiopian–Adal War — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Ethiopian%E2%80%93Adal_War"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Ottoman-Portuguese War in Africa - Ethiopian–Adal War Documentary",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=Q1BtO8W_ss4"
+        }
+    ],
+
+    "eth_10": [
+        {
+            type: "primary", tier: "medium",
+            title: "Abba Bahrey, Zenahu le Galla (\"History of the Galla,\" 1593) — a contemporary Ethiopian monk's account of the Oromo migrations (note: an outsider Christian source using the historically pejorative term \"Galla\"; UNESCO's own Gadaa system documentation is included below for the Oromo's self-described institution)",
+            publisher: "Wikipedia (sourced overview of the primary chronicle)",
+            url: "https://en.wikipedia.org/wiki/Bahrey"
+        },
+        {
+            type: "primary", tier: "high",
+            title: "Gada System nomination file — UNESCO's official Intangible Cultural Heritage documentation of the Oromo's own indigenous governance institution",
+            publisher: "UNESCO Intangible Cultural Heritage",
+            url: "https://ich.unesco.org/en/RL/gada-system-an-indigenous-democratic-socio-political-system-of-the-oromo-01164"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Oromo expansion — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Oromo_expansion"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Kings and Emirs — History Of Africa with Zeinab Badawi [Episode 6]",
+            publisher: "BBC News Africa",
+            url: "https://www.youtube.com/watch?v=vCyQgTJ6WgA"
+        }
+    ],
+
+    "eth_11": [
+        {
+            type: "primary", tier: "high",
+            title: "Fasil Ghebbi, Gondar (founded 1636 CE) — the fortress-capital built by Emperor Fasilides and his successors, the primary architectural record of the Gondarine period",
+            publisher: "UNESCO World Heritage Centre",
+            url: "https://whc.unesco.org/en/list/19/"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Gondarine period — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Fasilides"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The Era of Princes | Ethiopian History | African History",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=0_E5qxbHdOA"
+        }
+    ],
+
+    "eth_12": [
+        {
+            type: "primary", tier: "medium",
+            title: "Contemporary Gondarine royal chronicles of the Zemene Mesafint (\"Era of the Princes,\" 1769–1855) — the court records documenting the regional lords' domination of the figurehead Solomonic emperors",
+            publisher: "Wikipedia (sourced overview of the primary chronicles)",
+            url: "https://en.wikipedia.org/wiki/Zemene_Mesafint"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Zemene Mesafint — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Zemene_Mesafint"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Era of Princes | Ethiopian History | African History",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=0_E5qxbHdOA"
+        }
+    ],
+
+    "eth_13": [
+        {
+            type: "primary", tier: "high",
+            title: "Emperor Tewodros II's letters to Queen Victoria (1862 and his final letters of April 1868) — the emperor's own correspondence, now held in Ethiopia's National Archives",
+            publisher: "Wikipedia (sourced overview of the primary letters)",
+            url: "https://en.wikipedia.org/wiki/Tewodros_II"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Tewodros II — biography and reign",
+            publisher: "Encyclopaedia Britannica",
+            url: "https://www.britannica.com/biography/Tewodros-II"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Last Stand of Emperor Tewodros II | Battle of Magdala 1868 vs the British Empire",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=hUpekSZaZHo"
+        }
+    ],
+
+    "eth_14": [
+        {
+            type: "primary", tier: "high",
+            title: "The Treaty of Wuchale (2 May 1889) — full text of the treaty between Menelik II and Italy, whose disputed Article 17 precipitated the First Italo-Ethiopian War",
+            publisher: "Horn Affairs (full English text)",
+            url: "https://hornaffairs.com/2011/08/17/text-of-wuchale-treaty-1989-ethio-italian-treaty/"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Menelik II — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Menelik_II"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "How Ethiopia DEFEATED Italy at the Battle of Adwa in 1896",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=YMbRLBfX7ZA"
+        }
+    ],
+
+    "eth_15": [
+        {
+            type: "primary", tier: "high",
+            title: "Emperor Menelik II's national mobilization proclamation (September 1895) — the emperor's own call to arms that raised the army which won at Adwa",
+            publisher: "Wemezekir (translated by Paulos Milkias & Getachew Metaferia, from The Battle of Adwa)",
+            url: "https://wemezekir.blogspot.com/2014/09/meneliks-proclamation-of-september-1895.html"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Battle of Adwa — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Battle_of_Adwa"
+        },
+        {
+            type: "video", tier: "high",
+            title: "How Ethiopia DEFEATED Italy at the Battle of Adwa in 1896",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=YMbRLBfX7ZA"
+        }
+    ],
+
+    "eth_16": [
+        {
+            type: "primary", tier: "high",
+            title: "Haile Selassie's speech to the League of Nations (30 June 1936) — the emperor's own appeal condemning Italy's invasion and use of chemical weapons, delivered in Amharic",
+            publisher: "Library of Congress (digitised original, World Digital Library)",
+            url: "https://www.loc.gov/item/2021667904/"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Second Italo-Ethiopian War — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Second_Italo-Ethiopian_War"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Why Did Italy Attack Ethiopia Before World War Two?",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=6qfm9LGy1IM"
+        }
+    ],
+
+    "eth_17": [
+        {
+            type: "primary", tier: "high",
+            title: "The Charter of the Organization of African Unity (25 May 1963) — signed in Addis Ababa with Haile Selassie as the OAU's first chairman, marking Ethiopia's postwar restoration as a continental diplomatic leader",
+            publisher: "United Nations Treaty Series (full text)",
+            url: "https://treaties.un.org/doc/Publication/UNTS/Volume%20479/volume-479-I-6947-English.pdf"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Haile Selassie — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Haile_Selassie"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The ENTIRE Life of Emperor Haile Selassie – From Divine Ruler to Brutal Death (All Parts)",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=lS_cy87kITI"
+        }
+    ],
+
+    "eth_18": [
+        {
+            type: "primary", tier: "high",
+            title: "Proclamation No. 1 of 1974 — the Derg's own founding decree deposing Emperor Haile Selassie and establishing the Provisional Military Administrative Council",
+            publisher: "Wikipedia (sourced overview of the primary proclamation)",
+            url: "https://en.wikipedia.org/wiki/Derg"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Red Terror (Ethiopia) — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Red_Terror_(Ethiopia)"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Ethiopia 101: The Red Terror Years",
+            publisher: "YouTube",
+            url: "https://www.youtube.com/watch?v=bfQTpVFoL5s"
+        }
+    ],
+
+    "eth_19": [
+        {
+            type: "primary", tier: "high",
+            title: "The Constitution of the Federal Democratic Republic of Ethiopia (adopted 8 December 1994, in force 21 August 1995) — the founding legal document of Ethiopia's ethnic-federal system",
+            publisher: "Refworld / UNHCR (full official text)",
+            url: "https://www.refworld.org/legal/legislation/natlegbod/1995/en/18206"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "History of the Federal Democratic Republic of Ethiopia — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/History_of_the_Federal_Democratic_Republic_of_Ethiopia"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Inside Story: Life After Ethiopia's Meles Zenawi",
+            publisher: "Al Jazeera English",
+            url: "https://www.youtube.com/watch?v=9GZKLtywu3M"
+        }
+    ],
+
+    "eth_20": [
+        {
+            type: "primary", tier: "high",
+            title: "Agreement for Lasting Peace through a Permanent Cessation of Hostilities (\"the Pretoria Agreement,\" 2 November 2022) — the full official text of the accord between the Ethiopian federal government and the Tigray People's Liberation Front ending the Tigray War",
+            publisher: "United Nations Peacemaker (official archive)",
+            url: "https://peacemaker.un.org/en/node/10038"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Ethiopia–Tigray peace agreement — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Ethiopia%E2%80%93Tigray_peace_agreement"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Premiership of Abiy Ahmed — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Premiership_of_Abiy_Ahmed"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Abiy Ahmed Wins in Ethiopia as Multiple Conflicts Divide the Nation",
+            publisher: "Firstpost Africa",
+            url: "https://www.youtube.com/watch?v=IteysmN8eKA"
+        }
+    ],
+
     "mali_ghana_empire": [
         {
             type: "primary", tier: "high",

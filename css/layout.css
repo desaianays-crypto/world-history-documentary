@@ -676,6 +676,7 @@ button,
 
 #infoYearBadge {
     display: inline-block;
+    position: relative;
     font-size: 11px;
     font-weight: 700;
     letter-spacing: 2px;
@@ -688,10 +689,37 @@ button,
     transform: translateY(6px);
     transition: opacity 0.4s ease, transform 0.4s ease;
     flex-shrink: 0;
+    cursor: default;
 }
 #infoYearBadge.revealed {
     opacity: 1;
     transform: translateY(0);
+}
+#infoYearBadge::after {
+    content: attr(data-tooltip);
+    position:absolute;
+    background: var(--bg-dark);
+    color: var(--accent);
+    left: 10px;
+    padding: 6px 10px;
+    border-radius: 5px;
+    font-size: 11px;
+    font-weight:bolder !important;
+    letter-spacing: 0;
+    text-transform:capitalize;
+    white-space: nowrap;
+    z-index: 990 !important;
+    box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+    pointer-events:none;
+    opacity: 0;
+    transition: opacity 0.08s ease;
+}
+#infoYearBadge:hover::after {
+    align-self: center;
+    opacity: 1 !important;
+}
+#infoYearBadge[data-tooltip=""]::after {
+    display: none;
 }
 
 /* Top row: year badge + now playing side by side */
