@@ -4,12 +4,780 @@
 // so files can load in any order without clobbering each other.
 window.WHD_SOURCES = Object.assign(window.WHD_SOURCES || {}, {
 
+    "china_song": [
+        {
+            type: "primary", tier: "high",
+            title: "Wang Anshi's Memorial to Emperor Renzong (1058) — the reformer's own 10,000-character letter proposing the sweeping economic, military and educational reforms later enacted as the New Policies",
+            publisher: "Asia for Educators, Columbia University — full translated primary source document",
+            url: "https://afe.easia.columbia.edu/ps/cup/wang_anshi_crop_loans.pdf"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Song dynasty — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Song_dynasty"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Rise & Fall of the Song Dynasty | China's Golden Age Explained (Full Documentary)",
+            publisher: "YouTube (independent history documentary)",
+            url: "https://www.youtube.com/watch?v=Hl8jbWl91q4"
+        }
+    ],
+
+    "tang_collapse": [
+        {
+            type: "primary", tier: "high",
+            title: "Du Fu, Collected Poems (Du Gongbu Ji, poems written 755-763 CE) — the \"Poet-Sage's\" eyewitness verses on the An Lushan Rebellion, including \"Spring View\" written from captured Chang'an, earning his work the name \"poetic history\"",
+            publisher: "Chinese Text Project (ctext.org) — original Chinese text",
+            url: "https://ctext.org/wiki.pl?if=en&res=502877"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "An Lushan rebellion — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/An_Lushan_rebellion"
+        },
+        {
+            type: "video", tier: "high",
+            title: "An Lushan Rebellion - One of the Bloodiest Conflicts in History",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=YAvldyKxTJA"
+        }
+    ],
+
+    "china_tang": [
+        {
+            type: "primary", tier: "high",
+            title: "Wu Jing, Zhenguan Zhengyao (Essentials of Governance from the Zhenguan Era, compiled early 8th century) — a compendium of dialogues between Emperor Taizong and his ministers, the model of statecraft credited with the Tang dynasty's golden age",
+            publisher: "Internet Archive — Chinese text edition",
+            url: "https://archive.org/details/zhenguanzhengyao0000wuji"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Tang dynasty — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Tang_dynasty"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Emperor Taizong and the Rise of the Tang Dynasty",
+            publisher: "YouTube (independent history documentary)",
+            url: "https://www.youtube.com/watch?v=QN535vSrvGg"
+        }
+    ],
+
+    "china_sui": [
+        {
+            type: "primary", tier: "high",
+            title: "Suishu (Book of Sui, completed 636 CE) — the official Tang-compiled history of the Sui dynasty, covering Emperor Wen's reunification of China and Emperor Yang's Grand Canal construction",
+            publisher: "Chinese Text Project (ctext.org) — original Chinese text",
+            url: "https://ctext.org/wiki.pl?if=en&res=386407"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Sui dynasty — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Sui_dynasty"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The Sui Dynasty | History of China, EP6",
+            publisher: "YouTube (independent history documentary)",
+            url: "https://www.youtube.com/watch?v=t6SfDGVR6Fw"
+        }
+    ],
+
+    "china_three_kingdoms": [
+        {
+            type: "primary", tier: "high",
+            title: "Chen Shou, Sanguozhi (Records of the Three Kingdoms, late 3rd century CE) — the official historical text covering the fall of the Han and the rival Wei, Shu and Wu kingdoms, compiled by a historian who lived through the era",
+            publisher: "Chinese Text Project (ctext.org) — original Chinese text",
+            url: "https://ctext.org/wiki.pl?if=en&res=339496"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Three Kingdoms — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Three_Kingdoms"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Red Cliffs and Jiangling 208 - Three Kingdoms DOCUMENTARY",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=a1n0yNDODJI"
+        }
+    ],
+
+    "china_buddhism": [
+        {
+            type: "primary", tier: "high",
+            title: "Mouzi Lihuolun (\"Master Mou's Treatise Settling Doubts,\" late 2nd century CE) — the earliest surviving Chinese Buddhist apologetic text, a dialogue defending Buddhism against Confucian and Daoist criticism",
+            publisher: "Chinese Text Project (ctext.org) — original Chinese text",
+            url: "https://ctext.org/wiki.pl?chapter=50856&if=en"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Buddhism in China — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Buddhism_in_China"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Emperor Han Wudi - Ancient China's Greatest Conqueror",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=fEY1ljrE88M"
+        }
+    ],
+
+    "china_han": [
+        {
+            type: "primary", tier: "high",
+            title: "Ban Gu, Han Shu (Book of Han, completed c. 111 CE) — the official dynastic history covering the Western Han's golden age, including Emperor Wu's reign and imperial expansion",
+            publisher: "Chinese Text Project (ctext.org) — original Chinese text",
+            url: "https://ctext.org/han-shu"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Han dynasty — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Han_dynasty"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Emperor Han Wudi - Ancient China's Greatest Conqueror",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=fEY1ljrE88M"
+        }
+    ],
+
+    "silk_road": [
+        {
+            type: "primary", tier: "high",
+            title: "Sima Qian, Shiji, \"Biographies of Dawan\" (大宛列傳, c. 94 BCE) — the account of Zhang Qian's diplomatic missions to Central Asia (138-125 BCE), whose reports to Emperor Wu opened the Silk Road",
+            publisher: "Chinese Text Project (ctext.org) — original Chinese text",
+            url: "https://ctext.org/shiji/da-yuan-lie-zhuan/zh"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Silk Road — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Silk_Road"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Greco-Chinese War Over the Heavenly Horses",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=g6Rphg_lwwM"
+        }
+    ],
+
+    "qindynasty_fall": [
+        {
+            type: "primary", tier: "high",
+            title: "Sima Qian, Shiji, \"Hereditary House of Chen She\" (c. 94 BCE) — the near-contemporary account of the Chen Sheng and Wu Guang uprising (209 BCE) that ignited the rebellion which toppled the Qin dynasty",
+            publisher: "Chinese Text Project (ctext.org) — original Chinese text",
+            url: "https://ctext.org/shiji/chen-she-shi-jia/zh"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Chu-Han Contention — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Chu%E2%80%93Han_Contention"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Battle of Gaixia - Chu-Han Contention DOCUMENTARY",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=SyA94_5Z0_Y"
+        }
+    ],
+
+    "china_qin": [
+        {
+            type: "primary", tier: "high",
+            title: "The Terracotta Army and imperial stele inscriptions of Qin Shi Huang (c. 221-210 BCE) — the physical funerary army and the emperor's own mountain-inscriptions proclaiming his unification of China",
+            publisher: "Smarthistory — \"The Tomb of the First Emperor\"",
+            url: "https://smarthistory.org/tomb-first-emperor-qin/"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Qin Shi Huang — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Qin_Shi_Huang"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Qin Shi Huang: The First Emperor of China",
+            publisher: "Biographics",
+            url: "https://www.youtube.com/watch?v=b2FUmD1pyVM"
+        }
+    ],
+
+    "china_warring": [
+        {
+            type: "primary", tier: "high",
+            title: "Sun Tzu, The Art of War (Sunzi bingfa, 5th century BCE) — the essential military treatise from the Warring States era, still consulted by strategists worldwide",
+            publisher: "Chinese Text Project (ctext.org) — original Chinese text with English translation",
+            url: "https://ctext.org/art-of-war"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Warring States period — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Warring_States_period"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Earliest Chinese Armies - Armies and Tactics DOCUMENTARY",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=VG6C9x2Ve90"
+        }
+    ],
+
+    "china_confucius": [
+        {
+            type: "primary", tier: "high",
+            title: "The Analects (Lunyu, compiled by Confucius's disciples after his death in 479 BCE) — the essential record of Confucius's own sayings and teachings, the founding text of Confucianism",
+            publisher: "Chinese Text Project (ctext.org) — original Chinese text with James Legge's English translation",
+            url: "https://ctext.org/analects"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Confucius — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Confucius"
+        },
+        {
+            type: "video", tier: "high",
+            title: "2,000 Years of Chinese History! The Mandate of Heaven and Confucius: Crash Course World History #7",
+            publisher: "Crash Course",
+            url: "https://www.youtube.com/watch?v=ylWORyToTo4"
+        }
+    ],
+
+    "china_zhou": [
+        {
+            type: "primary", tier: "high",
+            title: "The Book of Documents (Shujing/Shangshu, compiled from Western Zhou proclamations) — the Zhou dynasty's own foundational political texts, including King Wu's justification for overthrowing the Shang and the doctrine of the Mandate of Heaven",
+            publisher: "Chinese Text Project (ctext.org) — original Chinese text with James Legge's English translation",
+            url: "https://ctext.org/shang-shu"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Zhou dynasty — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Zhou_dynasty"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The Ancient Empire | Animated History of China | Part 1",
+            publisher: "Suibhne",
+            url: "https://www.youtube.com/watch?v=YP1qjTzxQNE"
+        }
+    ],
+
+    "china_shang": [
+        {
+            type: "primary", tier: "high",
+            title: "Oracle bone inscriptions of the Shang dynasty (c. 1250-1050 BCE) — divination records inscribed on tortoise plastrons and ox scapulae, the earliest confirmed Chinese writing and the primary evidence for Shang history",
+            publisher: "Smarthistory",
+            url: "https://smarthistory.org/oracle-bone/"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Shang dynasty — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Shang_dynasty"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Earliest Chinese Armies - Armies and Tactics DOCUMENTARY",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=VG6C9x2Ve90"
+        }
+    ],
+
+    "china_xia": [
+        {
+            type: "primary", tier: "high",
+            title: "Sima Qian, Shiji (Records of the Grand Historian), \"Annals of Xia\" (夏本紀, c. 94 BCE) — the earliest systematic Chinese account of the legendary Xia dynasty and Yu the Great's flood-control labors",
+            publisher: "Chinese Text Project (ctext.org) — original Chinese text",
+            url: "https://ctext.org/shiji/xia-ben-ji/zh"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Xia dynasty — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Xia_dynasty"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The Ancient Empire | Animated History of China | Part 1",
+            publisher: "Suibhne",
+            url: "https://www.youtube.com/watch?v=YP1qjTzxQNE"
+        }
+    ],
+
+    "iran_21": [
+        {
+            type: "primary", tier: "high",
+            title: "The Joint Comprehensive Plan of Action (JCPOA, 14 July 2015) — the nuclear agreement between Iran and the P5+1 powers, later weakened by the 2018 US withdrawal",
+            publisher: "United Nations Digital Library — official UN Security Council document S/2015/544, full text",
+            url: "https://documents.un.org/doc/undoc/gen/n15/225/49/pdf/n1522549.pdf"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Politics of Iran — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Politics_of_Iran"
+        },
+        {
+            type: "video", tier: "high",
+            title: "What's the legacy of the Iran nuclear deal and its collapse? | Inside Story",
+            publisher: "Al Jazeera",
+            url: "https://www.youtube.com/watch?v=cdhfHU-xmJA"
+        }
+    ],
+
+    "iran_20": [
+        {
+            type: "primary", tier: "high",
+            title: "UN Security Council Resolution 598 (20 July 1987) — the ceasefire resolution that ultimately ended the Iran-Iraq War in August 1988",
+            publisher: "United Nations Digital Library — official resolution text",
+            url: "https://digitallibrary.un.org/record/137345?ln=en"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Iran-Iraq War — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Iran%E2%80%93Iraq_War"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Iran: The Making of a War",
+            publisher: "Al Jazeera",
+            url: "https://www.aljazeera.com/video/featured-documentaries/2026/8/1/iran-the-making-of-a-war"
+        }
+    ],
+
+    "iran_19": [
+        {
+            type: "primary", tier: "high",
+            title: "Ayatollah Ruhollah Khomeini, Address to the Nation (1 April 1979) — Khomeini's own proclamation of the Islamic Republic, declaring \"This is the first day of God's government\"",
+            publisher: "National Security Archive, George Washington University — full text",
+            url: "https://nsarchive.gwu.edu/document/28043-document-03-ayatollah-ruhollah-khomeini-address-nation-april-1-1979"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Iranian Revolution — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Iranian_Revolution"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Why Iranian Revolution Happened",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=06cDaT_wEYo"
+        }
+    ],
+
+    "iran_18": [
+        {
+            type: "primary", tier: "high",
+            title: "The Oil Nationalization Law (20 March 1951) — the Majles's own act nationalizing the Anglo-Iranian Oil Company, championed by Prime Minister Mohammad Mossadegh",
+            publisher: "The Mossadegh Project (mohammadmossadegh.com) — official English text",
+            url: "https://www.mohammadmossadegh.com/news/iran-oil-nationalization-law-1951/"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Mohammad Mossadegh — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Mohammad_Mossadegh"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Hidden Story Behind Iran's Coup of 1953",
+            publisher: "PBS",
+            url: "https://www.pbs.org/video/hidden-story-behind-irans-coup-1953-b8tzee"
+        }
+    ],
+
+    "iran_17": [
+        {
+            type: "primary", tier: "high",
+            title: "British Foreign Office correspondence on Reza Shah's forced abdication (September 1941) — official records of the Anglo-Soviet occupation and the end of Reza Shah's reign",
+            publisher: "Digital Library of the Middle East, Stanford University (UK National Archives Foreign Office files)",
+            url: "https://dlme-prod.stanford.edu/library/catalog.html?f%5Bcho_type_facet.en_ssim%5D%5B%5D=Text:Other+Texts&f%5Bcontributor%5D%5B%5D=Foreign+Office+(correspondent)&page=5&per_page=96&sort=relevance&view=gallery"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Reza Shah — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Reza_Shah"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Last Shah of Iran (BBC, 1982)",
+            publisher: "BBC",
+            url: "https://www.youtube.com/watch?v=1pmMgQno3Zw"
+        }
+    ],
+
+    "iran_16": [
+        {
+            type: "primary", tier: "high",
+            title: "The Persian Constitution of 1906 and its 1907 Supplementary Fundamental Laws — Iran's founding constitutional documents, establishing an elected National Consultative Assembly (Majlis)",
+            publisher: "Foundation for Iranian Studies — full English text",
+            url: "https://fis-iran.org/document/iran-1906-constitution/"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Persian Constitutional Revolution — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Persian_Constitutional_Revolution"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Why were the Iranian Empires so Successful?",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=Sk4z4tF9ku4"
+        }
+    ],
+
+    "iran_15": [
+        {
+            type: "primary", tier: "high",
+            title: "The Treaty of Turkmenchay (1828) — the peace treaty ending the Russo-Persian War of 1826-28, in which Qajar Iran ceded its remaining Caucasian territories to the Russian Empire",
+            publisher: "Wikisource — full English text",
+            url: "https://en.wikisource.org/wiki/Treaty_of_Turkmenchay"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Qajar dynasty — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Qajar_dynasty"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Why were the Iranian Empires so Successful?",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=Sk4z4tF9ku4"
+        }
+    ],
+
+    "iran_14": [
+        {
+            type: "primary", tier: "high",
+            title: "Carsten Niebuhr, Travels through Arabia, and other countries in the East (1774/1792) — a Danish explorer's firsthand account of Shiraz and Karim Khan Zand's court, visited in 1765",
+            publisher: "Internet Archive (Robert Heron English translation, 1792)",
+            url: "https://archive.org/details/bim_eighteenth-century_travels-through-arabia-_niebuhr-carsten_1792_1"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Zand dynasty — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Zand_dynasty"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Why were the Iranian Empires so Successful?",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=Sk4z4tF9ku4"
+        }
+    ],
+
+    "iran_13": [
+        {
+            type: "primary", tier: "high",
+            title: "Jonas Hanway, An Historical Account of the British Trade over the Caspian Sea, incl. The Revolutions of Persia (1753) — an English merchant's eyewitness account of Nader Shah's camp and reign",
+            publisher: "Internet Archive (1753 first edition)",
+            url: "https://archive.org/details/revolutionsofper00hanw"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Afsharid dynasty — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Afsharid_dynasty"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Nader Shah Attacks India - Sack of Delhi 1739",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=iLRTw8lpICU"
+        }
+    ],
+
+    "iran_12": [
+        {
+            type: "primary", tier: "high",
+            title: "Jean Chardin, Travels in Persia (published 1711) — a French jeweler's decade of firsthand observation of Safavid court life under Shah Abbas II and Shah Suleiman",
+            publisher: "Internet Archive (1927 English edition)",
+            url: "https://archive.org/details/travelsinpersia0000char"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Safavid Empire — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Safavid_Empire"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Ottoman Wars: Battles of Otranto 1480 and Chaldiran 1514 DOCUMENTARY",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=2On5JAMuu4A"
+        }
+    ],
+
+    "iran_11": [
+        {
+            type: "primary", tier: "high",
+            title: "Ruy González de Clavijo, Embassy to Tamerlane (1403–1406) — a Castilian ambassador's firsthand account of Timur's court at Samarkand",
+            publisher: "Internet Archive (Guy Le Strange translation, 1928)",
+            url: "https://archive.org/details/b31354932"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Timurid Empire — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Timurid_Empire"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Rise of Timur - War against Toqtamish - MONGOL INVASIONS DOCUMENTARY",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=y95sYUkQJuA"
+        }
+    ],
+
+    "iran_10": [
+        {
+            type: "primary", tier: "high",
+            title: "Ata-Malik Juvaini, Tarikh-i Jahangushay (History of the World Conqueror, completed by 1260 CE) — a Persian official's firsthand account of the Mongol conquest, written from within the Ilkhanid administration",
+            publisher: "Internet Archive (J.A. Boyle translation, 1958)",
+            url: "https://archive.org/details/historyoftheworl011691mbp"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Mongol invasion of the Khwarazmian Empire — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Mongol_invasion_of_the_Khwarazmian_Empire"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Mongols: Fall of Khwarezm - Battles of Parwan and Indus DOCUMENTARY",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=WjS1FbHLIxM"
+        }
+    ],
+
+    "iran_9": [
+        {
+            type: "primary", tier: "high",
+            title: "Nizam al-Mulk, Siyasatnama (Book of Government, 1086–1091 CE) — the Seljuk chief vizier's own treatise on statecraft and administration",
+            publisher: "Internet Archive (Hubert Darke translation)",
+            url: "https://archive.org/details/the-book-of-government-or-rules-for-kings-the-siyar-al-muluk-or-siyasat-nama"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Seljuk Empire — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Seljuk_Empire"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Rise of the Seljuk Empire - Nomadic Civilizations DOCUMENTARY",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=P79ECnISamo"
+        }
+    ],
+
+    "iran_8": [
+        {
+            type: "primary", tier: "high",
+            title: "Ferdowsi, Shahnameh (Book of Kings, completed 1010 CE) — composed under Samanid patronage during the Iranian Intermezzo, preserving pre-Islamic Persian history, myth and identity in New Persian",
+            publisher: "Internet Archive (Warner & Warner translation, 1905–1925)",
+            url: "https://archive.org/details/shahnama01firduoft"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Iranian Intermezzo — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Iranian_Intermezzo"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Why were the Iranian Empires so Successful?",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=Sk4z4tF9ku4"
+        }
+    ],
+
+    "iran_7": [
+        {
+            type: "primary", tier: "high",
+            title: "Al-Tabari, History of the Prophets and Kings (Ta'rikh al-Rusul wa'l-Muluk, c. 915 CE) — the standard early Islamic chronicle's detailed account of the conquest of Sasanian Persia",
+            publisher: "Internet Archive (complete 40-volume SUNY Press English translation)",
+            url: "https://archive.org/details/history-of-al-tabarri"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Muslim conquest of Persia — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Muslim_conquest_of_Persia"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Last Stand of the Sassanids - Battle of Nahavand 642 DOCUMENTARY",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=vK5YHnpL8Ek"
+        }
+    ],
+
+    "iran_6": [
+        {
+            type: "primary", tier: "high",
+            title: "Res Gestae Divi Saporis — Shapur I's own trilingual inscription at Naqsh-e Rustam recounting his victories over three Roman emperors",
+            publisher: "ToposText (English translation adapted from R.N. Frye's edition)",
+            url: "https://topostext.org/work/561"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Sasanian Empire — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Sasanian_Empire"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Byzantine – Sasanian War of 602–628 DOCUMENTARY",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=B8tavupAl5g"
+        }
+    ],
+
+    "iran_5": [
+        {
+            type: "primary", tier: "high",
+            title: "Plutarch, Life of Crassus (early 2nd century CE) — a near-contemporary Roman account of the catastrophic Battle of Carrhae (53 BCE) against the Parthians",
+            publisher: "Perseus Digital Library, Tufts University (Bernadotte Perrin translation)",
+            url: "https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:2008.01.0038"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Parthian Empire — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Parthian_Empire"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Parthian Army: Rome's Toughest Rival",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=8Rzc3OSrQLM"
+        }
+    ],
+
+    "iran_4": [
+        {
+            type: "primary", tier: "high",
+            title: "Arrian, Anabasis of Alexander (2nd century CE) — the fullest surviving account of Alexander's conquest of the Achaemenid Persian Empire, drawing on eyewitness sources",
+            publisher: "ToposText (E.J. Chinnock translation, 1884)",
+            url: "https://topostext.org/work/205"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Wars of Alexander the Great — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Wars_of_Alexander_the_Great"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Battle of Gaugamela 331 BC - Alexander the Great DOCUMENTARY",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=xwunu9gJyas"
+        }
+    ],
+
+    "iran_3": [
+        {
+            type: "primary", tier: "high",
+            title: "The Behistun Inscription (c. 522–486 BCE) — Darius I's own trilingual monumental account of his accession and suppression of rebellions across the Achaemenid Empire",
+            publisher: "Livius.org (L.W. King & R.C. Thompson translation, 1907)",
+            url: "https://www.livius.org/articles/place/behistun/behistun-3/"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Achaemenid Empire — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Achaemenid_Empire"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Cyrus the Great - Rise of the Achaemenid Empire",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=ZoH2UQZBaPY"
+        }
+    ],
+
+    "iran_2": [
+        {
+            type: "primary", tier: "high",
+            title: "Herodotus, Histories, Book 1 (c. 440 BCE) — the earliest connected narrative of the Medes, including the founding of the Median kingdom under Deioces",
+            publisher: "Perseus Digital Library, Tufts University (Greek text with English translation)",
+            url: "https://www.perseus.tufts.edu/hopper/text?doc=Perseus:text:1999.01.0126:book=1"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Medes — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Medes"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Why were the Iranian Empires so Successful?",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=Sk4z4tF9ku4"
+        }
+    ],
+
+    "iran_1": [
+        {
+            type: "primary", tier: "high",
+            title: "Stele of King Untash-Napirisha (c. 1340–1300 BCE) — a royal Elamite monument from Chogha Zanbil bearing the king's own dedicatory inscription",
+            publisher: "Musée du Louvre, Département des Antiquités orientales — official collections database",
+            url: "https://collections.louvre.fr/en/ark:/53355/cl010174440"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Elam — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Elam"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Why were the Iranian Empires so Successful?",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=Sk4z4tF9ku4"
+        }
+    ],
+
     "mughal": [
+        {
+            type: "primary", tier: "high",
+            title: "The Baburnama — Emperor Babur's own memoirs recounting his conquest of northern India and the founding of the Mughal Empire (1526)",
+            publisher: "Internet Archive (English translation)",
+            url: "https://archive.org/details/babur-nama-english"
+        },
         {
             type: "secondary", tier: "high",
             title: "Mughal Empire — overview",
             publisher: "Wikipedia",
             url: "https://en.wikipedia.org/wiki/Mughal_Empire"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Two Battles of Panipat - 1526 and 1556 - Mughal Empire DOCUMENTARY",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=ycv4gDXbm7s"
         }
     ],
 
@@ -25,15 +793,33 @@ window.WHD_SOURCES = Object.assign(window.WHD_SOURCES || {}, {
             title: "Ashoka — biography and reign",
             publisher: "Wikipedia",
             url: "https://en.wikipedia.org/wiki/Ashoka"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Ashoka the Great - Rise of the Mauryan Empire",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=Ed6UZtVTI64"
         }
     ],
 
     "buddha": [
         {
+            type: "primary", tier: "high",
+            title: "Mahāparinibbāna Sutta (Dīgha Nikāya 16) — the earliest canonical account of the Buddha's final months, death, and the distribution of his relics",
+            publisher: "SuttaCentral (Bhikkhu Sujato translation)",
+            url: "https://suttacentral.net/dn16/en/sujato"
+        },
+        {
             type: "secondary", tier: "high",
             title: "Gautama Buddha — life and teachings",
             publisher: "Wikipedia",
             url: "https://en.wikipedia.org/wiki/Gautama_Buddha"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Siddhartha and Ancient Buddhism - The Buddhist Expansion - World History - Part 1",
+            publisher: "Extra History",
+            url: "https://www.youtube.com/watch?v=jMX-YgdFwd4"
         }
     ],
 
@@ -85,8 +871,8 @@ window.WHD_SOURCES = Object.assign(window.WHD_SOURCES || {}, {
         {
             type: "primary", tier: "high",
             title: "The Inariyama Sword inscription (471 or 531 CE) — a 115-character gold-inlaid inscription naming the warrior Wowake and his service to King Wakatakeru (identified with Emperor Yūryaku), one of the era's few surviving contemporary texts",
-            publisher: "Wikipedia (sourced full inscription and translation by Murayama & Miller)",
-            url: "https://en.wikipedia.org/wiki/Inariyama_Sword"
+            publisher: "Google Arts & Culture, in partnership with the Museum of the Sakitama Ancient Burial Mounds (the sword's holding institution)",
+            url: "https://artsandculture.google.com/story/the-story-of-the-inariyama-sword-museum-of-the-sakitama-ancient-burial-mounds/-wVRNOAGEvhjLQ?hl=en"
         },
         {
             type: "secondary", tier: "high",
@@ -127,8 +913,8 @@ window.WHD_SOURCES = Object.assign(window.WHD_SOURCES || {}, {
         {
             type: "primary", tier: "high",
             title: "Emperor Shōmu's 743 CE proclamation ordering the construction of the Great Buddha (Daibutsu) at Tōdai-ji — the emperor's own decree declaring himself \"Servant of the Three Treasures\" and mobilising the nation's resources for the project",
-            publisher: "Wikipedia (sourced overview of the primary proclamation)",
-            url: "https://en.wikipedia.org/wiki/T%C5%8Ddai-ji"
+            publisher: "Smarthistory",
+            url: "https://smarthistory.org/todai-ji/"
         },
         {
             type: "secondary", tier: "high",
@@ -190,8 +976,8 @@ window.WHD_SOURCES = Object.assign(window.WHD_SOURCES || {}, {
         {
             type: "primary", tier: "high",
             title: "The Goseibai Shikimoku (\"Formulary of Adjudications,\" 1232 CE) — Japan's first samurai legal code, promulgated by regent Hōjō Yasutoki and remaining in effect for centuries",
-            publisher: "Wikipedia (sourced overview of the primary legal code)",
-            url: "https://en.wikipedia.org/wiki/Goseibai_Shikimoku"
+            publisher: "University of Tokyo Digital Archive Portal — digitized manuscript collection (Hozumi Nobushige Collection), including a 1343 copy",
+            url: "https://da.dl.itc.u-tokyo.ac.jp/portal/en/collection/goseibai"
         },
         {
             type: "secondary", tier: "high",
@@ -408,8 +1194,8 @@ window.WHD_SOURCES = Object.assign(window.WHD_SOURCES || {}, {
         {
             type: "primary", tier: "high",
             title: "The Plaza Accord (22 September 1985) — the joint agreement among Japan, the US, UK, France, and West Germany to depreciate the dollar, whose resulting yen appreciation and subsequent monetary easing are widely credited with fueling Japan's asset price bubble",
-            publisher: "Wikipedia (sourced overview of the primary agreement)",
-            url: "https://en.wikipedia.org/wiki/Plaza_Accord"
+            publisher: "G7 Information Centre, University of Toronto (full text of the announcement)",
+            url: "https://g7.utoronto.ca/finance/fm850922.htm"
         },
         {
             type: "secondary", tier: "high",
@@ -499,8 +1285,8 @@ window.WHD_SOURCES = Object.assign(window.WHD_SOURCES || {}, {
         {
             type: "primary", tier: "medium",
             title: "Đại Việt sử ký toàn thư (Complete Annals of Đại Việt, compiled by Ngô Sĩ Liên, 1479 CE) — the 15th-century chronicle that canonized the legendary Hùng Kings and the Kingdom of Văn Lang; a retrospective compilation of oral folklore, not a contemporary record, and modern historians treat its 18-king genealogy as euhemerized legend rather than verified history",
-            publisher: "Wikipedia (sourced overview of the primary chronicle)",
-            url: "https://en.wikipedia.org/wiki/%C4%90%E1%BA%A1i_Vi%E1%BB%87t_s%E1%BB%AD_k%C3%BD_to%C3%A0n_th%C6%B0"
+            publisher: "Viet Texts, University of Hawai'i at Mānoa (English translation by Liam C. Kelley, based on the 1697 Chính Hòa edition)",
+            url: "https://sites.google.com/hawaii.edu/viettexts/home"
         },
         {
             type: "secondary", tier: "high",
@@ -520,8 +1306,8 @@ window.WHD_SOURCES = Object.assign(window.WHD_SOURCES || {}, {
         {
             type: "primary", tier: "high",
             title: "Cổ Loa Citadel (founded traditionally c. 258 BCE) — the excavated spiral fortress capital of Âu Lạc, the only genuinely contemporary evidence for the kingdom, since no inscriptions or administrative records from Âu Lạc itself survive and even the existence of its king, An Dương Vương, is attested only in later Chinese and Vietnamese texts",
-            publisher: "Wikipedia (sourced overview of the primary archaeological site)",
-            url: "https://en.wikipedia.org/wiki/C%E1%BB%95_Loa_Citadel"
+            publisher: "Imperial Citadel of Thăng Long Heritage Conservation Centre (official site management authority)",
+            url: "https://hoangthanhthanglong.vn/en/di-chi-bai-men/555"
         },
         {
             type: "secondary", tier: "high",
@@ -540,9 +1326,9 @@ window.WHD_SOURCES = Object.assign(window.WHD_SOURCES || {}, {
     "vietnam_namviet": [
         {
             type: "primary", tier: "high",
-            title: "Sima Qian, Shiji (Records of the Grand Historian, c. 94 BCE) — the contemporary Han Chinese account of Zhao Tuo (Triệu Đà) and the founding of the kingdom of Nanyue (Nam Việt)",
-            publisher: "Wikipedia (sourced overview of the primary text)",
-            url: "https://en.wikipedia.org/wiki/Nanyue"
+            title: "Sima Qian, Shiji (Records of the Grand Historian), Chapter 113: Annals of Nanyue (c. 94 BCE) — the contemporary Han Chinese account of Zhao Tuo (Triệu Đà) and the founding of the kingdom of Nanyue (Nam Việt)",
+            publisher: "Chinese Text Project (original text with English chapter reference)",
+            url: "https://ctext.org/shiji"
         },
         {
             type: "secondary", tier: "high",
@@ -562,8 +1348,8 @@ window.WHD_SOURCES = Object.assign(window.WHD_SOURCES || {}, {
         {
             type: "primary", tier: "high",
             title: "The Western Han census of 2 CE for Jiaozhi Commandery — the Han dynasty's own administrative household count, recording 92,440 hearths and confirming Jiaozhi's status as the empire's most densely populated southern territory",
-            publisher: "Wikipedia (sourced overview of the primary census record)",
-            url: "https://en.wikipedia.org/wiki/Vietnam_under_Chinese_rule"
+            publisher: "Chinese Text Project (ctext.org) — Book of Han (漢書), Geography Records (地理志下)",
+            url: "https://ctext.org/han-shu/di-li-zhi-xia"
         },
         {
             type: "secondary", tier: "high",
@@ -582,9 +1368,9 @@ window.WHD_SOURCES = Object.assign(window.WHD_SOURCES || {}, {
     "vietnam_trungsisters": [
         {
             type: "primary", tier: "high",
-            title: "Hou Hanshu (Book of the Later Han, compiled by Fan Ye, early 5th century CE), Biographies of the Southern and Southwestern Barbarians — the principal surviving account of the Trưng Sisters' rebellion (note: no contemporary Lạc Việt inscription or record survives, making this Chinese imperial history the sole near-primary documentation of the uprising)",
-            publisher: "Wikipedia (sourced overview and translated excerpts of the primary chronicle)",
-            url: "https://en.wikipedia.org/wiki/Tr%C6%B0ng_sisters"
+            title: "Hou Hanshu (Book of the Later Han, compiled by Fan Ye, early 5th century CE), Chapter 86, \"Biographies of the Southern and Southwestern Barbarians\" — the principal surviving account of the Trưng Sisters' rebellion, quoted directly in translation (note: no contemporary Lạc Việt inscription or record survives, making this Chinese imperial history the sole near-primary documentation of the uprising)",
+            publisher: "New World Encyclopedia (direct quotation of the translated primary chronicle)",
+            url: "https://www.newworldencyclopedia.org/entry/Tr%C6%B0ng_Sisters"
         },
         {
             type: "secondary", tier: "high",
@@ -604,8 +1390,8 @@ window.WHD_SOURCES = Object.assign(window.WHD_SOURCES || {}, {
         {
             type: "primary", tier: "medium",
             title: "Records of Lý Bôn's rebellion and the Early Lý dynasty (544 CE) — the founding of Vạn Xuân, a rare period of de facto independence within the long centuries of Chinese domination that this scene spans",
-            publisher: "Wikipedia (sourced overview of the primary chronicle record)",
-            url: "https://en.wikipedia.org/wiki/L%C3%BD_B%C3%AD"
+            publisher: "Viet Texts, University of Hawai'i at Mānoa (English translation by Liam C. Kelley, Đại Việt sử ký toàn thư, Outer Annals ch. 4)",
+            url: "https://sites.google.com/hawaii.edu/viettexts/đvsktt-nk/đvsktt-nk-4"
         },
         {
             type: "secondary", tier: "high",
@@ -625,8 +1411,8 @@ window.WHD_SOURCES = Object.assign(window.WHD_SOURCES || {}, {
         {
             type: "primary", tier: "high",
             title: "The surviving iron-tipped stakes of the Battle of Bạch Đằng (938 CE) — the physical remains of Ngô Quyền's underwater stake trap, recovered and displayed at the Museum of History in Hanoi",
-            publisher: "Wikipedia (sourced overview of the primary archaeological artifacts)",
-            url: "https://en.wikipedia.org/wiki/Battle_of_B%E1%BA%A1ch_%C4%90%E1%BA%B1ng_(938)"
+            publisher: "Vietnam Maritime Archaeology Project Center (Bạch Đằng River research project documentation)",
+            url: "http://www.themua.org/vietnam/bdp.php"
         },
         {
             type: "secondary", tier: "high",
@@ -665,10 +1451,10 @@ window.WHD_SOURCES = Object.assign(window.WHD_SOURCES || {}, {
 
     "vietnam_tran": [
         {
-            type: "primary", tier: "medium",
-            title: "Trần-era administrative and legal records, continuing the Lý dynasty's Hình Thư legal tradition that would culminate in the Later Lê's Hồng Đức Code — the Trần court's own governance framework during its consolidation of Đại Việt",
-            publisher: "Wikipedia (sourced overview of Vietnamese dynastic law codification)",
-            url: "https://en.wikipedia.org/wiki/Tr%E1%BA%A7n_dynasty"
+            type: "primary", tier: "high",
+            title: "The Trần Temple complex (Nam Định) and its 1868-discovered stele inscription — the dynasty's own dynastic shrine, built on the site of Trần Hưng Đạo's family residence and continuously used for the imperial seal-opening ceremony the Trần court itself instituted in 1239",
+            publisher: "Vietnam Law Magazine (sourced description of the primary site and its inscriptions)",
+            url: "https://vietnamlawmagazine.vn/tran-temple-preserves-glorious-legacy-of-early-monarchs-78696.html"
         },
         {
             type: "secondary", tier: "high",
@@ -730,8 +1516,8 @@ window.WHD_SOURCES = Object.assign(window.WHD_SOURCES || {}, {
         {
             type: "primary", tier: "high",
             title: "The Hồng Đức Code (Quốc Triều Hình Luật, promulgated under Lê Thánh Tông, ratified ~1483 CE) — the Later Lê dynasty's own legal code, notable among East Asian law codes of its era for provisions recognizing women's property and inheritance rights",
-            publisher: "Wikipedia (sourced overview of the primary legal code)",
-            url: "https://en.wikipedia.org/wiki/Later_L%C3%AA_dynasty"
+            publisher: "Thư Viện Pháp Luật (Vietnam's Library of Legal Documents) — full text of Quốc Triều Hình Luật",
+            url: "https://cdndanluat.thuvienphapluat.vn/ls-file.ashx?__key=00.00.46.04.83/Quoctrieuhinhluat.pdf"
         },
         {
             type: "secondary", tier: "high",
@@ -749,10 +1535,10 @@ window.WHD_SOURCES = Object.assign(window.WHD_SOURCES || {}, {
 
     "vietnam_trinh_nguyen": [
         {
-            type: "primary", tier: "medium",
-            title: "The de facto partition at the Gianh River (established through the Trịnh–Nguyễn Wars, 1627–1672) — the territorial line the two rival lordly houses maintained for over a century while both nominally served the same Lê emperor",
-            publisher: "Wikipedia (sourced overview of the primary territorial and administrative record)",
-            url: "https://en.wikipedia.org/wiki/Tr%E1%BB%8Bnh%E2%80%93Nguy%E1%BB%85n_War"
+            type: "primary", tier: "high",
+            title: "Alexandre de Rhodes's own accounts of Đàng Ngoài (Tonkin, under the Trịnh) and Đàng Trong (Cochinchina, under the Nguyễn), written from his direct residence in both courts (1624–1630, 1640–1645) — a contemporary Jesuit missionary's firsthand description of the divided realm and its rival lords",
+            publisher: "Encyclopedia.com (sourced overview quoting de Rhodes's own missionary writings)",
+            url: "https://www.encyclopedia.com/religion/encyclopedias-almanacs-transcripts-and-maps/rhodes-alexandre-de"
         },
         {
             type: "secondary", tier: "high",
@@ -771,9 +1557,9 @@ window.WHD_SOURCES = Object.assign(window.WHD_SOURCES || {}, {
     "vietnam_tayson": [
         {
             type: "primary", tier: "high",
-            title: "Emperor Quang Trung's (Nguyễn Huệ's) proclamation to his troops before the Battle of Ngọc Hồi–Đống Đa (26 November 1788 CE) — his own address rallying 100,000 soldiers for the surprise Tết offensive that routed the invading Qing army",
-            publisher: "Wikipedia (sourced overview of the primary proclamation and campaign)",
-            url: "https://en.wikipedia.org/wiki/T%C3%A2y_S%C6%A1n_wars"
+            title: "Emperor Quang Trung's (Nguyễn Huệ's) own Chiếu lên ngôi (Coronation Edict, 22 December 1788) — his own words on assuming the throne before marching north to meet the Qing invasion, quoted at the Đống Đa Mound national historic site he founded through his victory",
+            publisher: "Đống Đa Cultural Park (official site of the historic battlefield and monument)",
+            url: "https://godongda.vn/di-tich/reliefs"
         },
         {
             type: "secondary", tier: "high",
@@ -793,8 +1579,8 @@ window.WHD_SOURCES = Object.assign(window.WHD_SOURCES || {}, {
         {
             type: "primary", tier: "high",
             title: "The Hoàng Việt Luật Lệ (\"Gia Long Code,\" 1815 CE) — Emperor Gia Long's own legal code, commissioned to consolidate the newly unified Nguyễn state on Qing- and Hồng Đức-derived legal foundations",
-            publisher: "Wikipedia (sourced overview of the primary legal code)",
-            url: "https://en.wikipedia.org/wiki/Nguy%E1%BB%85n_dynasty"
+            publisher: "Vietnamese Nôm Preservation Foundation (digitized original woodblock text, National Library of Vietnam collection)",
+            url: "https://lib.nomfoundation.org/collection/1/volume/221/"
         },
         {
             type: "secondary", tier: "high",
