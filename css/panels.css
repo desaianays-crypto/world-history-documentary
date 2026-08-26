@@ -1155,6 +1155,14 @@ body.accent-is-light .settings-btn-caution:hover { color: #111; }
     color: #e8e8e8;
     margin-bottom: 5px;
 }
+
+.help-d {
+    font-size: 13px;
+    font-weight: 700;
+    color: rgb(255, 170, 0);
+    margin-bottom: 5px;
+}
+
 .help-a {
     font-size: 12px;
     color: rgba(255,255,255,0.5);

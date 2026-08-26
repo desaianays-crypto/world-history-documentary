@@ -4,6 +4,384 @@
 // so files can load in any order without clobbering each other.
 window.WHD_SOURCES = Object.assign(window.WHD_SOURCES || {}, {
 
+    "indus_early": [
+        {
+            type: "primary", tier: "high",
+            title: "Steatite seal with unicorn motif and Indus script — a Mature Harappan stamp seal from the Indus Valley Civilization, held in the British Museum's South Asian collection",
+            publisher: "The British Museum — collection object page",
+            url: "https://www.britishmuseum.org/collection/object/A_1947-0416-6"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Indus Valley Civilisation — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Indus_Valley_Civilisation"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Indus Valley Civilization: Crash Course World History #2",
+            publisher: "Crash Course",
+            url: "https://www.youtube.com/watch?v=n7ndRwqJYDM"
+        }
+    ],
+
+    "reform_opening": [
+        {
+            type: "primary", tier: "high",
+            title: "Deng Xiaoping, \"The Present Situation and the Tasks Before Us\" (speech, 16 January 1980) — Deng's own account, delivered just over a year after the Third Plenum, of the political line guiding China's reform and opening-up",
+            publisher: "Asia for Educators, Columbia University — translated primary source document",
+            url: "https://afe.easia.columbia.edu/ps/china/deng_xiaoping_present_situation.pdf"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Reform and opening up — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Reform_and_opening_up"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "China's Greatest Leader - Deng Xiaoping Documentary",
+            publisher: "YouTube (independent history documentary)",
+            url: "https://www.youtube.com/watch?v=AVD0T5k3sP8"
+        }
+    ],
+
+    "cultural_revolution": [
+        {
+            type: "primary", tier: "high",
+            title: "Circular of the Central Committee of the Chinese Communist Party Concerning the Great Proletarian Cultural Revolution (the \"May 16 Notification,\" 16 May 1966) — the founding directive that launched the Cultural Revolution",
+            publisher: "Marxists Internet Archive — translated primary source document collection",
+            url: "https://www.marxists.org/subject/china/events/cultural-revolution/index.htm"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Cultural Revolution — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Cultural_Revolution"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "China's Cultural Revolution: The Full Story",
+            publisher: "YouTube (independent history documentary)",
+            url: "https://www.youtube.com/watch?v=8jEMlFCaI04"
+        }
+    ],
+
+    "great_leap_forward": [
+        {
+            type: "primary", tier: "high",
+            title: "Excerpt from the Unedited Translation of Mao Zedong's Speech at the Moscow Conference of Communist and Workers' Parties (18 November 1957) — Mao's own words on the eve of the Great Leap Forward, laying out the ambitions that would drive the campaign",
+            publisher: "Wilson Center Digital Archive — translated archival document",
+            url: "https://digitalarchive.wilsoncenter.org/document/excerpt-unedited-translation-mao-zedongs-speech-moscow-conference-communist-and-workers"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Great Leap Forward — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Great_Leap_Forward"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Mao's Great Famine",
+            publisher: "YouTube (independent history documentary)",
+            url: "https://www.youtube.com/watch?v=6eurHPpkgfA"
+        }
+    ],
+
+    "china_prc": [
+        {
+            type: "primary", tier: "high",
+            title: "Mao Zedong's Proclamation of the People's Republic of China (1 October 1949) — the full translated text of Mao's founding address from Tiananmen, as published in the People's Daily the following day",
+            publisher: "Alpha History — translated primary source text",
+            url: "https://alphahistory.com/chineserevolution/mao-declares-new-nation-1949/"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Proclamation of the People's Republic of China — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Proclamation_of_the_People%27s_Republic_of_China"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The Founding of the People's Republic of China",
+            publisher: "YouTube (independent history documentary)",
+            url: "https://www.youtube.com/watch?v=-uut994o2YE"
+        }
+    ],
+
+    "china_civil": [
+        {
+            type: "primary", tier: "high",
+            title: "Press Release Issued by General Chou En-lai (Zhou Enlai), 6 June 1946 — a CCP statement during the Marshall Mission negotiations over the Manchuria ceasefire, shortly before civil war resumed in full",
+            publisher: "Foreign Relations of the United States (FRUS), Office of the Historian, U.S. Department of State — original diplomatic archive",
+            url: "https://history.state.gov/historicaldocuments/frus1946v09/d512"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Chinese Civil War — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Chinese_Civil_War"
+        },
+        {
+            type: "video", tier: "high",
+            title: "The Chinese Civil War 1945-1949 (Documentary)",
+            publisher: "Real Time History",
+            url: "https://www.youtube.com/watch?v=7slhD9PmxII"
+        }
+    ],
+
+    "sino_japanese_war": [
+        {
+            type: "primary", tier: "high",
+            title: "Aide Memoire: The Marco Polo Bridge Incident (Lukouchiao Incident), 7 July 1937 — treaty background, factual background, and chronological summary of the incident that triggered full-scale war between Japan and China",
+            publisher: "International Military Tribunal for the Far East Digital Collection, University of Virginia School of Law — original tribunal document",
+            url: "https://imtfe.law.virginia.edu/collections/tavenner/5/2/aide-memoirs-marco-polo-bridge-incident-or-lukouchiao-incident-7-july-1937"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Second Sino-Japanese War — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Second_Sino-Japanese_War"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Second Sino-Japanese War (1937–1945)",
+            publisher: "YouTube (independent history documentary)",
+            url: "https://www.youtube.com/watch?v=62lGbrxeLvg"
+        }
+    ],
+
+    "long_march": [
+        {
+            type: "primary", tier: "high",
+            title: "Edgar Snow's eyewitness account of the Long March (1937) — the American journalist's firsthand narrative from Red Star Over China, based on interviews with Mao Zedong and other Communist leaders shortly after the march ended",
+            publisher: "Asia for Educators, Columbia University — primary source excerpt",
+            url: "https://afe.easia.columbia.edu/special/china_1900_mao_march.htm"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Long March — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Long_March"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Mao's Art of War: The Long March and the Chinese Civil War",
+            publisher: "Real Time History",
+            url: "https://www.youtube.com/watch?v=bq66pBjvuNw"
+        }
+    ],
+
+    "ccp_foundation": [
+        {
+            type: "primary", tier: "high",
+            title: "Manifesto of the Chinese Communist Party (November 1920) — the Party's earliest programmatic manifesto, circulated internally among founding members ahead of the 1921 First Congress",
+            publisher: "China Copyright and Media (translated primary text; original Chinese manuscript is lost, translated here from the surviving English version)",
+            url: "https://chinacopyrightandmedia.wordpress.com/1920/11/01/manifesto-of-the-chinese-communist-party/"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "1st National Congress of the Chinese Communist Party — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/1st_National_Congress_of_the_Chinese_Communist_Party"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "100 Years Of Chinese Communist Party: Its Mark On Modern China",
+            publisher: "CNA Documentary",
+            url: "https://www.youtube.com/watch?v=GpPIkoldPcU"
+        }
+    ],
+
+    "may_fourth": [
+        {
+            type: "primary", tier: "high",
+            title: "Extracts from a message from Chinese students who studied overseas to the Minister of Great Britain, 7 May 1919 — a contemporary appeal from Chinese students protesting the Shandong settlement",
+            publisher: "The National Archives (UK) — original archival document (FO 608/210/3)",
+            url: "https://www.nationalarchives.gov.uk/education/resources/may-fourth-movement-1919/may-fourth-movement-1919-source-4a/"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "May Fourth Movement — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/May_Fourth_Movement"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The May Fourth Movement of 1919",
+            publisher: "YouTube (independent history documentary)",
+            url: "https://www.youtube.com/watch?v=HWh9EmfJUYs"
+        }
+    ],
+
+    "warlord_era": [
+        {
+            type: "primary", tier: "high",
+            title: "The Twenty-One Demands (18 January 1915) — the full text of Japan's secret ultimatum to Yuan Shikai's Beiyang government, whose fallout helped destabilize the young Republic and set the stage for the Warlord Era",
+            publisher: "World War I Document Archive, Brigham Young University — full translated text",
+            url: "https://net.lib.byu.edu/~rdh7/wwi/comment/chinawwi/ChinaA2.htm"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Warlord Era — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Warlord_Era"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "China's Warlord Era & the Northern Expedition | Full Documentary",
+            publisher: "YouTube (independent history documentary)",
+            url: "https://www.youtube.com/watch?v=aAm-1N_wHXs"
+        }
+    ],
+
+    "china_1911": [
+        {
+            type: "primary", tier: "high",
+            title: "Sun Yat-sen, \"The Three Stages of Revolution\" — from A Program of National Reconstruction (1918), Sun's own account of the revolutionary program that guided the 1911 overthrow of the Qing and the founding of the Republic",
+            publisher: "Asia for Educators, Columbia University — translated primary source document",
+            url: "https://afe.easia.columbia.edu/ps/cup/sun_yatsen_revolution.pdf"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Xinhai Revolution — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Xinhai_Revolution"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The Xinhai Revolution of 1911: Fall of the Qing Dynasty",
+            publisher: "YouTube (independent history documentary)",
+            url: "https://www.youtube.com/watch?v=Mnk-nME2LIw"
+        }
+    ],
+
+    "china_opium": [
+        {
+            type: "primary", tier: "high",
+            title: "Treaty of Nanking (29 August 1842) — the full text of the treaty ending the First Opium War, ceding Hong Kong and opening five treaty ports to Britain",
+            publisher: "USC US-China Institute — full treaty text",
+            url: "https://china.usc.edu/node/20462"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Opium Wars — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Opium_Wars"
+        },
+        {
+            type: "video", tier: "high",
+            title: "Jardine-Matheson: How Opium Wars Founded Hong Kong",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=mHu-msqcrnk"
+        }
+    ],
+
+    "china_qing": [
+        {
+            type: "primary", tier: "high",
+            title: "Kangxi's Valedictory Edict (1717) — the Kangxi Emperor's own account, late in his 61-year reign, of how the Qing dynasty won the Mandate of Heaven from the fallen Ming",
+            publisher: "University of Delaware, Department of History — translated primary source document",
+            url: "http://www1.udel.edu/History-old/figal/Hist104/assets/pdf/readings/05kangxivaledict.pdf"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Qing dynasty — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Qing_dynasty"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "How the Manchu Conquered China: The Rise of the Qing Dynasty",
+            publisher: "YouTube (independent history documentary)",
+            url: "https://www.youtube.com/watch?v=gTV8YSilPEo"
+        }
+    ],
+
+    "china_ming": [
+        {
+            type: "primary", tier: "high",
+            title: "An Imperial Edict Restraining Officials from Evil — a proclamation of the Hongwu Emperor (Zhu Yuanzhang), founder of the Ming dynasty, warning his civil and military officials against corruption",
+            publisher: "Asia for Educators, Columbia University — translated primary source document",
+            url: "https://afe.easia.columbia.edu/ps/china/restraining_officials.pdf"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Ming dynasty — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Ming_dynasty"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Founding the Ming Dynasty: Zhu Yuanzhang, Emperor Hongwu",
+            publisher: "YouTube (independent history documentary)",
+            url: "https://www.youtube.com/watch?v=M5r_TUgtqBQ"
+        }
+    ],
+
+    "china_yuan": [
+        {
+            type: "primary", tier: "high",
+            title: "Yuanshi (元史, History of Yuan, compiled 1370), Annals of Emperor Shizu (世祖本紀), Chapter 4 — the official Ming-era dynastic history's opening chapter on Kublai Khan's reign as founder of the Yuan dynasty",
+            publisher: "Wikisource (Chinese) — original classical Chinese text",
+            url: "https://zh.wikisource.org/wiki/%E5%85%83%E5%8F%B2/%E5%8D%B7004"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Yuan dynasty — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Yuan_dynasty"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "Kublai Khan: The Mongol Emperor of China",
+            publisher: "YouTube (independent history documentary)",
+            url: "https://www.youtube.com/watch?v=1jDpca_Vlpk"
+        }
+    ],
+
+    "mongol_china": [
+        {
+            type: "primary", tier: "high",
+            title: "Marco Polo, The Glories of Kinsay (Hangzhou) — from The Book of Ser Marco Polo the Venetian (c. 1300), the Venetian traveler's eyewitness description of the great southern Chinese city under Yuan Mongol rule",
+            publisher: "Internet History Sourcebooks Project, Fordham University",
+            url: "https://sourcebooks.fordham.edu/source/polo-kinsay.asp"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Mongol conquest of China — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Mongol_conquest_of_China"
+        },
+        {
+            type: "video", tier: "high",
+            title: "How the Chinese Defended Against the Mongols",
+            publisher: "Kings and Generals",
+            url: "https://www.youtube.com/watch?v=RmaVP1n3Ogk"
+        }
+    ],
+
+    "song_jin_war": [
+        {
+            type: "primary", tier: "high",
+            title: "The Accounts of Jingkang (靖康稗史, compiled shortly after 1127) — a compilation of seven contemporary eyewitness records of the Jingkang Incident, when Jurchen Jin forces sacked Kaifeng and captured two Song emperors",
+            publisher: "Chinese Text Project (ctext.org) — original Chinese text with annotations (箋証)",
+            url: "https://ctext.org/wiki.pl?if=gb&chapter=270398&remap=gb"
+        },
+        {
+            type: "secondary", tier: "high",
+            title: "Jingkang incident — overview",
+            publisher: "Wikipedia",
+            url: "https://en.wikipedia.org/wiki/Jingkang_incident"
+        },
+        {
+            type: "video", tier: "medium",
+            title: "The Rise and Fall of the Jurchens & Identity Politics As Imperial Policy - Jin Dynasty History",
+            publisher: "YouTube (independent history documentary)",
+            url: "https://www.youtube.com/watch?v=8bz1upxfCEY"
+        }
+    ],
+
     "china_song": [
         {
             type: "primary", tier: "high",
