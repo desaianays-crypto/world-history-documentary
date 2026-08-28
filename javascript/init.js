@@ -20,14 +20,10 @@ setTimeout(() => {
     map.invalidateSize();
 }, 300);
 
-L.tileLayer(
-    "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-    {
-        subdomains: "abcd",
-        attribution: "© OpenStreetMap © CARTO",
-        opacity: 0.95
-    }
-).addTo(map);
+_activeTileLayerRef = L.maplibreGL({
+    style: MAP_TILES.light,
+    attribution: "© OpenStreetMap © CARTO"
+}).addTo(map);
 
 const bgm = document.getElementById("bgm");
 

@@ -351,12 +351,23 @@ function syncCustomSelects(s) {
         });
 }
 
+// CARTO now requires a free API key on its basemap endpoints — requests
+// without one still work but get a repeated "API KEY REQUIRED" watermark baked
+// into the tiles. Get a free key (covers 5M tile requests/month) at
+// https://carto.com/basemaps/apikey/ and paste it here.
+const CARTO_API_KEY = "";
+const _cartoKeyParam = CARTO_API_KEY ? `?key=${CARTO_API_KEY}` : "";
+
+// light/dark/voyager are now MapLibre GL vector style JSON (rendered via the
+// maplibre-gl-leaflet plugin — see applyMapTile), not raster tile URL templates.
+// satellite has no CARTO vector equivalent, so it stays a plain Leaflet raster layer.
 const MAP_TILES = {
-    light:     "https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png",
-    dark:      "https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png",
-    voyager:   "https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png",
+    light:     `https://basemaps.cartocdn.com/gl/positron-gl-style/style.json${_cartoKeyParam}`,
+    dark:      `https://basemaps.cartocdn.com/gl/dark-matter-gl-style/style.json${_cartoKeyParam}`,
+    voyager:   `https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json${_cartoKeyParam}`,
     satellite: "https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}"
 };
+const MAP_TILES_IS_VECTOR = { light: true, dark: true, voyager: true, satellite: false };
 
 let currentTileLayer = null;
 let settingsCrossfade = 1400;

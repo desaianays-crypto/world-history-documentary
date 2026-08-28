@@ -1,11 +1,17 @@
 function applyMapTile(style) {
     const url = MAP_TILES[style] || MAP_TILES.light;
+    const isVector = MAP_TILES_IS_VECTOR[style] ?? true;
     if (_activeTileLayerRef) { try { map.removeLayer(_activeTileLayerRef); } catch(e) {} }
-    _activeTileLayerRef = L.tileLayer(url, {
-        subdomains: "abcd",
-        attribution: "© OpenStreetMap © CARTO",
-        opacity: 0.95
-    }).addTo(map);
+    _activeTileLayerRef = isVector
+        ? L.maplibreGL({
+              style: url,
+              attribution: "© OpenStreetMap © CARTO"
+          }).addTo(map)
+        : L.tileLayer(url, {
+              subdomains: "abcd",
+              attribution: "© OpenStreetMap © CARTO",
+              opacity: 0.95
+          }).addTo(map);
     const ep = map.getPane("empirePane");
     if (ep) ep.style.zIndex = 250;
 }
